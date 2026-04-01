@@ -2,7 +2,7 @@
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
-async function guardarPersonaje() {
+export async function guardarPersonaje() {
 
     try {
         const respuesta = await fetch(url, {
@@ -23,16 +23,14 @@ async function guardarPersonaje() {
         });
 
         if (!respuesta.ok) {
-            console.log("Error en la respuesta de la API");
-            return; //se detiene la ejecución de la función si da error
-        }   else {
-                console.log("\nUsuario Nuevo Agregado\nRespuesta del servidor:\n");
-                console.log("Status code: ",respuesta.status, " Status Text: ", respuesta.statusText, "\n");
-            }
+            throw new Error(`Error en fetch: ${respuesta.status} ${respuesta.statusText}`);
         }
-     catch (error) {
+
+        console.log("\nUsuario Nuevo Agregado\nRespuesta del servidor:");
+        console.log("Status code: ", respuesta.status, " Status Text: ", respuesta.statusText, "\n");
+        
+
+    } catch (error) {
         console.log("Error en POST a la API: ", error);
     }
 }
-
-guardarPersonaje()
