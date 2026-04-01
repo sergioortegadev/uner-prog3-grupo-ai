@@ -1,4 +1,4 @@
-import { writeData } from './src/utils/fileHandler.js';
+import { writeJsonData } from './src/utils/fileHandler.js';
 import {guardarPersonaje,obtenerPersonajePorId, obtenerPersonajes} from './src/api/index.js';
 import { addToEnd } from './src/fs/addToEnd.js';
 
@@ -20,7 +20,7 @@ const main = async () => {
         // a) Recuperar la información de todos los personajes (GET) 
         const {data: personajes} = await obtenerPersonajes();
         // y persistirla en un archivo JSON.
-        await writeData(personajes);
+        await writeJsonData(personajes);
         // b) Agregar un nuevo personaje (POST).
         await guardarPersonaje()
         // c) Buscar la información de un determinado personaje, utilizando un "id" como parámetro GET

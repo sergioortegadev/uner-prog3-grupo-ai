@@ -25,13 +25,14 @@ export const fileHandler = (response, method) => {
 }
 
 /**
+ * @param {string} [path] - Ruta opcional (por defecto usa DATA_PATH)
  * @throws {NodeJS.ErrnoException} Si el archivo no existe o hay error de permisos
  * @throws {SyntaxError} Si el JSON está mal formado
  * @returns {Promise<Array<Object>>} array de objetos
  */
-export const readData = async () => {
+export const readJsonData = async (path = DATA_PATH) => {
     try {
-        const content = await readFile(DATA_PATH, 'utf-8');
+        const content = await readFile(path, 'utf-8');
         const parsed = JSON.parse(content);
         // Validar que sea un array
         return Array.isArray(parsed) ? parsed : [];
@@ -49,7 +50,7 @@ export const readData = async () => {
  * @param {string} [path] - Ruta opcional (por defecto usa DATA_PATH)
  * @throws {NodeJS.ErrnoException} Si hay error de permisos
  */
-export const writeData = async (data, path = DATA_PATH) => {
+export const writeJsonData = async (data, path = DATA_PATH) => {
     // Crear el directorio si no existe
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, JSON.stringify(data, null, 2), 'utf-8');
