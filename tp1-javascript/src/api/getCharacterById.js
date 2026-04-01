@@ -2,7 +2,7 @@
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
-async function obtenerPersonajePorId(id) {
+export async function obtenerPersonajePorId(id) {
     try {
         const respuesta = await fetch(`${url}/${id}`);
 
@@ -24,5 +24,3 @@ async function obtenerPersonajePorId(id) {
         console.log("Error de la solicitud: ", error);
     }
 }
-
-obtenerPersonajePorId(3)

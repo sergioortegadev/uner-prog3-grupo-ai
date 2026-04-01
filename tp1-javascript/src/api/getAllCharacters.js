@@ -1,16 +1,14 @@
 // Ejercicio 1 a
 
-import { fileHandler } from "../utils/fileHandler.js";
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
-async function obtenerPersonajes() {
+export async function obtenerPersonajes() {
     try {
         const respuesta = await fetch(url);
 
         if (!respuesta.ok) {
-            console.log("Error en fetch a la API");
-            return {}; 
+            throw new Error(`Error en fetch: ${respuesta.status} ${respuesta.statusText}`);
         }
 
         const respuestaJSON = await respuesta.json(); 
@@ -26,5 +24,3 @@ async function obtenerPersonajes() {
         console.log("Error de la solicitud: ", error);
     }
 }
-
-fileHandler(await obtenerPersonajes(), 'GET')
