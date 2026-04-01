@@ -46,12 +46,13 @@ export const readData = async () => {
 
 /**
  * @param {Array<Object>} data a guardar
+ * @param {string} [path] - Ruta opcional (por defecto usa DATA_PATH)
  * @throws {NodeJS.ErrnoException} Si hay error de permisos
  */
-export const writeData = async (data) => {
+export const writeData = async (data, path = DATA_PATH) => {
     // Crear el directorio si no existe
-    await mkdir(dirname(DATA_PATH), { recursive: true });
-    await writeFile(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(path, JSON.stringify(data, null, 2), 'utf-8');
 };
 
 export { DATA_PATH };
