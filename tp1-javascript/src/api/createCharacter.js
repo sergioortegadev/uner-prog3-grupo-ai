@@ -1,10 +1,10 @@
-// Ejercicio 1 b
+// Crea un nuevo personaje vía POST /Characters
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
-export async function guardarPersonaje() {
+export async function createCharacter() {
   try {
-    const respuesta = await fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,12 +21,12 @@ export async function guardarPersonaje() {
       }),
     });
 
-    if (!respuesta.ok) {
-      throw new Error(`Error en fetch: ${respuesta.status} ${respuesta.statusText}`);
+    if (!response.ok) {
+      throw new Error(`Error en fetch: ${response.status} ${response.statusText}`);
     }
 
     console.log("\nUsuario Nuevo Agregado\nRespuesta del servidor (POST):");
-    console.log("Status code: ", respuesta.status, " Status Text: ", respuesta.statusText, "\n");
+    console.log("Status code: ", response.status, " Status Text: ", response.statusText, "\n");
   } catch (error) {
     console.log("Error en POST a la API: ", error);
   }

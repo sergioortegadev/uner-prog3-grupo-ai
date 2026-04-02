@@ -85,7 +85,7 @@ node main.js
 |---------|-------------|
 | `getAllCharacters()` | Obtiene todos los personajes y los persiste en `characters.json` |
 | `getCharacterById(id)` | Busca un personaje por ID |
-| `createCharacter(data)` | Agrega un nuevo personaje vía POST |
+| `createCharacter()` | Agrega un nuevo personaje vía POST |
 
 ### Parte 2 — File System
 
