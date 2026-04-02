@@ -69,6 +69,8 @@ git clone https://github.com/sergioortegadev/uner-prog3-grupo-ai.git
 cd tp1-javascript
 
 # 3. Ejecutar (no requiere npm install)
+npm start
+# o bien
 node main.js
 ```
 
