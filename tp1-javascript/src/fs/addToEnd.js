@@ -1,6 +1,11 @@
 import { readJsonData, writeJsonData } from "../utils/fileHandler.js";
+import { isValidCharacter } from "../utils/validators.js";
 
 export const addToEnd = async (character) => {
+  if (!isValidCharacter(character)) {
+    throw new Error("Datos de personaje inválidos para agregar al final (faltan campos obligatorios).");
+  }
+
   const characters = await readJsonData();
 
   if (characters.length === 0) throw new Error("Error: Archivo sin ningún personaje");
