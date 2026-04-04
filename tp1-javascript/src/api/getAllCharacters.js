@@ -6,7 +6,7 @@ export async function getAllCharacters() {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Error en fetch: ${response.status} ${response.statusText}`);
+    throw new Error(`Error al obtener todos los personajes: ${response.status} ${response.statusText}`);
   }
 
   const characters = await response.json();

@@ -21,7 +21,7 @@ export async function createCharacter() {
   });
 
   if (!response.ok) {
-    throw new Error(`Error en fetch: ${response.status} ${response.statusText}`);
+    throw new Error(`Error al crear personaje: ${response.status} ${response.statusText}`);
   }
 
   console.log("\nUsuario Nuevo Agregado\nRespuesta del servidor (POST):");

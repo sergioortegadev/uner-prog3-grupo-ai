@@ -6,8 +6,7 @@ export async function getCharacterById(id) {
   const response = await fetch(`${url}/${id}`);
 
   if (!response.ok) {
-    console.log("Error en fetch a la API");
-    return {};
+    throw new Error(`Error al buscar personaje (ID ${id}): ${response.status} ${response.statusText}`);
   }
 
   const character = await response.json();
