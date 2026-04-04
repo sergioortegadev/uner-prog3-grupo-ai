@@ -6,7 +6,7 @@ import { removeFirst } from "./src/fs/removeFirst.js";
 import { createSummaryFile } from "./src/fs/createSummaryFile.js";
 import { sortByName } from "./src/fs/sortByName.js";
 
-const nuevoPersonaje1 = {
+const newCharacter1 = {
   firstName: "Pepe",
   lastName: "Argento",
   fullName: "Pepe Argento",
@@ -16,7 +16,7 @@ const nuevoPersonaje1 = {
   imageUrl: "https://picsum.photos/200/300",
 };
 
-const nuevoPersonaje2 = {
+const newCharacter2 = {
   firstName: "Roberto",
   lastName: "Perez",
   fullName: "Roberto perez",
@@ -25,7 +25,7 @@ const nuevoPersonaje2 = {
   image: "jon.jpg",
   imageUrl: "https://picsum.photos/200/300",
 };
-const nuevoPersonaje3 = {
+const newCharacter3 = {
   firstName: "Flor",
   lastName: "Martinez",
   fullName: "Flor Martinez",
@@ -38,10 +38,10 @@ const nuevoPersonaje3 = {
 const main = async () => {
   console.log("\n===== PARTE 1: API =====");
   try {
-    // a) Recuperar la información de todos los personajes (GET)
-    const { data: personajes } = await getAllCharacters();
+    // a) Recuperar la información de todos los characters (GET)
+    const { data: characters } = await getAllCharacters();
     // d) y persistirla en un archivo JSON.
-    await writeJsonData(personajes);
+    await writeJsonData(characters);
     // b) Agregar un nuevo personaje (POST).
     await createCharacter();
     // c) Buscar la información de un determinado personaje, utilizando un "id" como parámetro GET
@@ -53,10 +53,10 @@ const main = async () => {
   console.log("\n===== PARTE 2: ARCHIVOS =====");
   try {
     // a) Agregar un personaje al final del archivo.
-    await addToEnd(nuevoPersonaje1);
+    await addToEnd(newCharacter1);
 
-    // b) Agregar dos personajes al inicio del archivo.
-    await addToStart(nuevoPersonaje2, nuevoPersonaje3);
+    // b) Agregar dos characters al inicio del archivo.
+    await addToStart(newCharacter2, newCharacter3);
 
     // c) eliminar primer personaje
     await removeFirst();
