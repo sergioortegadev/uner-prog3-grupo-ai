@@ -13,7 +13,7 @@ export const addToStart = async (character1, character2) => {
     characters.unshift(newCharacter1);
     characters.unshift(newCharacter2);
     await writeJsonData(characters);
-    console.log(`\nEjercicio 2 b\nPersonajes con ids ${id - 1} y ${id} agregados al inicio`);
+    console.log(`\nEjercicio 2 b\nPersonajes con ids ${newCharacter1.id} y ${newCharacter2.id} agregados al inicio`);
   } catch (error) {
     console.error("Error en addToStart:", error.message);
     throw error;
