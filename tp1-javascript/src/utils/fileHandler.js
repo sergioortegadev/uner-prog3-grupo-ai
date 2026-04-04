@@ -1,24 +1,10 @@
-// Ejercicio 1 d
+// Utilidades de lectura/escritura de archivos JSON
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 
 const DATA_PATH = join(process.cwd(), "data", "characters.json");
 const DATA_PATH_SUM = join(process.cwd(), "data", "summary.json");
-
-export const fileHandler = (response, method) => {
-  const { status, statusText, data } = response;
-
-  // Escribimos todos los datos en un archivo JSON
-  writeData(data)
-    .then(() => {
-      console.log("\nArchivo escrito correctamente\nRespuesta del servidor:");
-      console.log("Status code: ", status, " Status Text: ", statusText, "\n");
-    })
-    .catch((error) => {
-      console.error("\nError al escribir el archivo: ", error);
-    });
-};
 
 /**
  * @param {string} [path] - Ruta opcional (por defecto usa DATA_PATH)
