@@ -1,6 +1,11 @@
 import { readJsonData, writeJsonData } from "../utils/fileHandler.js";
+import { isValidCharacter } from "../utils/validators.js";
 
 export const addToStart = async (character1, character2) => {
+  if (!isValidCharacter(character1) || !isValidCharacter(character2)) {
+    throw new Error("Datos de personajes inválidos para agregar al inicio (faltan campos obligatorios).");
+  }
+
   const characters = await readJsonData();
 
   if (characters.length === 0) throw new Error("Error: Archivo sin ningún personaje");

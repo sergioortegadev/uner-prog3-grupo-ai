@@ -1,8 +1,13 @@
 // Busca un personaje por ID (GET /Characters/{id})
+import { isValidId } from "../utils/validators.js";
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
 export async function getCharacterById(id) {
+  if (!isValidId(id)) {
+    throw new Error(`ID de personaje inválido: se recibió "${id}". Debe ser un número positivo.`);
+  }
+
   const response = await fetch(`${url}/${id}`);
 
   if (!response.ok) {
