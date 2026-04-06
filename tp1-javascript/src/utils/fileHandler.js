@@ -6,20 +6,6 @@ import { join, dirname } from "node:path";
 const DATA_PATH = join(process.cwd(), "data", "characters.json");
 const SUMMARY_DATA_PATH = join(process.cwd(), "data", "summary.json");
 
-export const fileHandler = (response, method) => {
-  const { status, statusText, data } = response;
-
-  // Escribimos todos los datos en un archivo JSON
-  writeData(data)
-    .then(() => {
-      console.log("\nArchivo escrito correctamente\nRespuesta del servidor:");
-      console.log("Status code: ", status, " Status Text: ", statusText, "\n");
-    })
-    .catch((error) => {
-      console.error("\nError al escribir el archivo: ", error);
-    });
-};
-
 /**
  * @param {string} [filePath] - Ruta opcional (por defecto usa DATA_PATH)
  * @throws {NodeJS.ErrnoException} Si el archivo no existe o hay error de permisos
