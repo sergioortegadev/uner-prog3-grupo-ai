@@ -1,24 +1,24 @@
-// Ejercicio 1 a
+// Obtiene todos los personajes de la API (GET /Characters)
 
 const url = "https://thronesapi.com/api/v2/Characters";
 
-export async function obtenerPersonajes() {
+export async function getAllCharacters() {
   try {
-    const respuesta = await fetch(url);
+    const response = await fetch(url);
 
-    if (!respuesta.ok) {
-      throw new Error(`Error en fetch: ${respuesta.status} ${respuesta.statusText}`);
+    if (!response.ok) {
+      throw new Error(`Error en fetch: ${response.status} ${response.statusText}`);
     }
 
-    const respuestaJSON = await respuesta.json();
+    const characters = await response.json();
     console.log(`\nEjercicio 1 a\nGET de todos los personajes:\n`);
-    console.log(respuestaJSON);
+    console.log(characters);
     console.log("\nRespuesta del servidor (GET):");
-    console.log("Status code: ", respuesta.status, " Status Text: ", respuesta.statusText, "\n");
+    console.log("Status code: ", response.status, " Status Text: ", response.statusText, "\n");
     return {
-      status: respuesta.status,
-      statusText: respuesta.statusText,
-      data: respuestaJSON,
+      status: response.status,
+      statusText: response.statusText,
+      data: characters,
     };
   } catch (error) {
     console.log("Error de la solicitud: ", error);
