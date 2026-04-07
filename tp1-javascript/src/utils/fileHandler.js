@@ -2,9 +2,14 @@
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DATA_PATH = join(process.cwd(), "data", "characters.json");
-const SUMMARY_DATA_PATH = join(process.cwd(), "data", "summary.json");
+// Obtener la ruta de la carpeta del módulo actual
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Subir dos niveles (utils -> src -> tp1-javascript) y entrar a data/
+const DATA_PATH = join(__dirname, "..", "..", "data", "characters.json");
+const SUMMARY_DATA_PATH = join(__dirname, "..", "..", "data", "summary.json");
 
 /**
  * @param {string} [filePath] - Ruta opcional (por defecto usa DATA_PATH)
