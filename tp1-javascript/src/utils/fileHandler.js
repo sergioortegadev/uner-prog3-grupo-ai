@@ -32,20 +32,7 @@ export const readJsonData = async (filePath = DATA_PATH) => {
   }
 };
 
-export const readJsonDataSummary = async (filePath = SUMMARY_DATA_PATH) => {
-  try {
-    const content = await readFile(filePath, "utf-8");
-    const parsed = JSON.parse(content);
-    // Validar que sea un array
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      // Archivo no existe, retornar array vacío
-      return [];
-    }
-    throw error;
-  }
-};
+export const readJsonDataSummary = ()=>readJsonData(SUMMARY_DATA_PATH);
 
 /**
  * @param {Array<Object>} data a guardar
@@ -58,10 +45,6 @@ export const writeJsonData = async (data, filePath = DATA_PATH) => {
   await writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 };
 
-export const writeJsonDataSummary = async (data, filePath = SUMMARY_DATA_PATH) => {
-  // Crear el directorio si no existe
-  await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
-};
+export const writeJsonDataSummary =  (data) =>  writeJsonData(data, SUMMARY_DATA_PATH);
 
 export { DATA_PATH, SUMMARY_DATA_PATH };
