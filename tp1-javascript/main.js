@@ -1,39 +1,13 @@
 import { writeJsonData } from "./src/utils/fileHandler.js";
 import { createCharacter, getCharacterById, getAllCharacters } from "./src/api/index.js";
-import { addToEnd } from "./src/fs/addToEnd.js";
-import { addToStart } from "./src/fs/addToStart.js";
-import { removeFirst } from "./src/fs/removeFirst.js";
-import { createSummaryFile } from "./src/fs/createSummaryFile.js";
-import { sortByName } from "./src/fs/sortByName.js";
-
-const newCharacter1 = {
-  firstName: "Pepe",
-  lastName: "Argento",
-  fullName: "Pepe Argento",
-  title: "Casados con hijos",
-  family: "Argentos",
-  image: "pepe.jpg",
-  imageUrl: "https://picsum.photos/200/300",
-};
-
-const newCharacter2 = {
-  firstName: "Roberto",
-  lastName: "Perez",
-  fullName: "Roberto perez",
-  title: "medico",
-  family: "Hospital",
-  image: "jon.jpg",
-  imageUrl: "https://picsum.photos/200/300",
-};
-const newCharacter3 = {
-  firstName: "Flor",
-  lastName: "Martinez",
-  fullName: "Flor Martinez",
-  title: "Medico",
-  family: "Hospital",
-  image: "jon.jpg",
-  imageUrl: "https://picsum.photos/200/300",
-};
+import {
+  addToEnd,
+  addToStart,
+  removeFirst,
+  createSummaryFile,
+  sortByName,
+} from "./src/fs/index.js";
+import { newCharacter1, newCharacter2, newCharacter3 } from "./src/data/mockCharacters.js";
 
 const main = async () => {
   try {

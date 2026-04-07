@@ -1,9 +1,8 @@
 // Obtiene todos los personajes de la API (GET /Characters)
-
-const url = "https://thronesapi.com/api/v2/Characters";
+import { API_URL } from "./constants.js";
 
 export async function getAllCharacters() {
-  const response = await fetch(url);
+  const response = await fetch(API_URL);
 
   if (!response.ok) {
     throw new Error(`Error al obtener todos los personajes: ${response.status} ${response.statusText}`);
