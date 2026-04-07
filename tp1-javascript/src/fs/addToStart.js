@@ -9,12 +9,11 @@ export const addToStart = async (character1, character2) => {
   const characters = await readJsonData();
 
 
-  let id = characters.length > 0 ? characters[characters.length - 1].id + 1 : 1;
-  const newCharacter1 = { id, ...character1 };
-  id++;
-  const newCharacter2 = { id, ...character2 };
+  const baseId = characters.length > 0 ? characters[characters.length - 1].id + 1 : 1;
+  const newCharacter1 = { id: baseId, ...character1 };
+  const newCharacter2 = { id: baseId + 1, ...character2 };
   characters.unshift(newCharacter1);
   characters.unshift(newCharacter2);
   await writeJsonData(characters);
-  console.log(`\nEjercicio 2 b\nPersonajes con ids ${id - 1} y ${id} agregados al inicio`);
+  console.log(`\nEjercicio 2 b\nPersonajes con ids ${newCharacter1.id} y ${newCharacter2.id} agregados al inicio`);
 };
