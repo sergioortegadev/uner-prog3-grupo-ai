@@ -8,7 +8,6 @@ export const addToStart = async (character1, character2) => {
 
   const characters = await readJsonData();
 
-  if (characters.length === 0) throw new Error("Error: Archivo sin ningún personaje");
 
   let id = characters.length > 0 ? characters[characters.length - 1].id + 1 : 1;
   const newCharacter1 = { id, ...character1 };
