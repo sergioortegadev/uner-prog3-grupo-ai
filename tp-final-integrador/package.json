@@ -2,18 +2,20 @@
   "name": "tp-final-integrador",
   "version": "1.0.0",
   "description": "Backend robusto para la gestión integral de una clínica médica, incluyendo autenticación, gestión de especialidades, médicos, obras sociales, pacientes, asignación de turnos y generación de estadísticas operativas.",
-  "main": "eslint.config.js",
+  "main": "src/index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "dev": "node --watch --env-file=.env src/index.js",
     "start": "node --env-file=.env src/index.js",
+    "test:run": "vitest run --fileParallelism=false",
+    "test:watch": "vitest --fileParallelism=false",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint:check": "eslint . --max-warnings 0",
-    "test:run": "vitest run --fileParallelism=false",
-    "test:watch": "vitest --fileParallelism=false",
+    "dev:docker": "npm run infra:up && node --watch --env-file=.env src/index.js; npm run infra:down",
+    "test:docker": "npm run infra:up; sleep 10; vitest run --fileParallelism=false; npm run infra:down",
     "infra:up": "docker-compose up -d",
     "infra:down": "docker-compose down",
     "infra:clean": "docker-compose down -v",
