@@ -1,0 +1,61 @@
+{
+  "name": "tp-final-integrador",
+  "version": "1.0.0",
+  "description": "Backend robusto para la gestión integral de una clínica médica, incluyendo autenticación, gestión de especialidades, médicos, obras sociales, pacientes, asignación de turnos y generación de estadísticas operativas.",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/index.js",
+    "start": "node --env-file=.env src/index.js",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint:check": "eslint . --max-warnings 0",
+    "test:run": "vitest run --fileParallelism=false",
+    "test:watch": "vitest --fileParallelism=false",
+    "infra:up": "docker-compose up -d",
+    "infra:down": "docker-compose down",
+    "infra:clean": "docker-compose down -v",
+    "infra:logs": "docker-compose logs -f db",
+    "infra:status": "docker-compose ps",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "cors": "2.8.6",
+    "express": "5.2.1",
+    "express-validator": "7.3.2",
+    "jsonwebtoken": "9.0.3",
+    "morgan": "1.10.1",
+    "multer": "2.1.1",
+    "mysql2": "3.20.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@eslint/json": "1.2.0",
+    "@vitest/eslint-plugin": "1.6.14",
+    "eslint": "10.2.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.5",
+    "globals": "17.4.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
+    "prettier": "3.8.1",
+    "supertest": "7.2.2",
+    "vitest": "4.1.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "lint-staged": {
+    "*.js": [
+      "eslint --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ]
+  }
+}
