@@ -1,4 +1,6 @@
 import { pool } from '../../config/db.js';
+import { AppError } from '../../helpers/errors.helper.js';
+import { ERROR_CODES } from '../../helpers/response.helper.js';
 
 /**
  * Mapper helper para convertir snake_case de la DB a camelCase para JS.
@@ -54,9 +56,7 @@ export const create = async (data) => {
       );
       return obraSocial.id_obra_social;
     } else {
-      const customError = new Error('Ya existe una obra social con ese nombre');
-      customError.status = 400;
-      throw customError;
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
     }
   }
 
@@ -72,9 +72,7 @@ export const create = async (data) => {
     return result.insertId;
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      const customError = new Error('Ya existe una obra social con ese nombre');
-      customError.status = 400;
-      throw customError;
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
     }
     throw error;
   }
@@ -105,9 +103,7 @@ export const update = async (id, data) => {
   }
 
   if (fields.length === 0) {
-    const customError = new Error('No hay campos para actualizar');
-    customError.status = 400;
-    throw customError;
+    throw new AppError(ERROR_CODES.BAD_REQUEST, 'No hay campos para actualizar');
   }
 
   const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ? AND activo = 1`;
@@ -121,9 +117,7 @@ export const update = async (id, data) => {
     return true;
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      const customError = new Error('Ya existe una obra social con ese nombre');
-      customError.status = 400;
-      throw customError;
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
     }
     throw error;
   }

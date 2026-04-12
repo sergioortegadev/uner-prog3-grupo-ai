@@ -31,7 +31,7 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(rows[0].nombre).toBe('OSDE 210');
     });
 
-    it('debería retornar 400 si falta la descripción', async () => {
+    it('debería retornar 422 si falta la descripción', async () => {
       const nuevaObra = {
         nombre: 'Sin Descripción',
         porcentajeDescuento: 10.5,
@@ -39,11 +39,11 @@ describe('Obras Sociales - Integration Tests', () => {
 
       const response = await request(app).post('/api/v1/obras-sociales').send(nuevaObra);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
     });
 
-    it('debería retornar 400 si el nombre ya existe', async () => {
+    it('debería retornar 409 si el nombre ya existe', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
         ['Duplicada', 'Test', 15, 0, 1],
@@ -56,7 +56,7 @@ describe('Obras Sociales - Integration Tests', () => {
 
       const response = await request(app).post('/api/v1/obras-sociales').send(nuevaObra);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
     });
 
@@ -107,7 +107,7 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(rows[0].nombre).toBe('Actualizada');
     });
 
-    it('debería retornar 400 al actualizar con un nombre que ya existe en otra obra social', async () => {
+    it('debería retornar 409 al actualizar con un nombre que ya existe en otra obra social', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
         ['Existe', 'Test', 15, 0, 1],
@@ -122,7 +122,7 @@ describe('Obras Sociales - Integration Tests', () => {
         .put(`/api/v1/obras-sociales/${id}`)
         .send({ nombre: 'Existe' });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
     });
   });
