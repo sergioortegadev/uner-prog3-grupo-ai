@@ -71,18 +71,13 @@ npm run dev # Inicia el servidor con auto-reload
 
 ---
 
-## 🛠️ Desarrollo de Funcionalidades
+## 🏗️ Guía para Desarrolladores
 
-Para mantener la calidad y el orden en el equipo, seguimos una **Arquitectura de 4 Capas**. Cada nuevo módulo debe incluir:
+Si vas a contribuir al código, por favor leé nuestra **[Guía de Contribución](./CONTRIBUTING.md)** donde detallamos:
 
-1. **Modelo**: `*.model.js` (Consultas SQL).
-2. **Servicio**: `*.service.js` (Lógica de negocio).
-3. **Validador**: `*.validator.js` (Esquemas de validación).
-4. **Controlador**: `*.controller.js` (Orquestador HTTP).
-5. **Rutas**: `*.routes.js` (Definición de endpoints).
-
-> [!IMPORTANT]
-> Lee la [Guía de Arquitectura Detallada](./docs/ARCHITECTURE.md) para entender el flujo de datos.
+- Flujo de trabajo con Git.
+- Arquitectura de 4 capas.
+- Estándares de código y commits.
 
 ---
 
