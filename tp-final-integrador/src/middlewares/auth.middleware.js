@@ -1,17 +1,29 @@
+import jwt from 'jsonwebtoken';
 import { errorResponse, ERROR_CODES } from '../helpers/response.helper.js';
 
 /**
  * Middleware para verificar el token JWT
  */
 export const verifyToken = async (req, res, next) => {
-  // TODO: Implementar lógica real con jsonwebtoken
-  req.user = {
-    id: 8, // Benito Fernandez (Admin de la base de datos)
-    rol: 3,
-    documento: '51000111',
-  };
+  const authHeader = req.headers.authorization;
 
-  next();
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return errorResponse(
+      res,
+      'No se proporcionó un token de autenticación',
+      ERROR_CODES.UNAUTHORIZED,
+    );
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.user = decoded;
+    next();
+  } catch {
+    return errorResponse(res, 'Token inválido o expirado', ERROR_CODES.UNAUTHORIZED);
+  }
 };
 
 /**

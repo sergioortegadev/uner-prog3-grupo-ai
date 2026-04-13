@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { validate } from '../../middlewares/validate.middleware.js';
+import { validateRequest } from '../../middlewares/validate.middleware.js';
 
 /**
  * Validaciones para el módulo de autenticación.
@@ -12,5 +12,5 @@ export const loginValidator = [
     .notEmpty()
     .withMessage('El email es requerido'),
   body('password').notEmpty().withMessage('La contraseña es requerida'),
-  validate,
+  validateRequest,
 ];
