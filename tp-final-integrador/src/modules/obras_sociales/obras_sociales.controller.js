@@ -1,5 +1,6 @@
 import * as obrasSocialesService from './obras_sociales.service.js';
-import { successResponse, errorResponse, ERROR_CODES } from '../../helpers/response.helper.js';
+import { successResponse, errorResponse } from '../../helpers/response.helper.js';
+import { ERROR_CODES } from '../../helpers/errors.helper.js';
 
 /**
  * Controlador de obras sociales.
@@ -29,7 +30,7 @@ export const createObraSocial = async (req, res) => {
     nombre,
     descripcion,
     porcentajeDescuento,
-    esParticular
+    esParticular,
   });
 
   return successResponse(res, { id }, 201);
@@ -42,7 +43,7 @@ export const updateObraSocial = async (req, res) => {
     nombre,
     descripcion,
     porcentajeDescuento,
-    esParticular
+    esParticular,
   });
 
   if (!success) {

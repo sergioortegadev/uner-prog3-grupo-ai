@@ -1,3 +1,4 @@
+import { ROLES } from '../../src/constants/roles.constants.js';
 import { describe, it, expect, beforeAll } from 'vitest';
 import * as authService from '../../src/modules/auth/auth.service.js';
 import { setupTestDB } from '../setup/db.js';
@@ -17,7 +18,7 @@ describe('Auth Service', () => {
     expect(result.token).toBeDefined();
     expect(result.user).toBeDefined();
     expect(result.user.email).toBe(email);
-    expect(result.user.rol).toBe(3);
+    expect(result.user.rol).toBe(ROLES.ADMIN);
   });
 
   it('debe fallar si la contraseña es incorrecta', async () => {

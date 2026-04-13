@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { ROLES } from '../../src/constants/roles.constants.js';
 import { seedTestUser } from './seed.js';
 import { pool } from '../../src/config/db.js';
 
@@ -12,7 +13,7 @@ describe('Database Seeder', () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0].email).toBe('ferben@correo.com');
-    expect(rows[0].rol).toBe(3); // Admin for testing
+    expect(rows[0].rol).toBe(ROLES.ADMIN);
     expect(rows[0].activo).toBe(1);
   });
 });

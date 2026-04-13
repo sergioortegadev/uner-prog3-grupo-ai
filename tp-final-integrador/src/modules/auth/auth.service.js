@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 import * as usuariosModel from '../usuarios/usuarios.model.js';
-import { AppError } from '../../helpers/errors.helper.js';
-import { ERROR_CODES } from '../../helpers/response.helper.js';
+import { AppError, ERROR_CODES } from '../../helpers/errors.helper.js';
 
 /**
  * Lógica de autenticación.
@@ -27,6 +26,7 @@ export const login = async (email, password) => {
     throw new AppError(ERROR_CODES.UNAUTHORIZED, 'Credenciales inválidas');
   }
 
+  // Generar Token
   const payload = {
     id: user.id_usuario,
     rol: user.rol,
@@ -37,6 +37,7 @@ export const login = async (email, password) => {
     expiresIn: process.env.JWT_EXPIRES_IN || '2h',
   });
 
+  // No devolvemos la contraseña
   delete user.contrasenia;
 
   return {

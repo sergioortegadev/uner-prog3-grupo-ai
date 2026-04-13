@@ -1,3 +1,4 @@
+import { ROLES } from '../../src/constants/roles.constants.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
@@ -25,7 +26,7 @@ describe('Auth Middleware', () => {
 
   describe('verifyToken', () => {
     it('debería permitir acceso con un token válido', async () => {
-      const payload = { id: 1, rol: 3, documento: '12345678' };
+      const payload = { id: 1, rol: ROLES.ADMIN, documento: '12345678' };
       const token = jwt.sign(payload, JWT_SECRET);
       req.headers.authorization = `Bearer ${token}`;
 
@@ -59,7 +60,7 @@ describe('Auth Middleware', () => {
   describe('requireRole', () => {
     it('debería retornar 403 si el rol no está permitido', async () => {
       const { requireRole } = await import('../../src/middlewares/auth.middleware.js');
-      req.user = { rol: 2 }; // Paciente
+      req.user = { rol: ROLES.PACIENTE }; // Paciente
 
       const middleware = requireRole([3]); // Solo Admin
       await middleware(req, res, next);
@@ -70,7 +71,7 @@ describe('Auth Middleware', () => {
 
     it('debería llamar a next() si el rol es correcto', async () => {
       const { requireRole } = await import('../../src/middlewares/auth.middleware.js');
-      req.user = { rol: 3 }; // Admin
+      req.user = { rol: ROLES.ADMIN }; // Admin
 
       const middleware = requireRole([3]);
       await middleware(req, res, next);

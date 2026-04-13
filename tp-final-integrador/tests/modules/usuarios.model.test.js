@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { ROLES } from '../../src/constants/roles.constants.js';
 import * as usuariosModel from '../../src/modules/usuarios/usuarios.model.js';
 import { setupTestDB } from '../setup/db.js';
 
@@ -14,7 +15,7 @@ describe('Usuarios Model', () => {
     expect(user).toBeDefined();
     expect(user.email).toBe(email);
     expect(user.id_usuario).toBeDefined();
-    expect(user.rol).toBe(3); // Admin
+    expect(user.rol).toBe(ROLES.ADMIN);
   });
 
   it('debe devolver null si el email no existe', async () => {

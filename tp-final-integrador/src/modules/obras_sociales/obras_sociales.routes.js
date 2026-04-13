@@ -1,46 +1,49 @@
 import { Router } from 'express';
 import * as obrasSocialesController from './obras_sociales.controller.js';
 import * as obrasSocialesValidator from './obras_sociales.validator.js';
+import { ROLES } from '../../constants/roles.constants.js';
 import { verifyToken, requireRole } from '../../middlewares/auth.middleware.js';
 import { validateRequest } from '../../middlewares/validate.middleware.js';
 
 const obrasSocialesRouter = Router();
 
+/**
+ * Rutas para el módulo de obras sociales.
+ * Todas las rutas requieren autenticación y rol de Administrador.
+ */
+
 // Middleware global para todas las rutas de este router
 obrasSocialesRouter.use(verifyToken);
+obrasSocialesRouter.use(requireRole([ROLES.ADMIN]));
 
-// Rutas accesibles para Administrador (3)
-obrasSocialesRouter.get('/', 
-  requireRole([3]), 
-  obrasSocialesController.getAll
-);
+obrasSocialesRouter.get('/', obrasSocialesController.getAll);
 
-obrasSocialesRouter.get('/:id', 
-  requireRole([3]), 
+obrasSocialesRouter.get(
+  '/:id',
   obrasSocialesValidator.validateId,
   validateRequest,
-  obrasSocialesController.getById
+  obrasSocialesController.getById,
 );
 
-obrasSocialesRouter.post('/', 
-  requireRole([3]), 
+obrasSocialesRouter.post(
+  '/',
   obrasSocialesValidator.validateCreate,
   validateRequest,
-  obrasSocialesController.createObraSocial
+  obrasSocialesController.createObraSocial,
 );
 
-obrasSocialesRouter.put('/:id', 
-  requireRole([3]), 
+obrasSocialesRouter.put(
+  '/:id',
   obrasSocialesValidator.validateUpdate,
   validateRequest,
-  obrasSocialesController.updateObraSocial
+  obrasSocialesController.updateObraSocial,
 );
 
-obrasSocialesRouter.delete('/:id', 
-  requireRole([3]), 
+obrasSocialesRouter.delete(
+  '/:id',
   obrasSocialesValidator.validateId,
   validateRequest,
-  obrasSocialesController.removeObraSocial
+  obrasSocialesController.removeObraSocial,
 );
 
 export { obrasSocialesRouter };

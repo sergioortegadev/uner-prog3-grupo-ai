@@ -4,15 +4,37 @@ import jwt from 'jsonwebtoken';
 import { app } from '../../src/app.js';
 import { pool } from '../../src/config/db.js';
 import { setupTestDB } from '../setup/db.js';
+import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Obras Sociales - Integration Tests', () => {
   let adminToken;
+  let pacienteToken;
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
     await setupTestDB();
-    // Generamos un token de Admin (Benito) para las pruebas
-    adminToken = jwt.sign({ id: 8, rol: 3, documento: '51000111' }, JWT_SECRET);
+    // Generamos tokens para las pruebas
+    adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
+    pacienteToken = jwt.sign({ id: 5, rol: ROLES.PACIENTE, documento: '41000111' }, JWT_SECRET);
+  });
+
+  describe('Seguridad y Autorización', () => {
+    it('debería retornar 403 si un Paciente intenta acceder', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${pacienteToken}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('FORBIDDEN');
+    });
+
+    it('debería retornar 401 si no se envía token', async () => {
+      const response = await request(app).get('/api/v1/obras-sociales');
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+    });
   });
 
   describe('POST /api/v1/obras-sociales', () => {
