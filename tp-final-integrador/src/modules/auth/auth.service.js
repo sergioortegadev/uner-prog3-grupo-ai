@@ -34,7 +34,7 @@ export const login = async (email, password) => {
   };
 
   const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
-    expiresIn: process.env.JWT_EXPIRES_IN || '2h',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
   });
   // eslint-disable-next-line no-unused-vars
   const { contrasenia: _, ...userWithoutPassword } = user;
