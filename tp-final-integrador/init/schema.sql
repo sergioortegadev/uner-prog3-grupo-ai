@@ -26,7 +26,7 @@ DELIMITER $$
 -- Procedimientos
 --
 CREATE PROCEDURE `especialidades_x_turnos` ()   select count(e.id_especialidad) as cant_esp, e.nombre
-from turnos_reservas as tr 
+from turnos_reservas as tr
 inner join medicos as m on m.id_medico = tr.id_medico
 inner join especialidades as e on e.id_especialidad = m.id_especialidad
 GROUP by e.nombre
@@ -164,7 +164,7 @@ CREATE TABLE `turnos_reservas` (
   `id_obra_social` int(10) UNSIGNED NOT NULL,
   `fecha_hora` datetime NOT NULL,
   `valor_total` decimal(10,2) NOT NULL,
-  `atentido` tinyint(3) UNSIGNED NOT NULL,
+  `atendido` tinyint(3) UNSIGNED NOT NULL,
   `activo` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -172,7 +172,7 @@ CREATE TABLE `turnos_reservas` (
 -- Volcado de datos para la tabla `turnos_reservas`
 --
 
-INSERT INTO `turnos_reservas` (`id_turno_reserva`, `id_medico`, `id_paciente`, `id_obra_social`, `fecha_hora`, `valor_total`, `atentido`, `activo`) VALUES
+INSERT INTO `turnos_reservas` (`id_turno_reserva`, `id_medico`, `id_paciente`, `id_obra_social`, `fecha_hora`, `valor_total`, `atendido`, `activo`) VALUES
 (1, 1, 1, 1, '2026-04-01 17:00:00', 4500.00, 0, 1),
 (2, 3, 2, 2, '2026-04-01 18:00:00', 9000.00, 0, 1),
 (4, 4, 3, 3, '2026-04-01 19:00:00', 13500.00, 0, 1),
@@ -251,19 +251,19 @@ CREATE TABLE `v_pacientes` (
 --
 DROP TABLE IF EXISTS `v_medicos`;
 
-CREATE VIEW `v_medicos` AS 
-SELECT 
-    m.id_medico, 
-    u.apellido, 
-    u.nombres, 
-    e.nombre AS especialidad, 
-    m.matricula, 
+CREATE VIEW `v_medicos` AS
+SELECT
+    m.id_medico,
+    u.apellido,
+    u.nombres,
+    e.nombre AS especialidad,
+    m.matricula,
     m.valor_consulta,
     u.foto_path
 FROM medicos m
 JOIN usuarios u ON m.id_usuario = u.id_usuario
 JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-WHERE u.activo = 1;
+WHERE u.activo = 1 AND e.activo = 1;
 
 -- --------------------------------------------------------
 
@@ -272,20 +272,20 @@ WHERE u.activo = 1;
 --
 DROP TABLE IF EXISTS `v_pacientes`;
 
-CREATE VIEW `v_pacientes` AS 
-SELECT 
-    p.id_paciente, 
-    p.id_usuario, 
-    u.apellido, 
-    u.nombres, 
-    u.email, 
-    os.id_obra_social, 
-    os.nombre AS nombre_obra_social, 
-    u.foto_path 
-FROM pacientes p 
-JOIN usuarios u ON p.id_usuario = u.id_usuario 
-JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social 
-WHERE u.activo = 1;
+CREATE VIEW `v_pacientes` AS
+SELECT
+    p.id_paciente,
+    p.id_usuario,
+    u.apellido,
+    u.nombres,
+    u.email,
+    os.id_obra_social,
+    os.nombre AS nombre_obra_social,
+    u.foto_path
+FROM pacientes p
+JOIN usuarios u ON p.id_usuario = u.id_usuario
+JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
+WHERE u.activo = 1 AND os.activo = 1;
 
 --
 -- Índices para tablas volcadas
