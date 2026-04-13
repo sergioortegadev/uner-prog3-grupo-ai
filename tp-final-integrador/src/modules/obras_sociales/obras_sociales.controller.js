@@ -1,3 +1,4 @@
+import { matchedData } from 'express-validator';
 import * as obrasSocialesService from './obras_sociales.service.js';
 import { successResponse, errorResponse } from '../../helpers/response.helper.js';
 import { ERROR_CODES } from '../../helpers/errors.helper.js';
@@ -14,7 +15,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-  const { id } = req.params;
+  const { id } = matchedData(req);
   const obraSocial = await obrasSocialesService.getObraSocialById(id);
 
   if (!obraSocial) {
@@ -25,26 +26,15 @@ export const getById = async (req, res) => {
 };
 
 export const createObraSocial = async (req, res) => {
-  const { nombre, descripcion, porcentajeDescuento, esParticular } = req.body;
-  const id = await obrasSocialesService.createObraSocial({
-    nombre,
-    descripcion,
-    porcentajeDescuento,
-    esParticular,
-  });
+  const data = matchedData(req);
+  const id = await obrasSocialesService.createObraSocial(data);
 
   return successResponse(res, { id }, 201);
 };
 
 export const updateObraSocial = async (req, res) => {
-  const { id } = req.params;
-  const { nombre, descripcion, porcentajeDescuento, esParticular } = req.body;
-  const success = await obrasSocialesService.updateObraSocial(id, {
-    nombre,
-    descripcion,
-    porcentajeDescuento,
-    esParticular,
-  });
+  const { id, ...data } = matchedData(req);
+  const success = await obrasSocialesService.updateObraSocial(id, data);
 
   if (!success) {
     return errorResponse(res, 'Obra social no encontrada o inactiva', ERROR_CODES.NOT_FOUND);
@@ -54,7 +44,7 @@ export const updateObraSocial = async (req, res) => {
 };
 
 export const removeObraSocial = async (req, res) => {
-  const { id } = req.params;
+  const { id } = matchedData(req);
   const success = await obrasSocialesService.removeObraSocial(id);
 
   if (!success) {
