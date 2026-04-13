@@ -6,13 +6,13 @@ import { seedTestUser } from './seed.js';
  * Mantiene la seguridad de no tocar la base de desarrollo.
  */
 export const clearDatabase = async () => {
-  if (process.env.DB_NAME !== 'prog3_final_test') {
+  if (process.env.DB_NAME !== 'prog3_turnos_test') {
     throw new Error(`¡BLOQUEO DE SEGURIDAD! Intento de limpieza en: [${process.env.DB_NAME}].`);
   }
 
   try {
     await pool.execute('SET FOREIGN_KEY_CHECKS = 0');
-    
+
     // Lista de tablas a limpiar (en orden de dependencia si fuera necesario, aunque con checks en 0 no importa tanto)
     const tables = [
       'turnos_reservas',
@@ -21,7 +21,7 @@ export const clearDatabase = async () => {
       'medicos',
       'especialidades',
       'obras_sociales',
-      'usuarios'
+      'usuarios',
     ];
 
     for (const table of tables) {

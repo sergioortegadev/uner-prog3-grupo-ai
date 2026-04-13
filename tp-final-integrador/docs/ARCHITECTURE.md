@@ -59,4 +59,9 @@ Se centraliza en `src/middlewares/error.middleware.js` usando un mapa de estados
 
 - **Soft Deletes**: Columna `activo` (1/0). Siempre filtrar por `activo = 1`.
 - **Transacciones**: Se manejan en la capa de **Servicio**.
-- **Testing**: Tests de integración en la carpeta raíz `tests/`, conectando a la base `prog3_final_test`.
+## 5. Infraestructura y Entorno
+
+- **Versatilidad**: El proyecto está diseñado para ser agnóstico al entorno de ejecución de la base de datos.
+- **XAMPP (Predeterminado)**: Compatible con la configuración estándar de la cátedra (MySQL 5.7/8.0).
+- **Docker**: Se provee un `docker-compose.yml` para estandarizar versiones de MySQL (8.0) y PHPMyAdmin (5.2) entre los desarrolladores
+- **Inicialización**: El archivo `init/schema.sql` es la **Única Fuente de Verdad** para la estructura de la base de datos. Cualquier cambio en la tabla debe reflejarse allí.

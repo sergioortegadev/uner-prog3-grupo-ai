@@ -9,7 +9,7 @@ export default defineConfig({
     // Podemos forzar variables de entorno aquí si fuera necesario
     env: {
       NODE_ENV: 'test',
-      DB_NAME: 'prog3_final_test'
-    }
+      DB_NAME: 'prog3_turnos_test',
+    },
   },
 });

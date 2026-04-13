@@ -49,8 +49,19 @@ cp .env.example .env
 
 ### 2. Base de Datos
 
-- **Opción A (XAMPP/Manual)**: Importar el archivo `init/schema.sql` en tu servidor MySQL.
-- **Opción B (Docker)**: `npm run infra:up` (Levanta MySQL y phpMyAdmin automáticamente).
+El proyecto está preparado para funcionar de dos maneras. **Docker es opcional** .
+
+- **Opción A (XAMPP / Manual)**:
+  1. Iniciá el módulo MySQL en el Panel de Control de XAMPP.
+  2. Creá una base de datos llamada `prog3_turnos` (o el nombre que prefieras).
+  3. Importá el archivo `init/schema.sql` (contiene la estructura corregida y datos de prueba).
+  4. En el `.env`, configurá `DB_USER=root` y `DB_PASS=` (vacío).
+
+- **Opción B (Docker - Opcional/Rápido)**:
+  1. Asegurate de tener Docker Desktop corriendo.
+  2. Ejecutá `npm run infra:up`. Esto levanta MySQL 8 y phpMyAdmin automáticamente.
+  3. Accedé al administrador en: [http://localhost:8080](http://localhost:8080).
+  4. En el `.env`, descomentá las variables de la sección "Docker" y comenta las de la seccion "XAMPP".
 
 ### 3. Ejecución
 
