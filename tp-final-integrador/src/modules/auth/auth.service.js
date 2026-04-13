@@ -36,12 +36,11 @@ export const login = async (email, password) => {
   const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
     expiresIn: process.env.JWT_EXPIRES_IN || '2h',
   });
-
-  // No devolvemos la contraseña
-  delete user.contrasenia;
+  // eslint-disable-next-line no-unused-vars
+  const { contrasenia: _, ...userWithoutPassword } = user;
 
   return {
     token,
-    user,
+    user: userWithoutPassword,
   };
 };
