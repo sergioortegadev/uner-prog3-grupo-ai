@@ -1,13 +1,40 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 import { app } from '../../src/app.js';
 import { pool } from '../../src/config/db.js';
 import { setupTestDB } from '../setup/db.js';
+import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Obras Sociales - Integration Tests', () => {
+  let adminToken;
+  let pacienteToken;
+  const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+
   beforeEach(async () => {
-    // Usamos el helper centralizado
     await setupTestDB();
+    // Generamos tokens para las pruebas
+    adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
+    pacienteToken = jwt.sign({ id: 5, rol: ROLES.PACIENTE, documento: '41000111' }, JWT_SECRET);
+  });
+
+  describe('Seguridad y Autorización', () => {
+    it('debería retornar 403 si un Paciente intenta acceder', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${pacienteToken}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('FORBIDDEN');
+    });
+
+    it('debería retornar 401 si no se envía token', async () => {
+      const response = await request(app).get('/api/v1/obras-sociales');
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+    });
   });
 
   describe('POST /api/v1/obras-sociales', () => {
@@ -19,7 +46,10 @@ describe('Obras Sociales - Integration Tests', () => {
         esParticular: false,
       };
 
-      const response = await request(app).post('/api/v1/obras-sociales').send(nuevaObra);
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -37,7 +67,10 @@ describe('Obras Sociales - Integration Tests', () => {
         porcentajeDescuento: 10.5,
       };
 
-      const response = await request(app).post('/api/v1/obras-sociales').send(nuevaObra);
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
 
       expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
@@ -54,7 +87,10 @@ describe('Obras Sociales - Integration Tests', () => {
         descripcion: 'Otra',
       };
 
-      const response = await request(app).post('/api/v1/obras-sociales').send(nuevaObra);
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
 
       expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
@@ -72,7 +108,10 @@ describe('Obras Sociales - Integration Tests', () => {
         porcentajeDescuento: 20,
       };
 
-      const response = await request(app).post('/api/v1/obras-sociales').send(reactivada);
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(reactivada);
 
       expect(response.status).toBe(201);
 
@@ -96,6 +135,7 @@ describe('Obras Sociales - Integration Tests', () => {
 
       const response = await request(app)
         .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
         .send({ nombre: 'Actualizada' });
 
       expect(response.status).toBe(200);
@@ -120,6 +160,7 @@ describe('Obras Sociales - Integration Tests', () => {
 
       const response = await request(app)
         .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
         .send({ nombre: 'Existe' });
 
       expect(response.status).toBe(409);
@@ -134,7 +175,9 @@ describe('Obras Sociales - Integration Tests', () => {
         ['Swiss Medical', 'Prepaga', 15, 0, 1],
       );
 
-      const response = await request(app).get('/api/v1/obras-sociales');
+      const response = await request(app)
+        .get('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -150,7 +193,9 @@ describe('Obras Sociales - Integration Tests', () => {
       );
       const id = result.insertId;
 
-      const response = await request(app).delete(`/api/v1/obras-sociales/${id}`);
+      const response = await request(app)
+        .delete(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
 
       expect(response.status).toBe(200);
 

@@ -1,5 +1,6 @@
 import * as healthService from './health.service.js';
-import { successResponse, errorResponse, ERROR_CODES } from '../../helpers/response.helper.js';
+import { successResponse, errorResponse } from '../../helpers/response.helper.js';
+import { ERROR_CODES } from '../../helpers/errors.helper.js';
 
 /**
  * Controlador para el health check del sistema
@@ -7,14 +8,14 @@ import { successResponse, errorResponse, ERROR_CODES } from '../../helpers/respo
  */
 export const getHealth = async (req, res) => {
   const healthReport = await healthService.checkSystemHealth();
-  
+
   // Si el servicio reporta error en la DB, respondemos con 503
   if (healthReport.status === 'error') {
     return errorResponse(
-      res, 
-      healthReport.mensaje, 
-      ERROR_CODES.DATABASE_ERROR, 
-      healthReport.database
+      res,
+      healthReport.mensaje,
+      ERROR_CODES.DATABASE_ERROR,
+      healthReport.database,
     );
   }
 
@@ -22,6 +23,6 @@ export const getHealth = async (req, res) => {
   return successResponse(res, {
     ...healthReport,
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
   });
 };

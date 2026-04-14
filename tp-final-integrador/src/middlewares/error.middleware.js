@@ -1,4 +1,5 @@
-import { errorResponse, ERROR_CODES } from '../helpers/response.helper.js';
+import { errorResponse } from '../helpers/response.helper.js';
+import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { AppError } from '../helpers/errors.helper.js';
 
 /**

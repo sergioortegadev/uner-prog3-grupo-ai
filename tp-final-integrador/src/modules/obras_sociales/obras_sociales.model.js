@@ -1,6 +1,6 @@
 import { pool } from '../../config/db.js';
 import { AppError } from '../../helpers/errors.helper.js';
-import { ERROR_CODES } from '../../helpers/response.helper.js';
+import { ERROR_CODES } from '../../helpers/errors.helper.js';
 
 /**
  * Mapper helper para convertir snake_case de la DB a camelCase para JS.
