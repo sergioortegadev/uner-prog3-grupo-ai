@@ -7,6 +7,8 @@ import { validateRequest } from '../../middlewares/validate.middleware.js';
 
 export const loginValidator = [
   body('email')
+    .trim()
+    .normalizeEmail()
     .isEmail()
     .withMessage('Debe ser un email válido')
     .notEmpty()
