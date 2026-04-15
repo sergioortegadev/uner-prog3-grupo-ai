@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as usuariosController from './usuarios.controller.js';
 import { registerValidator } from './usuarios.validator.js';
+import { uploadFotoUsuario } from '../../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -9,6 +10,6 @@ const router = Router();
  */
 
 // POST /api/v1/usuarios
-router.post('/', registerValidator, usuariosController.register);
+router.post('/', uploadFotoUsuario, registerValidator, usuariosController.register);
 
 export default router;

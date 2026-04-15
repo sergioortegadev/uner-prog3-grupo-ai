@@ -1,22 +1,16 @@
 import { validationResult } from 'express-validator';
-import { errorResponse } from '../helpers/response.helper.js';
-import { ERROR_CODES } from '../helpers/errors.helper.js';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Middleware para capturar errores de express-validator
- * Si hay errores, corta la petición y devuelve un 422 estandarizado.
- * Si no, pasa al siguiente middleware o controlador.
+ * Si hay errores, delega al manejador global de errores.
+ * El globalErrorHandler se encarga de limpiar archivos (req.file) si existen.
  */
 export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return errorResponse(
-      res,
-      'Error de validación en los datos enviados',
-      ERROR_CODES.VALIDATION_ERROR,
-      errors.array(),
-    );
+    return next(new AppError(ERROR_CODES.VALIDATION_ERROR, null, errors.array()));
   }
 
   next();

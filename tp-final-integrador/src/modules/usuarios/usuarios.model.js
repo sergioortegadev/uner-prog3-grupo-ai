@@ -9,8 +9,8 @@ import { pool } from '../../config/db.js';
  */
 export const findByEmail = async (email, { includeInactive = false } = {}) => {
   const sql = includeInactive
-    ? 'SELECT id_usuario, documento, apellido, nombres, email, contrasenia, rol, activo FROM usuarios WHERE email = ?'
-    : 'SELECT id_usuario, documento, apellido, nombres, email, contrasenia, rol FROM usuarios WHERE email = ? AND activo = 1';
+    ? 'SELECT id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo FROM usuarios WHERE email = ?'
+    : 'SELECT id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol FROM usuarios WHERE email = ? AND activo = 1';
   const [rows] = await pool.execute(sql, [email]);
 
   if (rows.length === 0) return null;
@@ -41,7 +41,7 @@ export const findByDocumento = async (documento, { includeInactive = false } = {
  */
 export const findById = async (id) => {
   const [rows] = await pool.execute(
-    'SELECT id_usuario, documento, apellido, nombres, email, rol FROM usuarios WHERE id_usuario = ? AND activo = 1',
+    'SELECT id_usuario, documento, apellido, nombres, email, foto_path, rol FROM usuarios WHERE id_usuario = ? AND activo = 1',
     [id],
   );
 
@@ -56,10 +56,10 @@ export const findById = async (id) => {
  * @returns {Promise<number>} ID del usuario creado.
  */
 export const create = async (connection, userData) => {
-  const { documento, apellido, nombres, email, contrasenia, rol } = userData;
+  const { documento, apellido, nombres, email, contrasenia, rol, foto_path } = userData;
   const [result] = await connection.execute(
     'INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [documento, apellido, nombres, email, contrasenia, '', rol, 1],
+    [documento, apellido, nombres, email, contrasenia, foto_path || null, rol, 1],
   );
   return result.insertId;
 };

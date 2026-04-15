@@ -122,9 +122,13 @@ export const registrarUsuario = async (userData) => {
 
     await connection.commit();
 
-    // eslint-disable-next-line no-unused-vars
-    const { password: _, ...userResult } = userData;
-    return { id_usuario, ...userResult };
+    return {
+      id_usuario,
+      email,
+      documento,
+      rol,
+      foto_path: userData.foto_path,
+    };
   } catch (error) {
     await connection.rollback();
     throw error;

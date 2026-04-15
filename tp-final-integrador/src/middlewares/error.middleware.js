@@ -1,6 +1,7 @@
+import fs from 'fs';
+import multer from 'multer';
 import { errorResponse } from '../helpers/response.helper.js';
-import { ERROR_CODES } from '../helpers/errors.helper.js';
-import { AppError } from '../helpers/errors.helper.js';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Middleware para manejar rutas no encontradas (404)
@@ -13,7 +14,33 @@ export const notFoundHandler = (req, res) => {
  * Manejador de errores global
  */
 export const globalErrorHandler = (err, req, res, _next) => {
-  // 1. Si es un error operacional (AppError o tiene el flag), respondemos con sus datos
+  // CLEANUP: Si hubo un error y Multer ya había guardado un archivo, lo borramos (Garbage Collection)
+  if (req?.file?.path) {
+    try {
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+    } catch (cleanupErr) {
+      console.error(
+        'Error al intentar borrar el archivo huérfano (globalErrorHandler):',
+        cleanupErr.message,
+      );
+    }
+  }
+
+  // 1. Error de Multer (carga de archivos)
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return errorResponse(
+        res,
+        'El archivo excede el límite de 5MB',
+        ERROR_CODES.PAYLOAD_TOO_LARGE,
+      );
+    }
+    return errorResponse(res, err.message, ERROR_CODES.BAD_REQUEST);
+  }
+
+  // 2. Si es un error operacional (AppError o tiene el flag), respondemos con sus datos
   if (err instanceof AppError || err.isOperational) {
     return errorResponse(
       res,
@@ -26,7 +53,7 @@ export const globalErrorHandler = (err, req, res, _next) => {
     );
   }
 
-  // 2. Si llegamos acá, es un BUG (Programming Error) o error no controlado
+  // 3. Si llegamos acá, es un BUG (Programming Error) o error no controlado
   console.error('ERROR NO CONTROLADO:', err);
 
   const status = err.status || 500;
