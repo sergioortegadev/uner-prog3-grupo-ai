@@ -177,4 +177,97 @@ describe('Usuarios Service', () => {
     const [rows] = await pool.execute('SELECT * FROM usuarios WHERE email = ?', [userData.email]);
     expect(rows.length).toBe(0);
   });
+
+  it('debe reactivar un usuario inactivo manteniendo el mismo rol', async () => {
+    // 1. Crear usuario médico
+    const userData = {
+      documento: '99000888',
+      apellido: 'Médico',
+      nombres: 'Original',
+      email: 'medico.original@test.com',
+      password: 'password123',
+      rol: ROLES.MEDICO,
+      id_especialidad: 1,
+      matricula: 111111,
+      valor_consulta: 3000.0,
+    };
+    const created = await usuariosService.registrarUsuario(userData);
+
+    // 2. Marcarlo como inactivo (simulando baja)
+    await pool.execute('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [created.id_usuario]);
+
+    // 3. Reactivar con mismos datos
+    const reactivaData = {
+      documento: '99000888',
+      apellido: 'Médico',
+      nombres: 'Reactivado',
+      email: 'medico.original@test.com',
+      password: 'newpassword',
+      rol: ROLES.MEDICO,
+      id_especialidad: 1,
+      matricula: 222222,
+      valor_consulta: 4000.0,
+    };
+    const reactivated = await usuariosService.registrarUsuario(reactivaData);
+
+    expect(reactivated.id_usuario).toBe(created.id_usuario);
+
+    // Verificar que sigue activo
+    const [users] = await pool.execute('SELECT * FROM usuarios WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(users[0].activo).toBe(1);
+    expect(users[0].nombres).toBe('Reactivado');
+
+    // Verificar que el perfil de médico existe con nuevos datos
+    const [medicos] = await pool.execute('SELECT * FROM medicos WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(medicos.length).toBe(1);
+    expect(medicos[0].matricula).toBe(222222);
+  });
+
+  it('debe eliminar perfil antiguo al cambiar de rol en reactivación', async () => {
+    // 1. Crear usuario médico
+    const userData = {
+      documento: '99000999',
+      apellido: 'Medico',
+      nombres: 'CambioRol',
+      email: 'cambio.rol@test.com',
+      password: 'password123',
+      rol: ROLES.MEDICO,
+      id_especialidad: 1,
+      matricula: 333333,
+      valor_consulta: 5000.0,
+    };
+    const created = await usuariosService.registrarUsuario(userData);
+
+    // 2. Marcarlo como inactivo
+    await pool.execute('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [created.id_usuario]);
+
+    // 3. Reactivar como PACIENTE (cambio de rol)
+    const reactivaData = {
+      documento: '99000999',
+      apellido: 'Medico',
+      nombres: 'CambioRol',
+      email: 'cambio.rol@test.com',
+      password: 'newpassword',
+      rol: ROLES.PACIENTE,
+      id_obra_social: 1,
+    };
+    await usuariosService.registrarUsuario(reactivaData);
+
+    // Verificar que NO existe perfil de médico
+    const [medicos] = await pool.execute('SELECT * FROM medicos WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(medicos.length).toBe(0);
+
+    // Verificar que existe perfil de paciente
+    const [pacientes] = await pool.execute('SELECT * FROM pacientes WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(pacientes.length).toBe(1);
+    expect(pacientes[0].id_obra_social).toBe(1);
+  });
 });

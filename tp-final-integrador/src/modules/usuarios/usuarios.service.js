@@ -9,6 +9,16 @@ import { AppError, ERROR_CODES } from '../../helpers/errors.helper.js';
  */
 
 /**
+ * Hashea una contraseña.
+ * @param {string} password Contraseña en texto plano.
+ * @returns {Promise<string>} Contraseña hasheada.
+ */
+const hashPassword = async (password) => {
+  const salt = await bcryptjs.genSalt(10);
+  return bcryptjs.hash(password, salt);
+};
+
+/**
  * Registra un nuevo usuario con su respectivos perfil.
  * @param {Object} userData Datos del registro.
  * @returns {Promise<Object>} Usuario creado.
@@ -16,34 +26,57 @@ import { AppError, ERROR_CODES } from '../../helpers/errors.helper.js';
 export const registrarUsuario = async (userData) => {
   const { email, documento, password, rol } = userData;
 
-  // 1. Verificar si ya existe el email o documento
-  const existeEmail = await usuariosModel.findByEmail(email);
-  if (existeEmail) {
-    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'El email ya está registrado');
-  }
+  // 1. Buscar incluyendo inactivos
+  const existeEmail = await usuariosModel.findByEmail(email, { includeInactive: true });
+  const existeDocumento = await usuariosModel.findByDocumento(documento, { includeInactive: true });
 
-  const existeDocumento = await usuariosModel.findByDocumento(documento);
-  if (existeDocumento) {
-    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'El documento ya está registrado');
-  }
-
-  // 2. Hashear contraseña
-  const salt = await bcryptjs.genSalt(10);
-  const hashedPassword = await bcryptjs.hash(password, salt);
-
-  // 3. Obtener conexión para la transacción
   const connection = await pool.getConnection();
 
   try {
     await connection.beginTransaction();
 
-    // 4. Crear usuario base
-    const id_usuario = await usuariosModel.create(connection, {
-      ...userData,
-      contrasenia: hashedPassword,
-    });
+    // Si existe y está activo → DUPLICATE_ENTRY
+    if (existeEmail && existeEmail.activo === 1) {
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'El email ya está registrado');
+    }
+    if (existeDocumento && existeDocumento.activo === 1) {
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'El documento ya está registrado');
+    }
 
-    // 5. Crear perfil según rol
+    const hashedPassword = await hashPassword(password);
+    let id_usuario;
+    const isReactivation = existeEmail && existeEmail.activo === 0;
+
+    if (isReactivation) {
+      // === REACTIVACIÓN ===
+      const oldRol = existeEmail.rol;
+      const newRol = Number(rol);
+
+      // Si cambió el rol: eliminar perfil viejo y crear nuevo
+      if (oldRol !== newRol) {
+        if (oldRol === ROLES.MEDICO) {
+          await usuariosModel.deleteMedicoProfile(connection, existeEmail.id_usuario);
+        } else if (oldRol === ROLES.PACIENTE) {
+          await usuariosModel.deletePacienteProfile(connection, existeEmail.id_usuario);
+        }
+      }
+
+      // Actualizar usuario
+      await usuariosModel.reactivateUser(connection, existeEmail.id_usuario, {
+        ...userData,
+        contrasenia: hashedPassword,
+      });
+      id_usuario = existeEmail.id_usuario;
+    } else {
+      // === REGISTRO NUEVO ===
+      // Crear usuario
+      id_usuario = await usuariosModel.create(connection, {
+        ...userData,
+        contrasenia: hashedPassword,
+      });
+    }
+
+    // 2. Crear/actualizar perfil según rol
     const rolNum = Number(rol);
     if (rolNum === ROLES.MEDICO) {
       // Validar que la especialidad exista
@@ -52,12 +85,21 @@ export const registrarUsuario = async (userData) => {
         throw new AppError(ERROR_CODES.BAD_REQUEST, 'La especialidad especificada no existe');
       }
 
-      await usuariosModel.createMedico(connection, {
-        id_usuario,
-        id_especialidad: userData.id_especialidad,
-        matricula: userData.matricula,
-        valor_consulta: userData.valor_consulta,
-      });
+      // Si es reactivación y mantuvo el rol, actualizar; sino crear
+      if (isReactivation && existeEmail.rol === ROLES.MEDICO) {
+        await usuariosModel.updateMedicoProfile(connection, id_usuario, {
+          id_especialidad: userData.id_especialidad,
+          matricula: userData.matricula,
+          valor_consulta: userData.valor_consulta,
+        });
+      } else {
+        await usuariosModel.createMedico(connection, {
+          id_usuario,
+          id_especialidad: userData.id_especialidad,
+          matricula: userData.matricula,
+          valor_consulta: userData.valor_consulta,
+        });
+      }
     } else if (rolNum === ROLES.PACIENTE) {
       // Validar que la obra social exista
       const existeObraSocial = await usuariosModel.findObraSocialById(userData.id_obra_social);
@@ -65,13 +107,19 @@ export const registrarUsuario = async (userData) => {
         throw new AppError(ERROR_CODES.BAD_REQUEST, 'La obra social especificada no existe');
       }
 
-      await usuariosModel.createPaciente(connection, {
-        id_usuario,
-        id_obra_social: userData.id_obra_social,
-      });
+      // Si es reactivación y mantuvo el rol, actualizar; sino crear
+      if (isReactivation && existeEmail.rol === ROLES.PACIENTE) {
+        await usuariosModel.updatePacienteProfile(connection, id_usuario, {
+          id_obra_social: userData.id_obra_social,
+        });
+      } else {
+        await usuariosModel.createPaciente(connection, {
+          id_usuario,
+          id_obra_social: userData.id_obra_social,
+        });
+      }
     }
 
-    // 6. Confirmar transacción
     await connection.commit();
 
     // eslint-disable-next-line no-unused-vars
