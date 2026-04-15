@@ -1,5 +1,5 @@
 import { pool } from '../../src/config/db.js';
-import { seedTestUser } from './seed.js';
+import { seedTestData } from './seed.js';
 
 /**
  * Limpia todas las tablas de la base de datos de test.
@@ -40,5 +40,5 @@ export const clearDatabase = async () => {
  */
 export const setupTestDB = async () => {
   await clearDatabase();
-  await seedTestUser(); // Siempre tenemos al menos un Admin para los tests
+  await seedTestData(); // Siempre tenemos al menos un Admin, Especialidad y Obra Social para los tests
 };
