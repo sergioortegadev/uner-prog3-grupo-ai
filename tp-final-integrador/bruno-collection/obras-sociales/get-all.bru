@@ -1,0 +1,25 @@
+meta {
+  name: Get All Obras Sociales
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/obras-sociales
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const token = bru.getEnvVar('authToken');
+  console.log("authToken desde script:", token);
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Obtiene todas las obras sociales activas. Requiere rol ADMIN.
+}

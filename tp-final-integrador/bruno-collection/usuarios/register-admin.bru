@@ -1,0 +1,31 @@
+meta {
+  name: Register Admin
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/usuarios
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documento": "11222333",
+    "apellido": "Admin",
+    "nombres": "Nuevo",
+    "email": "nuevoadmin@correo.com",
+    "password": "password123",
+    "rol": 3
+  }
+}
+
+docs {
+  Registra un nuevo administrador.
+}
