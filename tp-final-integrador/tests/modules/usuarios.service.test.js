@@ -270,4 +270,75 @@ describe('Usuarios Service', () => {
     expect(pacientes.length).toBe(1);
     expect(pacientes[0].id_obra_social).toBe(1);
   });
+
+  it('debe eliminar perfil antiguo al cambiar de rol en reactivación (PACIENTE a MEDICO)', async () => {
+    // 1. Crear usuario paciente
+    const userData = {
+      documento: '99001010',
+      apellido: 'Paciente',
+      nombres: 'CambioRol',
+      email: 'cambio.rol.pac@test.com',
+      password: 'password123',
+      rol: ROLES.PACIENTE,
+      id_obra_social: 1,
+    };
+    const created = await usuariosService.registrarUsuario(userData);
+
+    // 2. Marcarlo como inactivo
+    await pool.execute('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [created.id_usuario]);
+
+    // 3. Reactivar como MEDICO
+    const reactivaData = {
+      documento: '99001010',
+      apellido: 'Paciente',
+      nombres: 'CambioRol',
+      email: 'cambio.rol.pac@test.com',
+      password: 'newpassword',
+      rol: ROLES.MEDICO,
+      id_especialidad: 1,
+      matricula: 444444,
+      valor_consulta: 6000.0,
+    };
+    await usuariosService.registrarUsuario(reactivaData);
+
+    // Verificar que NO existe perfil de paciente
+    const [pacientes] = await pool.execute('SELECT * FROM pacientes WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(pacientes.length).toBe(0);
+
+    // Verificar que existe perfil de medico
+    const [medicos] = await pool.execute('SELECT * FROM medicos WHERE id_usuario = ?', [
+      created.id_usuario,
+    ]);
+    expect(medicos.length).toBe(1);
+    expect(medicos[0].matricula).toBe(444444);
+  });
+
+  it('debe intentar reactivar y fallar correctamente si se manda otro email pero el documento existe inactivo (bug de reactivacion)', async () => {
+    // 1. Crear usuario
+    const userData = {
+      documento: '88776655',
+      apellido: 'Zombie',
+      nombres: 'User',
+      email: 'zombie.original@test.com',
+      password: 'password123',
+      rol: ROLES.PACIENTE,
+      id_obra_social: 1,
+    };
+    const created = await usuariosService.registrarUsuario(userData);
+
+    // 2. Marcarlo como inactivo
+    await pool.execute('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [created.id_usuario]);
+
+    // 3. Intentar crear con mismo documento pero otro email.
+    // Debería reconocer la dependencia por el documento o arrojar validación amigable, no pinchar en DB.
+    const newData = { ...userData, email: 'zombie.nuevo@test.com' };
+
+    await expect(usuariosService.registrarUsuario(newData)).rejects.toMatchObject({
+      code: 'DUPLICATE_ENTRY',
+      status: 409,
+      // No comprobamos mensaje exacto por ahora, solo que devuelva 409 y Duplicado en vez de crashear 500
+    });
+  });
 });

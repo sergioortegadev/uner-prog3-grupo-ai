@@ -101,5 +101,40 @@ describe('Usuarios - Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.message).toContain('Tipo de archivo inválido');
     });
+
+    it('debería fallar con 400 si faltan campos obligatorios', async () => {
+      const response = await request(app).post('/api/v1/usuarios').send({
+        nombres: 'FaltanDatos',
+      });
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toBeDefined();
+    });
+
+    it('debería fallar con 409 si el usuario ya existe (Integration)', async () => {
+      await request(app).post('/api/v1/usuarios').send({
+        documento: '11223344',
+        apellido: 'Test',
+        nombres: 'Integration',
+        email: 'dup.integration@correo.com',
+        password: 'password123',
+        rol: ROLES.PACIENTE,
+        id_obra_social: 1,
+      });
+
+      const response = await request(app).post('/api/v1/usuarios').send({
+        documento: '11223344',
+        apellido: 'Test',
+        nombres: 'Integration',
+        email: 'other@correo.com',
+        password: 'password123',
+        rol: ROLES.PACIENTE,
+        id_obra_social: 1,
+      });
+
+      expect(response.status).toBe(409);
+      expect(response.body.success).toBe(false);
+    });
   });
 });

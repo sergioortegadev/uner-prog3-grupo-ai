@@ -206,4 +206,32 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(rows[0].activo).toBe(0);
     });
   });
+
+  describe('Casos 404 Not Found', () => {
+    it('GET /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('PUT /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .put('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Inexistente' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('DELETE /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .delete('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+    });
+  });
 });
