@@ -15,7 +15,7 @@ const mapToCamelCase = (row) => ({
  * Retorna todas las especialidades activas.
  */
 export const findAllActive = async () => {
-  const query = 'SELECT id_especialidad, nombre, activo FROM especialidades WHERE activo = 1';
+  const query = 'SELECT id_especialidad, nombre FROM especialidades WHERE activo = 1';
   const [rows] = await pool.execute(query);
   return rows.map(mapToCamelCase);
 };
