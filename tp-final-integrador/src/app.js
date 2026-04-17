@@ -6,6 +6,7 @@ import healthRoutes from './modules/health/health.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import usuariosRoutes from './modules/usuarios/usuarios.routes.js';
 import { obrasSocialesRouter as obrasSocialesRoutes } from './modules/obras_sociales/obras_sociales.routes.js';
+import { especialidadesRouter as especialidadesRoutes } from './modules/especialidades/especialidades.routes.js';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.js';
 import { UPLOAD_CONFIG } from './config/upload.config.js';
 
@@ -38,6 +39,7 @@ app.use(`${API_PREFIX}/health`, healthRoutes);
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/usuarios`, usuariosRoutes);
 app.use(`${API_PREFIX}/obras-sociales`, obrasSocialesRoutes);
+app.use(`${API_PREFIX}/especialidades`, especialidadesRoutes);
 
 // Manejo de rutas no encontradas (404)
 app.use(notFoundHandler);
