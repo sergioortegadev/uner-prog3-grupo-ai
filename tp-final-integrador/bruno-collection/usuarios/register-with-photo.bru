@@ -1,0 +1,35 @@
+meta {
+  name: Registrar Paciente con foto
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/usuarios
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  documento: 44555777
+  apellido: Rodriguez
+  nombres: Carlos
+  email: carlosrodriguez@correo.com
+  password: password123
+  rol: 2
+  id_obra_social: 1
+  foto: @file(/home/horacio/Pictures/Gemini_Generated_Image_9kwkrj9kwkrj9kwk.png)
+}
+
+script:post-response {
+  console.log("Response status:", res.status);
+  console.log("Response body:", JSON.stringify(res.body, null, 2));
+}
+
+docs {
+  Registra un nuevo paciente con foto de perfil.
+}
