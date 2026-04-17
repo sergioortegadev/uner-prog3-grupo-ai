@@ -9,17 +9,22 @@ const especialidadesRouter = Router();
 
 /**
  * Rutas para el módulo de especialidades.
- * Todas las rutas requieren autenticación y rol de Administrador.
  */
 
-// Middleware global para todas las rutas de este router
+// Todas las rutas requieren autenticación
 especialidadesRouter.use(verifyToken);
-especialidadesRouter.use(requireRole([ROLES.ADMIN]));
 
-especialidadesRouter.get('/', especialidadesController.getAll);
+// Listado accesible por Admin y Paciente
+especialidadesRouter.get(
+  '/',
+  requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
+  especialidadesController.getAll,
+);
 
+// El resto de las rutas son solo para Administrador
 especialidadesRouter.get(
   '/:id',
+  requireRole([ROLES.ADMIN]),
   especialidadesValidator.validateId,
   validateRequest,
   especialidadesController.getById,
@@ -27,6 +32,7 @@ especialidadesRouter.get(
 
 especialidadesRouter.post(
   '/',
+  requireRole([ROLES.ADMIN]),
   especialidadesValidator.validateCreate,
   validateRequest,
   especialidadesController.createEspecialidad,
@@ -34,6 +40,7 @@ especialidadesRouter.post(
 
 especialidadesRouter.put(
   '/:id',
+  requireRole([ROLES.ADMIN]),
   especialidadesValidator.validateUpdate,
   validateRequest,
   especialidadesController.updateEspecialidad,
@@ -41,9 +48,10 @@ especialidadesRouter.put(
 
 especialidadesRouter.delete(
   '/:id',
+  requireRole([ROLES.ADMIN]),
   especialidadesValidator.validateId,
   validateRequest,
   especialidadesController.removeEspecialidad,
 );
 
-export { especialidadesRouter };
+export default especialidadesRouter;

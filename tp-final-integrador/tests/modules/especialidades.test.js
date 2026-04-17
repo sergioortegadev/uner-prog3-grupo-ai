@@ -20,13 +20,22 @@ describe('Especialidades - Integration Tests', () => {
   });
 
   describe('Seguridad y Autorización', () => {
-    it('debería retornar 403 si un Paciente intenta acceder', async () => {
+    it('debería permitir que un Paciente acceda al listado (GET /)', async () => {
       const response = await request(app)
         .get('/api/v1/especialidades')
         .set('Authorization', `Bearer ${pacienteToken}`);
 
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('debería retornar 403 si un Paciente intenta crear una especialidad (POST /)', async () => {
+      const response = await request(app)
+        .post('/api/v1/especialidades')
+        .set('Authorization', `Bearer ${pacienteToken}`)
+        .send({ nombre: 'TEST' });
+
       expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('FORBIDDEN');
     });
 
