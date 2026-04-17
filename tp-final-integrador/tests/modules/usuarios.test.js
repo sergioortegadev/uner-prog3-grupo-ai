@@ -17,9 +17,8 @@ describe('Usuarios - Integration Tests', () => {
   afterAll(() => {
     // Cleanup de archivos subidos durante los tests
     uploadedFiles.forEach((file) => {
-      const fullPath = path.join(process.cwd(), file);
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
       }
     });
   });
@@ -61,7 +60,7 @@ describe('Usuarios - Integration Tests', () => {
       uploadedFiles.push(filePath);
 
       // Verificar físicamente que el archivo se haya creado
-      expect(fs.existsSync(path.join(process.cwd(), filePath))).toBe(true);
+      expect(fs.existsSync(filePath)).toBe(true);
     });
 
     it('debería registrar un usuario sin foto si no se envía el campo', async () => {
