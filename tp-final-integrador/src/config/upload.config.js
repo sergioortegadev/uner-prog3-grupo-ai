@@ -5,7 +5,7 @@ import path from 'path';
  */
 export const UPLOAD_CONFIG = {
   // Ruta física absoluta donde se guardan los archivos
-  STORAGE_DEST: path.join('public', 'uploads', 'usuarios'),
+  STORAGE_DEST: path.join(process.cwd(), 'public', 'uploads', 'usuarios'),
 
   // Prefijo de URL para acceder a los archivos desde el cliente
   URL_PREFIX: '/uploads/usuarios',
