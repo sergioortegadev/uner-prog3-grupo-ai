@@ -90,18 +90,19 @@ describe('Upload Middleware - Multer (Integration)', () => {
     expect(res.body.message).toContain('File too large');
   });
 
-  it('debe sanitizar caracteres extraños/peligrosos del nombre del archivo y bloquear Path Traversal', async () => {
+  it('debe sanitizar caracteres extraños/peligrosos del nombre del archivo y convertir a minúsculas', async () => {
     const buffer = getTestBuffer(1024);
 
     const res = await request(app).post('/test-upload').attach('foto', buffer, {
-      filename: '../../../../c!h@a#u.webp', // Intento de Path Traversal + caracteres feos
+      filename: '../../../../C!H@A#U.WEBP', // Intento de Path Traversal + Mayúsculas + caracteres feos
       contentType: 'image/webp',
     });
 
     expect(res.status).toBe(200);
 
     // basename() recorta el '../../../'
-    // regex reescribe a "_" los caracteres especiales de 'c!h@a#u' -> "c_h_a_u"
+    // regex reescribe a "_" los caracteres especiales de 'C!H@A#U' -> "C_H_A_U"
+    // toLowerCase() lo pasa a "c_h_a_u"
     expect(res.body.file.filename).toMatch(/^\d+-c_h_a_u\.webp$/);
 
     testFiles.push(res.body.file.path);

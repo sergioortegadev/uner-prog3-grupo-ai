@@ -23,10 +23,11 @@ const storage = multer.diskStorage({
     // ignorando la extensión original proporcionada por el cliente.
     const ext = MIME_TO_EXT[file.mimetype] || path.extname(file.originalname).toLowerCase();
 
-    // Sanitizamos el nombre base para evitar caracteres extraños
+    // Sanitizamos el nombre base para evitar caracteres extraños y convertimos a minúsculas
     const baseName = path
       .basename(file.originalname, path.extname(file.originalname))
-      .replace(/[^a-zA-Z0-9]/g, '_');
+      .replace(/[^a-zA-Z0-9]/g, '_')
+      .toLowerCase();
 
     const uniqueName = `${Date.now()}-${baseName}${ext}`;
     cb(null, uniqueName);
