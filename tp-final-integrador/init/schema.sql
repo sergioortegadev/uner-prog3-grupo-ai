@@ -220,6 +220,7 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 --
 CREATE TABLE `v_medicos` (
 `id_medico` int(10) unsigned
+,`id_especialidad` int(10) unsigned
 ,`apellido` varchar(100)
 ,`nombres` varchar(100)
 ,`especialidad` varchar(120)
@@ -254,6 +255,7 @@ DROP TABLE IF EXISTS `v_medicos`;
 CREATE VIEW `v_medicos` AS
 SELECT
     m.id_medico,
+    e.id_especialidad,
     u.apellido,
     u.nombres,
     e.nombre AS especialidad,

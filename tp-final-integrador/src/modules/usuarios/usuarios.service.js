@@ -93,7 +93,7 @@ export const registrarUsuario = async (userData) => {
       // Validar que la especialidad exista
       const especialidad = await usuariosModel.findEspecialidadById(userData.id_especialidad);
       if (!especialidad) {
-        throw new AppError(ERROR_CODES.BAD_REQUEST, 'La especialidad especificada no existe');
+        throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'La especialidad especificada no existe');
       }
 
       // Si es reactivación y mantuvo el rol, actualizar; sino crear
@@ -115,7 +115,7 @@ export const registrarUsuario = async (userData) => {
       // Validar que la obra social exista
       const obraSocial = await usuariosModel.findObraSocialById(userData.id_obra_social);
       if (!obraSocial) {
-        throw new AppError(ERROR_CODES.BAD_REQUEST, 'La obra social especificada no existe');
+        throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'La obra social especificada no existe');
       }
 
       // Si es reactivación y mantuvo el rol, actualizar; sino crear

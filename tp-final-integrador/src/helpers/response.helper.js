@@ -2,6 +2,9 @@ import { ERROR_CODES } from './errors.helper.js';
 
 /**
  * Respuesta de éxito
+ * @param {Object} res - Objeto de respuesta
+ * @param {any} data - Datos a devolver (opcional)
+ * @param {number} status - Código de estado HTTP (default 200)
  */
 export const successResponse = (res, data = {}, status = 200) => {
   return res.status(status).json({
