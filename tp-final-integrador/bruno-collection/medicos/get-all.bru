@@ -1,0 +1,22 @@
+meta {
+  name: Listar Médicos
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/medicos
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~especialidad: 1
+}
+
+docs {
+  Lista todos los médicos activos. 
+  
+  **Filtros:**
+  - `especialidad` (query): ID de la especialidad.
+}
