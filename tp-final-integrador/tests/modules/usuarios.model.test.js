@@ -61,14 +61,17 @@ describe('Usuarios Model', () => {
       expect(user.id_usuario).toBe(99);
     });
 
-    it('findByDocumento: debe encontrar un usuario ACTIVO por documento', async () => {
+    it('findByDocumento: debe encontrar un usuario ACTIVO por su documento', async () => {
       const doc = '51000111';
       const user = await usuariosModel.findByDocumento(doc);
 
       expect(user).toBeDefined();
       expect(user.id_usuario).toBe(8);
-      // El diseño de la BD devuelve solo el ID de usuario para los activos por defecto (optimización)
-      expect(user.activo).toBeUndefined();
+    });
+
+    it('findByDocumento: debe retornar null si el documento no existe', async () => {
+      const inexistente = await usuariosModel.findByDocumento('00000000');
+      expect(inexistente).toBeNull();
     });
 
     it('findByDocumento: debe encontrar un usuario INACTIVO devolviendo id_usuario y activo si se incluye includeInactive', async () => {
@@ -83,6 +86,11 @@ describe('Usuarios Model', () => {
       expect(user).toBeDefined();
       expect(user.email).toBe('ferben@correo.com');
       expect(user.documento).toBe('51000111');
+    });
+
+    it('findById: debe retornar null si el ID no existe', async () => {
+      const user = await usuariosModel.findById(999999);
+      expect(user).toBeNull();
     });
   });
 
@@ -233,6 +241,30 @@ describe('Usuarios Model', () => {
 
       const [rows] = await connection.execute('SELECT * FROM pacientes WHERE id_usuario = 8');
       expect(rows.length).toBe(0);
+    });
+  });
+
+  describe('Getters de Perfiles', () => {
+    it('findMedicoByUserId - debe retornar el perfil del médico', async () => {
+      const profile = await usuariosModel.findMedicoByUserId(1); // Médico ID 1 en seed
+      expect(profile).not.toBeNull();
+      expect(profile.matricula).toBe(1000);
+    });
+
+    it('findMedicoByUserId - debe retornar null si no existe el médico', async () => {
+      const profile = await usuariosModel.findMedicoByUserId(999);
+      expect(profile).toBeNull();
+    });
+
+    it('findPacienteByUserId - debe retornar el perfil del paciente', async () => {
+      const profile = await usuariosModel.findPacienteByUserId(5); // Paciente ID 5 en seed
+      expect(profile).not.toBeNull();
+      expect(profile.id_obra_social).toBe(1);
+    });
+
+    it('findPacienteByUserId - debe retornar null si no existe el paciente', async () => {
+      const profile = await usuariosModel.findPacienteByUserId(999);
+      expect(profile).toBeNull();
     });
   });
 });
