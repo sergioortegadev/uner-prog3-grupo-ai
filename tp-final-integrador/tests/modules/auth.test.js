@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../../src/app.js';
-import { setupTestDB } from '../setup/db.js';
 
 describe('Auth Integration Tests', () => {
-  beforeAll(async () => {
-    await setupTestDB();
-  });
-
   describe('POST /api/v1/auth/login', () => {
     it('debería iniciar sesión correctamente con credenciales válidas', async () => {
       const response = await request(app).post('/api/v1/auth/login').send({

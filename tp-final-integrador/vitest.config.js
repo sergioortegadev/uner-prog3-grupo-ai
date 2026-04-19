@@ -1,15 +1,24 @@
 import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 
-export default defineConfig({
-  test: {
-    // Esto asegura que Vitest use el pool de hilos correcto
-    pool: 'forks',
-    // Aquí podrías agregar más configuración global
-    environment: 'node',
-    // Podemos forzar variables de entorno aquí si fuera necesario
-    env: {
-      NODE_ENV: 'test',
-      DB_NAME: 'prog3_turnos_test',
+export default defineConfig(({ mode }) => {
+  // Carga las variables de entorno de .env.test (y otros .env si existen)
+  const env = loadEnv(mode, process.cwd(), '');
+
+  process.env = { ...process.env, ...env };
+
+  return {
+    test: {
+      // Esto asegura que Vitest use el pool de hilos correcto
+      pool: 'forks',
+      fileParallelism: false,
+      environment: 'node',
+      setupFiles: ['./tests/setup/vitest.setup.js'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        exclude: ['node_modules/', 'tests/setup/'],
+      },
     },
-  },
+  };
 });

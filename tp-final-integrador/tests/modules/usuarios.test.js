@@ -3,7 +3,6 @@ import request from 'supertest';
 import fs from 'fs';
 import path from 'path';
 import { app } from '../../src/app.js';
-import { setupTestDB } from '../setup/db.js';
 import { UPLOAD_CONFIG } from '../../src/config/upload.config.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
 
@@ -11,6 +10,7 @@ describe('Usuarios - Integration Tests', () => {
   const uploadedFiles = [];
 
   beforeEach(async () => {
+    const { setupTestDB } = await import('../setup/db.js');
     await setupTestDB();
   });
 

@@ -6,7 +6,8 @@ import { seedTestData } from './seed.js';
  * Mantiene la seguridad de no tocar la base de desarrollo.
  */
 export const clearDatabase = async () => {
-  if (process.env.DB_NAME !== 'prog3_turnos_test') {
+  const allowedDatabases = ['prog3_turnos_test', 'prog3_final_test'];
+  if (!allowedDatabases.includes(process.env.DB_NAME)) {
     throw new Error(`¡BLOQUEO DE SEGURIDAD! Intento de limpieza en: [${process.env.DB_NAME}].`);
   }
 

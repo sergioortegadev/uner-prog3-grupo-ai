@@ -1,14 +1,9 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as usuariosService from '../../src/modules/usuarios/usuarios.service.js';
 import { pool } from '../../src/config/db.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
-import { setupTestDB } from '../setup/db.js';
 
 describe('Usuarios Service', () => {
-  beforeAll(async () => {
-    await setupTestDB();
-  });
-
   it('debe registrar un administrador exitosamente', async () => {
     const userData = {
       documento: '99000111',

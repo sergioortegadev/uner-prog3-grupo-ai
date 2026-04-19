@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { pool } from '../../src/config/db.js';
 import * as medicosModel from '../../src/modules/medicos/medicos.model.js';
-import { setupTestDB } from '../setup/db.js';
 
 describe('Medicos Model', () => {
-  beforeEach(async () => {
-    await setupTestDB();
-  });
-
   it('findAll - debe retornar una lista de médicos (v_medicos)', async () => {
     const medicos = await medicosModel.findAll();
     expect(Array.isArray(medicos)).toBe(true);

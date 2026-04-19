@@ -1,17 +1,13 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import { ROLES } from '../../src/constants/roles.constants.js';
 import * as usuariosModel from '../../src/modules/usuarios/usuarios.model.js';
-import { setupTestDB } from '../setup/db.js';
 import { pool } from '../../src/config/db.js';
 
 describe('Usuarios Model', () => {
   let connection;
 
   beforeAll(async () => {
-    // 1. Cargamos el estado inicial de la base de datos (Ej: Admin ID 8)
-    await setupTestDB();
-
-    // 2. Insertamos un usuario de de prueba con estado inactivo para testear el flag includeInactive
+    // 1. Insertamos un usuario de de prueba con estado inactivo para testear el flag includeInactive
     await pool.execute(
       'INSERT INTO usuarios (id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [99, '99999999', 'Inactivo', 'Test', 'inactivo@correo.com', 'hashed', '', ROLES.PACIENTE, 0],

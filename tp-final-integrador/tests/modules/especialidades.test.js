@@ -3,7 +3,6 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../../src/app.js';
 import { pool } from '../../src/config/db.js';
-import { setupTestDB } from '../setup/db.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Especialidades - Integration Tests', () => {
@@ -12,7 +11,6 @@ describe('Especialidades - Integration Tests', () => {
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
-    await setupTestDB();
     // Generamos tokens para las pruebas basándonos en seed.js
     // Admin: id 8, Paciente: id 5
     adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);

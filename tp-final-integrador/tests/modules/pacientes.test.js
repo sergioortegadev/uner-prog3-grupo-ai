@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../../src/app.js';
-import { setupTestDB } from '../setup/db.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Pacientes - Integration Tests', () => {
@@ -11,8 +10,6 @@ describe('Pacientes - Integration Tests', () => {
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
-    await setupTestDB();
-
     // Generamos tokens directamente (más rápido y robusto que login HTTP)
     adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
     pacienteToken = jwt.sign({ id: 5, rol: ROLES.PACIENTE, documento: '41000111' }, JWT_SECRET);
