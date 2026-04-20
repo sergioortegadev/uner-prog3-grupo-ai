@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 import { UPLOAD_CONFIG } from '../config/upload.config.js';
 
@@ -66,6 +67,10 @@ export const uploadFotoUsuario = (req, res, next) => {
 
     // Validación de archivo vacío (0 bytes)
     if (req.file && req.file.size === 0) {
+      // Borramos el archivo vacío para no ensuciar el disco
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return next(new AppError(ERROR_CODES.BAD_REQUEST, 'El archivo subido está vacío.'));
     }
 

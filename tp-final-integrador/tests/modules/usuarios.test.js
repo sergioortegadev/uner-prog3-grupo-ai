@@ -17,9 +17,8 @@ describe('Usuarios - Integration Tests', () => {
   afterAll(() => {
     // Cleanup de archivos subidos durante los tests
     uploadedFiles.forEach((file) => {
-      const fullPath = path.join(process.cwd(), file);
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
       }
     });
   });
