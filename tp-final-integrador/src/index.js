@@ -72,4 +72,6 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 export { startServer };
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}

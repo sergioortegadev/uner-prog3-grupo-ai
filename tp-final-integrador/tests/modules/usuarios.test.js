@@ -101,7 +101,7 @@ describe('Usuarios - Integration Tests', () => {
       expect(response.body.error.message).toContain('Tipo de archivo inválido');
     });
 
-    it('debería fallar con 400 si faltan campos obligatorios', async () => {
+    it('debería fallar con 422 si faltan campos obligatorios', async () => {
       const response = await request(app).post('/api/v1/usuarios').send({
         nombres: 'FaltanDatos',
       });
@@ -109,6 +109,24 @@ describe('Usuarios - Integration Tests', () => {
       expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
       expect(response.body.error.message).toBeDefined();
+    });
+
+    it('debería borrar el archivo del disco si la validación de campos falla (422)', async () => {
+      const buffer = Buffer.from('fake image content');
+      const fileName = 'cleanup_on_validation_fail.jpg';
+
+      const response = await request(app)
+        .post('/api/v1/usuarios')
+        .field('nombres', 'TestingCleanup')
+        .field('rol', ROLES.PACIENTE)
+        .attach('foto', buffer, fileName);
+
+      expect(response.status).toBe(422);
+
+      const files = fs.readdirSync(UPLOAD_CONFIG.STORAGE_DEST);
+      const leakedFile = files.find((f) => f.includes('cleanup_on_validation_fail'));
+
+      expect(leakedFile).toBeUndefined(); // Si esto falla, es porque el archivo se quedó en el disco
     });
 
     it('debería fallar con 409 si el usuario ya existe (Integration)', async () => {

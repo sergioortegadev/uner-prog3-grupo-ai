@@ -9,6 +9,7 @@ describe('Error Middleware', () => {
   let mockNext;
 
   beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     mockReq = {
       originalUrl: '/api/usuarios',
     };
