@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as authController from './auth.controller.js';
 import { loginValidator } from './auth.validator.js';
+import { methodNotAllowedHandler } from '../../middlewares/method.middleware.js';
 
 const router = Router();
 
@@ -9,6 +10,9 @@ const router = Router();
  */
 
 // POST /api/v1/auth/login
-router.post('/login', loginValidator, authController.login);
+router
+  .route('/login')
+  .post(loginValidator, authController.login)
+  .all(methodNotAllowedHandler(['POST']));
 
 export default router;

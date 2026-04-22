@@ -36,5 +36,14 @@ describe('Health Module Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('DATABASE_ERROR');
     });
+
+    it('debería retornar 405 Method Not Allowed para métodos no soportados', async () => {
+      const response = await request(app).post('/api/v1/health');
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET');
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
   });
 });

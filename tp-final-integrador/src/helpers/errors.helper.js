@@ -26,6 +26,11 @@ export const ERROR_CODES = {
     status: 409,
     message: 'Ya existe un registro con los datos proporcionados',
   },
+  METHOD_NOT_ALLOWED: {
+    code: 'METHOD_NOT_ALLOWED',
+    status: 405,
+    message: 'El método HTTP no está permitido para esta ruta',
+  },
 };
 
 /**

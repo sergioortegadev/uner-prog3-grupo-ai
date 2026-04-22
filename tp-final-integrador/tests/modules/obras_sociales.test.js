@@ -206,4 +206,26 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(rows[0].activo).toBe(0);
     });
   });
+
+  describe('Métodos No Permitidos (405)', () => {
+    it('debería retornar 405 para métodos no soportados en la colección (/)', async () => {
+      const response = await request(app)
+        .patch('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET, POST');
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
+
+    it('debería retornar 405 para métodos no soportados en el recurso (/:id)', async () => {
+      const response = await request(app)
+        .post('/api/v1/obras-sociales/1')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET, PUT, DELETE');
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
+  });
 });
