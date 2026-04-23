@@ -1,0 +1,21 @@
+meta {
+  name: Get All Especialidades
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/especialidades
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Obtiene todas las especialidades activas.
+  Accesible por roles: ADMIN, PACIENTE.
+}

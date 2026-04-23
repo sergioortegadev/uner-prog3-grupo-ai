@@ -1,0 +1,30 @@
+meta {
+  name: Create Obra Social
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/obras-sociales
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Nueva Obra Social",
+    "descripcion": "Descripción de prueba",
+    "porcentajeDescuento": 15.5,
+    "esParticular": false
+  }
+}
+
+docs {
+  Crea una nueva obra social. Requiere rol ADMIN.
+}
