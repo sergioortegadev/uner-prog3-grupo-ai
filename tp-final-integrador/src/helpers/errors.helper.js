@@ -26,6 +26,11 @@ export const ERROR_CODES = {
     status: 409,
     message: 'Ya existe un registro con los datos proporcionados',
   },
+  PAYLOAD_TOO_LARGE: {
+    code: 'PAYLOAD_TOO_LARGE',
+    status: 413,
+    message: 'Entidad de solicitud demasiado grande',
+  },
 };
 
 /**
