@@ -1,13 +1,8 @@
 import { ROLES } from '../../src/constants/roles.constants.js';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as authService from '../../src/modules/auth/auth.service.js';
-import { setupTestDB } from '../setup/db.js';
 
 describe('Auth Service', () => {
-  beforeAll(async () => {
-    await setupTestDB();
-  });
-
   it('debe autenticar un usuario con credenciales válidas y devolver un token', async () => {
     const email = 'ferben@correo.com';
     const password = 'password123'; // Definida en el seed

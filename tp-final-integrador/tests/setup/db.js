@@ -1,12 +1,13 @@
 import { pool } from '../../src/config/db.js';
-import { seedTestUser } from './seed.js';
+import { seedTestData } from './seed.js';
 
 /**
  * Limpia todas las tablas de la base de datos de test.
  * Mantiene la seguridad de no tocar la base de desarrollo.
  */
 export const clearDatabase = async () => {
-  if (process.env.DB_NAME !== 'prog3_turnos_test') {
+  const allowedDatabases = ['prog3_turnos_test', 'prog3_final_test'];
+  if (!allowedDatabases.includes(process.env.DB_NAME)) {
     throw new Error(`¡BLOQUEO DE SEGURIDAD! Intento de limpieza en: [${process.env.DB_NAME}].`);
   }
 
@@ -40,5 +41,5 @@ export const clearDatabase = async () => {
  */
 export const setupTestDB = async () => {
   await clearDatabase();
-  await seedTestUser(); // Siempre tenemos al menos un Admin para los tests
+  await seedTestData(); // Siempre tenemos al menos un Admin, Especialidad y Obra Social para los tests
 };

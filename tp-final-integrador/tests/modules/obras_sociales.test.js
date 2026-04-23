@@ -3,7 +3,6 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../../src/app.js';
 import { pool } from '../../src/config/db.js';
-import { setupTestDB } from '../setup/db.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Obras Sociales - Integration Tests', () => {
@@ -12,7 +11,6 @@ describe('Obras Sociales - Integration Tests', () => {
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
-    await setupTestDB();
     // Generamos tokens para las pruebas
     adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
     pacienteToken = jwt.sign({ id: 5, rol: ROLES.PACIENTE, documento: '41000111' }, JWT_SECRET);
@@ -204,6 +202,34 @@ describe('Obras Sociales - Integration Tests', () => {
         [id],
       );
       expect(rows[0].activo).toBe(0);
+    });
+  });
+
+  describe('Casos 404 Not Found', () => {
+    it('GET /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('PUT /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .put('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Inexistente' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('DELETE /api/v1/obras-sociales/:id - debería retornar 404 si el ID no existe', async () => {
+      const response = await request(app)
+        .delete('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
     });
   });
 });
