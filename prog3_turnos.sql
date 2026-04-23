@@ -211,7 +211,7 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 (6, '41000112', 'Hunk', 'Lorena', 'hunlor@correo.com', '464db19217fabdaabc5add321054f39216d03edfef2efaf8c6769485415b7f25', '', 2, 1),
 (7, '41000113', 'Aguirre', 'Brian', 'agubri@correo.com', '2dfa174ae2688ec55d00f57c5a0a7783ba1f0e2981ab7df9f1cf933686c15274', '', 2, 1),
 (8, '51000111', 'Fernandez', 'Benito', 'ferben@correo.com', 'f127f4e9e4248f77eaa446ea9bff721e3e79eedf114ba6e1cfc633853ef07b4c', '', 3, 1),
-(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '601de117008d80e65ffad05dce97462d8f1b1e9aad6d68cf2b289703b8366b52', '', 3, 1);
+(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '76a8c23df7d396e6ff724af4263a4f1cb3f9858e1c29c449ac1153b34020bd26', '', 3, 1);
 
 -- --------------------------------------------------------
 

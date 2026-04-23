@@ -10,9 +10,9 @@ describe('Auth Service', () => {
 
   it('debe autenticar un usuario con credenciales válidas y devolver un token', async () => {
     const email = 'ferben@correo.com';
-    const password = 'password123'; // Definida en el seed
+    const contrasenia = 'password123'; // Definida en el seed
 
-    const result = await authService.login(email, password);
+    const result = await authService.login(email, contrasenia);
 
     expect(result).toBeDefined();
     expect(result.token).toBeDefined();
@@ -23,9 +23,9 @@ describe('Auth Service', () => {
 
   it('debe fallar si la contraseña es incorrecta', async () => {
     const email = 'ferben@correo.com';
-    const password = 'wrongpassword';
+    const contrasenia = 'wrongpassword';
 
-    await expect(authService.login(email, password)).rejects.toThrow('Credenciales inválidas');
+    await expect(authService.login(email, contrasenia)).rejects.toThrow('Credenciales inválidas');
   });
 
   it('debe fallar si el usuario no existe', async () => {
