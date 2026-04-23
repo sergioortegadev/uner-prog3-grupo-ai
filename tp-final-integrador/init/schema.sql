@@ -193,7 +193,7 @@ CREATE TABLE `usuarios` (
   `nombres` varchar(100) NOT NULL,
   `email` varchar(255) NOT NULL,
   `contrasenia` varchar(255) NOT NULL,
-  `foto_path` varchar(255) NOT NULL,
+  `foto_path` varchar(255) DEFAULT NULL,
   `rol` tinyint(3) UNSIGNED NOT NULL,
   `activo` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
