@@ -13,6 +13,6 @@ export const loginValidator = [
     .withMessage('Debe ser un email válido')
     .notEmpty()
     .withMessage('El email es requerido'),
-  body('password').notEmpty().withMessage('La contraseña es requerida'),
+  body('contrasenia').notEmpty().withMessage('La contraseña es requerida'),
   validateRequest,
 ];

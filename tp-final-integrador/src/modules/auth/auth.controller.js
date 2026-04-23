@@ -10,8 +10,8 @@ import { successResponse } from '../../helpers/response.helper.js';
  * Maneja el inicio de sesión.
  */
 export const login = async (req, res) => {
-  const { email, password } = matchedData(req);
-  const result = await authService.login(email, password);
+  const { email, contrasenia } = matchedData(req);
+  const result = await authService.login(email, contrasenia);
 
   return successResponse(res, result);
 };
