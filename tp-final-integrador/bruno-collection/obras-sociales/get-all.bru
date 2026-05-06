@@ -5,9 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/obras-sociales
+  url: {{baseUrl}}/obras-sociales?limit=10&offset=0&order=nombre&asc=true&nombre=pami
   body: none
   auth: none
+}
+
+query {
+  limit: 10
+  offset: 0
+  order: nombre
+  asc: true
+  nombre: pami
 }
 
 script:pre-request {

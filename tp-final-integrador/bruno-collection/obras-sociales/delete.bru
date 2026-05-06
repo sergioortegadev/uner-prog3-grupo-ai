@@ -1,11 +1,11 @@
 meta {
-  name: Delete Especialidad
+  name: Delete Obra Social
   type: http
   seq: 5
 }
 
 delete {
-  url: {{baseUrl}}/especialidades/{{especialidadId}}
+  url: {{baseUrl}}/obras-sociales/1
   body: none
   auth: none
 }
@@ -16,6 +16,5 @@ headers {
 }
 
 docs {
-  Realiza un borrado lógico de una especialidad.
-  Requiere rol ADMIN.
+  Realiza un borrado lógico (soft delete) de una obra social, marcándola como inactiva.
 }
