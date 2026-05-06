@@ -2,8 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import v1Router from './routes/v1/index.js';
-import { API_PREFIX, V1_PREFIX } from './constants/routes.constants.js';
+import apiRouter from './routes/index.js';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.js';
 import validateContentType from './middlewares/content.middleware.js';
 
@@ -26,8 +25,8 @@ app.use(validateContentType);
 app.use(express.json());
 app.use(express.static('public'));
 
-// Enrutamiento centralizado (v1)
-app.use(`${API_PREFIX}${V1_PREFIX}`, v1Router);
+// Enrutamiento  (API)
+app.use(apiRouter);
 
 // Manejo de rutas no encontradas (404)
 app.use(notFoundHandler);

@@ -47,4 +47,4 @@ obrasSocialesRouter
   )
   .all(methodNotAllowedHandler(['GET', 'PUT', 'DELETE']));
 
-export { obrasSocialesRouter };
+export default obrasSocialesRouter;
