@@ -20,6 +20,6 @@ export const updateObraSocial = async (id, data) => {
   return await obrasSocialesModel.update(id, data);
 };
 
-export const getObraSocialById = async (id) => {
-  return await obrasSocialesModel.findById(id);
+export const getObraSocialById = async (id, onlyActive = true) => {
+  return await obrasSocialesModel.findById(id, onlyActive);
 };

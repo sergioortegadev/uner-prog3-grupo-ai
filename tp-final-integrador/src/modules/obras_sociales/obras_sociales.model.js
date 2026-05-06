@@ -44,11 +44,18 @@ export const findAllActive = async (params = {}) => {
 };
 
 /**
- * Busca una obra social activa por ID.
+ * Busca una obra social por ID.
+ * @param {number} id - ID de la obra social.
+ * @param {boolean} onlyActive - Si es true, solo busca obras sociales activas.
  */
-export const findById = async (id) => {
-  const query =
-    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE id_obra_social = ? AND activo = 1';
+export const findById = async (id, onlyActive = true) => {
+  let query =
+    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE id_obra_social = ?';
+
+  if (onlyActive) {
+    query += ' AND activo = 1';
+  }
+
   const [rows] = await pool.execute(query, [id]);
   if (rows.length === 0) return null;
   return obrasSocialesMapper.toDTO(rows[0]);
@@ -110,12 +117,16 @@ export const update = async (id, data) => {
     fields.push('es_particular = ?');
     values.push(data.esParticular ? 1 : 0);
   }
+  if (data.activo !== undefined) {
+    fields.push('activo = ?');
+    values.push(data.activo ? 1 : 0);
+  }
 
   if (fields.length === 0) {
     throw new AppError(ERROR_CODES.BAD_REQUEST, 'No hay campos para actualizar');
   }
 
-  const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ? AND activo = 1`;
+  const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ?`;
   values.push(id);
 
   try {
