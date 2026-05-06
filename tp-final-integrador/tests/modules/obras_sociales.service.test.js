@@ -17,16 +17,20 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
   });
 
   describe('getAllActive()', () => {
-    it('debería retornar las obras sociales del modelo', async () => {
-      // Configuramos el mock para que devuelva un valor falso
-      const mockData = [{ id: 1, nombre: 'OSDE' }];
-      obrasSocialesModel.findAllActive.mockResolvedValue(mockData);
+    it('debería retornar las obras sociales del modelo con total', async () => {
+      // Configuramos el mock para que devuelva el objeto con data y total
+      const mockResult = {
+        data: [{ id: 1, nombre: 'OSDE' }],
+        total: 1,
+      };
+      obrasSocialesModel.findAllActive.mockResolvedValue(mockResult);
 
-      const result = await obrasSocialesService.getAllActive();
+      const params = { limit: 10, offset: 0 };
+      const result = await obrasSocialesService.getAllActive(params);
 
-      // Verificamos que se llamó al modelo y que el resultado coincide
-      expect(obrasSocialesModel.findAllActive).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(mockData);
+      // Verificamos que se llamó al modelo con los parámetros y que el resultado coincide
+      expect(obrasSocialesModel.findAllActive).toHaveBeenCalledWith(params);
+      expect(result).toEqual(mockResult);
     });
   });
 

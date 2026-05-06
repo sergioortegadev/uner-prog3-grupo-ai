@@ -4,8 +4,8 @@ import * as obrasSocialesModel from './obras_sociales.model.js';
  * Lógica de negocio para obras sociales.
  */
 
-export const getAllActive = async () => {
-  return await obrasSocialesModel.findAllActive();
+export const getAllActive = async (params) => {
+  return await obrasSocialesModel.findAllActive(params);
 };
 
 export const createObraSocial = async (data) => {

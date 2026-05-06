@@ -1,17 +1,20 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
-import healthRoutes from './modules/health/health.routes.js';
-import authRoutes from './modules/auth/auth.routes.js';
-import { obrasSocialesRouter as obrasSocialesRoutes } from './modules/obras_sociales/obras_sociales.routes.js';
+import v1Router from './routes/v1/index.js';
+import { API_PREFIX, V1_PREFIX } from './constants/routes.constants.js';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.js';
+import validateContentType from './middlewares/content.middleware.js';
 
 const app = express();
 
 // Middlewares base
+app.use(helmet());
 app.use(
   cors({
     origin: process.env.ALLOWED_ORIGINS || 'http://localhost:5173',
+    optionsSuccessStatus: 200,
   }),
 );
 
@@ -19,16 +22,12 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
+app.use(validateContentType);
 app.use(express.json());
 app.use(express.static('public'));
 
-// Prefijo de las rutas
-const API_PREFIX = '/api/v1';
-
-// Rutas de la aplicación (Modulares)
-app.use(`${API_PREFIX}/health`, healthRoutes);
-app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/obras-sociales`, obrasSocialesRoutes);
+// Enrutamiento centralizado (v1)
+app.use(`${API_PREFIX}${V1_PREFIX}`, v1Router);
 
 // Manejo de rutas no encontradas (404)
 app.use(notFoundHandler);

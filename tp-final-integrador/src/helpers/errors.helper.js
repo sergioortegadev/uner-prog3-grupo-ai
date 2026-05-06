@@ -31,6 +31,11 @@ export const ERROR_CODES = {
     status: 405,
     message: 'El método HTTP no está permitido para esta ruta',
   },
+  UNSUPPORTED_MEDIA_TYPE: {
+    code: 'UNSUPPORTED_MEDIA_TYPE',
+    status: 415,
+    message: 'Formato de contenido no soportado. Se requiere application/json',
+  },
 };
 
 /**

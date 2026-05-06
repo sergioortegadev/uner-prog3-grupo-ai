@@ -1,6 +1,10 @@
 import { matchedData } from 'express-validator';
 import * as obrasSocialesService from './obras_sociales.service.js';
-import { successResponse, errorResponse } from '../../helpers/response.helper.js';
+import {
+  successResponse,
+  errorResponse,
+  paginatedResponse,
+} from '../../helpers/response.helper.js';
 import { ERROR_CODES } from '../../helpers/errors.helper.js';
 
 /**
@@ -10,8 +14,9 @@ import { ERROR_CODES } from '../../helpers/errors.helper.js';
  */
 
 export const getAll = async (req, res) => {
-  const obrasSociales = await obrasSocialesService.getAllActive();
-  return successResponse(res, obrasSociales);
+  const queryParams = matchedData(req, { locations: ['query'] });
+  const { data, total } = await obrasSocialesService.getAllActive(queryParams);
+  return paginatedResponse(res, data, total, queryParams);
 };
 
 export const getById = async (req, res) => {
@@ -28,8 +33,9 @@ export const getById = async (req, res) => {
 export const createObraSocial = async (req, res) => {
   const data = matchedData(req);
   const id = await obrasSocialesService.createObraSocial(data);
+  const nuevaObraSocial = await obrasSocialesService.getObraSocialById(id);
 
-  return successResponse(res, { id }, 201);
+  return successResponse(res, nuevaObraSocial, 201);
 };
 
 export const updateObraSocial = async (req, res) => {
