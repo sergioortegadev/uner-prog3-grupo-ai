@@ -1,0 +1,20 @@
+meta {
+  name: Delete Obra Social
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/obras-sociales/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Realiza un borrado lógico (soft delete) de una obra social, marcándola como inactiva.
+}

@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import * as obrasSocialesController from './obras_sociales.controller.js';
 import * as obrasSocialesValidator from './obras_sociales.validator.js';
-import { ROLES } from '../../constants/roles.constants.js';
-import { verifyToken, requireRole } from '../../middlewares/auth.middleware.js';
+import { validateListQuery } from '../../middlewares/query.validator.js';
+// import { ROLES } from '../../constants/roles.constants.js';
+// import { verifyToken, requireRole } from '../../middlewares/auth.middleware.js';
 import { validateRequest } from '../../middlewares/validate.middleware.js';
+import { methodNotAllowedHandler } from '../../middlewares/method.middleware.js';
 
 const obrasSocialesRouter = Router();
 
@@ -13,37 +15,36 @@ const obrasSocialesRouter = Router();
  */
 
 // Middleware global para todas las rutas de este router
-obrasSocialesRouter.use(verifyToken);
-obrasSocialesRouter.use(requireRole([ROLES.ADMIN]));
+// obrasSocialesRouter.use(verifyToken);
+// obrasSocialesRouter.use(requireRole([ROLES.ADMIN]));
 
-obrasSocialesRouter.get('/', obrasSocialesController.getAll);
+obrasSocialesRouter
+  .route('/')
+  .get(
+    validateListQuery(['id_obra_social', 'nombre', 'porcentaje_descuento'], ['nombre']),
+    validateRequest,
+    obrasSocialesController.getAll,
+  )
+  .post(
+    obrasSocialesValidator.validateCreate,
+    validateRequest,
+    obrasSocialesController.createObraSocial,
+  )
+  .all(methodNotAllowedHandler(['GET', 'POST']));
 
-obrasSocialesRouter.get(
-  '/:id',
-  obrasSocialesValidator.validateId,
-  validateRequest,
-  obrasSocialesController.getById,
-);
+obrasSocialesRouter
+  .route('/:id')
+  .get(obrasSocialesValidator.validateId, validateRequest, obrasSocialesController.getById)
+  .put(
+    obrasSocialesValidator.validateUpdate,
+    validateRequest,
+    obrasSocialesController.updateObraSocial,
+  )
+  .delete(
+    obrasSocialesValidator.validateId,
+    validateRequest,
+    obrasSocialesController.removeObraSocial,
+  )
+  .all(methodNotAllowedHandler(['GET', 'PUT', 'DELETE']));
 
-obrasSocialesRouter.post(
-  '/',
-  obrasSocialesValidator.validateCreate,
-  validateRequest,
-  obrasSocialesController.createObraSocial,
-);
-
-obrasSocialesRouter.put(
-  '/:id',
-  obrasSocialesValidator.validateUpdate,
-  validateRequest,
-  obrasSocialesController.updateObraSocial,
-);
-
-obrasSocialesRouter.delete(
-  '/:id',
-  obrasSocialesValidator.validateId,
-  validateRequest,
-  obrasSocialesController.removeObraSocial,
-);
-
-export { obrasSocialesRouter };
+export default obrasSocialesRouter;

@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "name": "Clínica Médica API",
+  "type": "collection",
+  "activeEnvironment": "Development",
+  "ignore": ["node_modules", ".git"]
+}

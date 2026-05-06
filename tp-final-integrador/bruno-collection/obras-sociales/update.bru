@@ -1,0 +1,31 @@
+meta {
+  name: Update Obra Social
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/obras-sociales/1
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Nombre Actualizado",
+    "descripcion": "Nueva descripción",
+    "porcentajeDescuento": 20.0,
+    "esParticular": false,
+    "activo": true
+  }
+}
+
+docs {
+  Actualiza los datos de una obra social existente. También permite reactivarla enviando "activo": true.
+}

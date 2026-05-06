@@ -11,12 +11,12 @@ export const getHealth = async (req, res) => {
 
   // Si el servicio reporta error en la DB, respondemos con 503
   if (healthReport.status === 'error') {
-    return errorResponse(
+    return errorResponse({
       res,
-      healthReport.mensaje,
-      ERROR_CODES.DATABASE_ERROR,
-      healthReport.database,
-    );
+      errorType: ERROR_CODES.DATABASE_ERROR,
+      message: healthReport.mensaje,
+      details: healthReport.database,
+    });
   }
 
   // Respuesta de éxito formateada

@@ -1,43 +1,68 @@
 import { pool } from '../../config/db.js';
 import { AppError } from '../../helpers/errors.helper.js';
 import { ERROR_CODES } from '../../helpers/errors.helper.js';
+import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
 /**
- * Mapper helper para convertir snake_case de la DB a camelCase para JS.
- * Asegura que los tipos de datos sean correctos (booleans, numbers).
+ * Retorna todas las obras sociales activas con paginación, orden y filtros.
+ * @param {Object} params - Parámetros de búsqueda (limit, offset, order, asc, nombre)
  */
-const mapToCamelCase = (row) => ({
-  id: row.id_obra_social,
-  nombre: row.nombre,
-  descripcion: row.descripcion,
-  porcentajeDescuento: row.porcentaje_descuento !== null ? Number(row.porcentaje_descuento) : 0,
-  esParticular: !!row.es_particular,
-  activo: row.activo,
-});
+export const findAllActive = async (params = {}) => {
+  const { limit = 10, offset = 0, order = 'id_obra_social', asc = true, nombre } = params;
 
-/**
- * Retorna todas las obras sociales activas.
- */
-export const findAllActive = async () => {
-  const query =
-    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE activo = 1';
-  const [rows] = await pool.execute(query);
-  return rows.map(mapToCamelCase);
+  const whereClauses = ['activo = 1'];
+  const queryValues = [];
+
+  if (nombre) {
+    whereClauses.push('LOWER(nombre) LIKE LOWER(?)');
+    queryValues.push(`%${nombre}%`);
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+  const direction = asc ? 'ASC' : 'DESC';
+
+  // Obtener total para metadatos
+  const countQuery = `SELECT COUNT(*) as total FROM obras_sociales ${whereSql}`;
+  const [countRows] = await pool.execute(countQuery, queryValues);
+  const total = countRows[0].total;
+
+  // Obtener registros paginados
+  const query = `
+    SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo
+    FROM obras_sociales
+    ${whereSql}
+    ORDER BY ${order} ${direction}
+    LIMIT ? OFFSET ?
+  `;
+
+  const [rows] = await pool.execute(query, [...queryValues, String(limit), String(offset)]);
+
+  return {
+    data: obrasSocialesMapper.toDTOList(rows),
+    total,
+  };
 };
 
 /**
- * Busca una obra social activa por ID.
+ * Busca una obra social por ID.
+ * @param {number} id - ID de la obra social.
+ * @param {boolean} onlyActive - Si es true, solo busca obras sociales activas.
  */
-export const findById = async (id) => {
-  const query =
-    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE id_obra_social = ? AND activo = 1';
+export const findById = async (id, onlyActive = true) => {
+  let query =
+    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE id_obra_social = ?';
+
+  if (onlyActive) {
+    query += ' AND activo = 1';
+  }
+
   const [rows] = await pool.execute(query, [id]);
   if (rows.length === 0) return null;
-  return mapToCamelCase(rows[0]);
+  return obrasSocialesMapper.toDTO(rows[0]);
 };
 
 /**
- * Crea una nueva obra social o reactiva una existente.
+ * Crea una nueva obra social.
  */
 export const create = async (data) => {
   const { nombre, descripcion, porcentajeDescuento, esParticular } = data;
@@ -48,16 +73,7 @@ export const create = async (data) => {
   );
 
   if (existing.length > 0) {
-    const obraSocial = existing[0];
-    if (obraSocial.activo === 0) {
-      await pool.execute(
-        'UPDATE obras_sociales SET activo = 1, nombre = ?, descripcion = ?, porcentaje_descuento = ?, es_particular = ? WHERE id_obra_social = ?',
-        [nombre, descripcion, porcentajeDescuento, esParticular ? 1 : 0, obraSocial.id_obra_social],
-      );
-      return obraSocial.id_obra_social;
-    } else {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
-    }
+    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
   }
 
   const query =
@@ -101,12 +117,16 @@ export const update = async (id, data) => {
     fields.push('es_particular = ?');
     values.push(data.esParticular ? 1 : 0);
   }
+  if (data.activo !== undefined) {
+    fields.push('activo = ?');
+    values.push(data.activo ? 1 : 0);
+  }
 
   if (fields.length === 0) {
     throw new AppError(ERROR_CODES.BAD_REQUEST, 'No hay campos para actualizar');
   }
 
-  const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ? AND activo = 1`;
+  const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ?`;
   values.push(id);
 
   try {

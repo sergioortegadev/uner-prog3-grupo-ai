@@ -42,5 +42,14 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
+
+    it('debería retornar 405 Method Not Allowed para métodos no soportados', async () => {
+      const response = await request(app).get('/api/v1/auth/login');
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'POST');
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
   });
 });

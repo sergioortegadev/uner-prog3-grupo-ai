@@ -12,11 +12,10 @@ let server;
 const startServer = async () => {
   try {
     await pool.query('SELECT 1');
-    console.log('✅ Base de datos conectada con exito');
+    console.log('✅ Base de datos conectada con éxito');
 
     server = app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-      console.log(`👀 Observando cambios en el codigo...`);
     });
   } catch (error) {
     console.error('❌ Error fatal al conectar con la base de datos:');
