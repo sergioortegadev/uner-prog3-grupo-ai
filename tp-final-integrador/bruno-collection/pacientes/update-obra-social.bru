@@ -1,0 +1,25 @@
+meta {
+  name: Actualizar Obra Social de Paciente
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/pacientes/:id/obra-social
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+body:json {
+  {
+    "id_obra_social": 2
+  }
+}
+
+docs {
+  Permite al Administrador actualizar la obra social de un paciente.
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Register Paciente
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/usuarios
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documento": "44555666",
+    "apellido": "Gomez",
+    "nombres": "Ana",
+    "email": "anagomez@correo.com",
+    "password": "password123",
+    "rol": 2,
+    "id_obra_social": 1
+  }
+}
+
+docs {
+  Registra un nuevo paciente asociado a una obra social.
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Get Especialidad by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/especialidades/{{especialidadId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Obtiene una especialidad por su ID.
+  Requiere rol ADMIN.
+}

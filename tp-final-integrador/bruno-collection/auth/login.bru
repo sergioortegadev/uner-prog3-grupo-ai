@@ -1,0 +1,38 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "nuevoadmin@correo.com",
+    "password": "password123"
+  }
+}
+
+script:post-response {
+  console.log("Response status:", res.status);
+  
+  // Guardar en colección
+  if (res.body && res.body.success && res.body.data && res.body.data.token) {
+    const token = res.body.data.token;
+    bru.setEnvVar("authToken", token);
+    console.log("Token guardado:", token.substring(0, 20) + "...");
+  }
+}
+
+docs {
+  Inicia sesión y guarda el token en {{authToken}}.
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Delete Especialidad
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/especialidades/{{especialidadId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Realiza un borrado lógico de una especialidad.
+  Requiere rol ADMIN.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Update Especialidad
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/especialidades/{{especialidadId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "ESPECIALIDAD ACTUALIZADA"
+  }
+}
+
+docs {
+  Actualiza una especialidad.
+  Requiere rol ADMIN.
+}

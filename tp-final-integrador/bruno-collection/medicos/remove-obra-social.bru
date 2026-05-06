@@ -1,0 +1,20 @@
+meta {
+  name: Desvincular Obra Social
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/medicos/:id/obras-sociales/:id_obra_social
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+  id_obra_social: 4
+}
+
+docs {
+  Desvincula una obra social de un médico (soft-delete).
+}

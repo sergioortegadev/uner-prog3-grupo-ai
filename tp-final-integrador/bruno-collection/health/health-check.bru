@@ -1,0 +1,14 @@
+meta {
+  name: Comprobar estado de la API
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  auth: none
+}
+
+docs {
+  Verifica el estado del sistema y la conexión a la base de datos.
+}

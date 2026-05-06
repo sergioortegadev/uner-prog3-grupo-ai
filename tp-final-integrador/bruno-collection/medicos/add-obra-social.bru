@@ -1,0 +1,25 @@
+meta {
+  name: Asociar Obra Social
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/medicos/:id/obras-sociales
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+body:json {
+  {
+    "id_obra_social": 4
+  }
+}
+
+docs {
+  Asocia una obra social a un médico.
+}
