@@ -27,7 +27,7 @@ export const getById = async (req, res) => {
   const obraSocial = await obrasSocialesService.getObraSocialById(id, false);
 
   if (!obraSocial) {
-    return errorResponse(res, 'Obra social no encontrada', ERROR_CODES.NOT_FOUND);
+    return errorResponse({ res, errorType: ERROR_CODES.NOT_FOUND });
   }
 
   return successResponse(res, obraSocial);
@@ -46,7 +46,11 @@ export const updateObraSocial = async (req, res) => {
   const success = await obrasSocialesService.updateObraSocial(id, data);
 
   if (!success) {
-    return errorResponse(res, 'Obra social no encontrada o inactiva', ERROR_CODES.NOT_FOUND);
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.NOT_FOUND,
+      message: 'Obra social no encontrada o inactiva',
+    });
   }
 
   return successResponse(res, { message: 'Obra social actualizada correctamente' });
@@ -57,7 +61,11 @@ export const removeObraSocial = async (req, res) => {
   const success = await obrasSocialesService.removeObraSocial(id);
 
   if (!success) {
-    return errorResponse(res, 'Obra social no encontrada o ya eliminada', ERROR_CODES.NOT_FOUND);
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.NOT_FOUND,
+      message: 'Obra social no encontrada o ya eliminada',
+    });
   }
 
   return successResponse(res, { message: 'Obra social eliminada correctamente' });

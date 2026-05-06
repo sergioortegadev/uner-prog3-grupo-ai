@@ -18,11 +18,7 @@ const validateContentType = (req, res, next) => {
     ['POST', 'PUT', 'PATCH'].includes(req.method) &&
     (!contentType || !contentType.startsWith('application/json'))
   ) {
-    return errorResponse(
-      res,
-      'Content-Type debe ser application/json',
-      ERROR_CODES.UNSUPPORTED_MEDIA_TYPE,
-    );
+    return errorResponse({ res, errorType: ERROR_CODES.UNSUPPORTED_MEDIA_TYPE });
   }
   next();
 };

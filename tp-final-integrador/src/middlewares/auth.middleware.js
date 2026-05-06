@@ -9,11 +9,11 @@ export const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return errorResponse(
+    return errorResponse({
       res,
-      'No se proporcionó un token de autenticación',
-      ERROR_CODES.UNAUTHORIZED,
-    );
+      errorType: ERROR_CODES.UNAUTHORIZED,
+      message: 'No se proporcionó un token',
+    });
   }
 
   const token = authHeader.split(' ')[1];
@@ -23,7 +23,11 @@ export const verifyToken = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch {
-    return errorResponse(res, 'Token inválido o expirado', ERROR_CODES.UNAUTHORIZED);
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.UNAUTHORIZED,
+      message: 'Token inválido o expirado',
+    });
   }
 };
 
@@ -34,15 +38,11 @@ export const verifyToken = async (req, res, next) => {
 export const requireRole = (roles) => {
   return async (req, res, next) => {
     if (!req.user) {
-      return errorResponse(res, 'No autenticado', ERROR_CODES.UNAUTHORIZED);
+      return errorResponse({ res, errorType: ERROR_CODES.UNAUTHORIZED });
     }
 
     if (!roles.includes(req.user.rol)) {
-      return errorResponse(
-        res,
-        'No tiene permisos para realizar esta acción',
-        ERROR_CODES.FORBIDDEN,
-      );
+      return errorResponse({ res, errorType: ERROR_CODES.FORBIDDEN });
     }
 
     next();

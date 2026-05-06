@@ -36,22 +36,23 @@ export const paginatedResponse = (res, data, total, queryParams, status = 200) =
 
 /**
  * Respuesta de error mejorada
- * @param {Object} res - Objeto de respuesta
- * @param {string} message - Mensaje para el usuario
- * @param {Object} errorType - Tipo de error de ERROR_CODES
- * @param {Array|Object} details - Detalles técnicos (opcional)
+ * @param {Object} params - Objeto de parámetros
+ * @param {Object} params.res - Objeto de respuesta de Express
+ * @param {Object} [params.errorType] - Tipo de error de ERROR_CODES
+ * @param {string} [params.message] - Mensaje opcional personalizado
+ * @param {Array|Object} [params.details] - Detalles técnicos (opcional)
  */
-export const errorResponse = (
+export const errorResponse = ({
   res,
-  message,
   errorType = ERROR_CODES.INTERNAL_ERROR,
+  message = null,
   details = [],
-) => {
+}) => {
   return res.status(errorType.status).json({
     success: false,
     error: {
       code: errorType.code,
-      message,
+      message: message || errorType.message || 'Error en la aplicación',
       details,
     },
   });

@@ -7,9 +7,9 @@ import { ERROR_CODES } from '../helpers/errors.helper.js';
  */
 export const methodNotAllowedHandler = (allowedMethods) => (req, res) => {
   res.setHeader('Allow', allowedMethods.join(', '));
-  return errorResponse(
+  return errorResponse({
     res,
-    `El método ${req.method} no está permitido para la ruta ${req.originalUrl}`,
-    ERROR_CODES.METHOD_NOT_ALLOWED,
-  );
+    errorType: ERROR_CODES.METHOD_NOT_ALLOWED,
+    message: `El método ${req.method} no está permitido para la ruta ${req.originalUrl}`,
+  });
 };
