@@ -4,13 +4,20 @@ import { ERROR_CODES } from '../../helpers/errors.helper.js';
 import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
 /**
- * Retorna todas las obras sociales activas con paginación, orden y filtros.
- * @param {Object} params - Parámetros de búsqueda (limit, offset, order, asc, nombre)
+ * Retorna todas las obras sociales activas o no, con paginación, orden y filtros.
+ * @param {Object} params - Parámetros de búsqueda (limit, offset, order, asc, nombre, active)
  */
-export const findAllActive = async (params = {}) => {
-  const { limit = 10, offset = 0, order = 'id_obra_social', asc = true, nombre } = params;
+export const findAll = async (params = {}) => {
+  const {
+    limit = 10,
+    offset = 0,
+    order = 'id_obra_social',
+    asc = true,
+    nombre,
+    active = 1,
+  } = params;
 
-  const whereClauses = ['activo = 1'];
+  const whereClauses = active === 1 ? ['activo = 1'] : active === 0 ? ['activo = 0'] : [];
   const queryValues = [];
 
   if (nombre) {

@@ -21,7 +21,7 @@ const obrasSocialesRouter = Router();
 obrasSocialesRouter
   .route('/')
   .get(
-    validateListQuery(['id_obra_social', 'nombre', 'porcentaje_descuento'], ['nombre']),
+    validateListQuery(['id_obra_social', 'nombre', 'porcentaje_descuento', 'activo'], ['nombre']),
     validateRequest,
     obrasSocialesController.getAll,
   )

@@ -15,7 +15,7 @@ import { ERROR_CODES } from '../../helpers/errors.helper.js';
 
 export const getAll = async (req, res) => {
   const queryParams = matchedData(req, { locations: ['query'] });
-  const { data, total } = await obrasSocialesService.getAllActive(queryParams);
+  const { data, total } = await obrasSocialesService.getAll(queryParams);
   return paginatedResponse(res, data, total, queryParams);
 };
 

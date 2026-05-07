@@ -4,7 +4,7 @@ import * as obrasSocialesModel from '../../src/modules/obras_sociales/obras_soci
 
 // Mockeamos el modelo por completo
 vi.mock('../../src/modules/obras_sociales/obras_sociales.model.js', () => ({
-  findAllActive: vi.fn(),
+  findAll: vi.fn(),
   create: vi.fn(),
   findById: vi.fn(),
   update: vi.fn(),
@@ -16,20 +16,20 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
     vi.clearAllMocks(); // Reseteamos los mocks antes de cada test
   });
 
-  describe('getAllActive()', () => {
+  describe('getAll()', () => {
     it('debería retornar las obras sociales del modelo con total', async () => {
       // Configuramos el mock para que devuelva el objeto con data y total
       const mockResult = {
         data: [{ id: 1, nombre: 'OSDE' }],
         total: 1,
       };
-      obrasSocialesModel.findAllActive.mockResolvedValue(mockResult);
+      obrasSocialesModel.findAll.mockResolvedValue(mockResult);
 
       const params = { limit: 10, offset: 0 };
-      const result = await obrasSocialesService.getAllActive(params);
+      const result = await obrasSocialesService.getAll(params);
 
       // Verificamos que se llamó al modelo con los parámetros y que el resultado coincide
-      expect(obrasSocialesModel.findAllActive).toHaveBeenCalledWith(params);
+      expect(obrasSocialesModel.findAll).toHaveBeenCalledWith(params);
       expect(result).toEqual(mockResult);
     });
   });

@@ -1,0 +1,20 @@
+meta {
+  name: Get All (Actives and not actives)
+  type: http
+  seq: NaN
+}
+
+get {
+  url: {{baseUrl}}/obras-sociales?active=1&active=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  active: 1
+  active: 0
+}
+
+settings {
+  encodeUrl: true
+}

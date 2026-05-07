@@ -1,31 +1,31 @@
 meta {
-  name: Get All Obras Sociales
+  name: Get All c params
   type: http
   seq: 1
 }
 
 get {
-  url: {{baseUrl}}/obras-sociales?limit=10&offset=0&order=nombre&asc=true&nombre=pami
+  url: {{baseUrl}}/obras-sociales?limit=10&offset=0&order=nombre&asc=true&nombre=OSUNER
   body: none
   auth: none
 }
 
-query {
+params:query {
   limit: 10
   offset: 0
   order: nombre
   asc: true
-  nombre: pami
-}
-
-script:pre-request {
-  const token = bru.getEnvVar('authToken');
-  console.log("authToken desde script:", token);
+  nombre: OSUNER
 }
 
 headers {
   Accept: application/json
   Authorization: Bearer {{authToken}}
+}
+
+script:pre-request {
+  const token = bru.getEnvVar('authToken');
+  console.log("authToken desde script:", token);
 }
 
 docs {

@@ -21,6 +21,13 @@ export const validateListQuery = (allowedSortFields = [], allowedFilters = []) =
     .toInt()
     .default(0),
 
+  query('active')
+    .optional()
+    .isInt({ min: 0, max: 1 })
+    .withMessage('El param "active" debe ser cero o uno')
+    .toInt()
+    .default(0),
+
   query('order')
     .optional()
     .isIn(allowedSortFields)
