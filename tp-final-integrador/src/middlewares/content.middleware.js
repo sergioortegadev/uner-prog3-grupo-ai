@@ -13,10 +13,11 @@ const validateContentType = (req, res, next) => {
   if (!hasBody) return next();
 
   const contentType = req.headers['content-type'];
+  const allowedTypes = ['application/json', 'multipart/form-data'];
 
   if (
     ['POST', 'PUT', 'PATCH'].includes(req.method) &&
-    (!contentType || !contentType.startsWith('application/json'))
+    (!contentType || !allowedTypes.some((type) => contentType.startsWith(type)))
   ) {
     return errorResponse({ res, errorType: ERROR_CODES.UNSUPPORTED_MEDIA_TYPE });
   }
