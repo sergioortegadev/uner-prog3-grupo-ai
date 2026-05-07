@@ -144,7 +144,7 @@ export const update = async (id, data) => {
   }
 
   if (fields.length === 0) {
-    throw new AppError(ERROR_CODES.BAD_REQUEST, 'No hay campos para actualizar');
+    throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'No hay campos válidos para actualizar');
   }
 
   const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ?`;

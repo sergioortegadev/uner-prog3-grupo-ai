@@ -5,7 +5,7 @@ import { validateListQuery } from '../middlewares/query.validator.js';
 // import { ROLES } from '../constants/roles.constants.js';
 // import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
-import { methodNotAllowedHandler } from '../middlewares/method.middleware.js';
+import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
 
 const obrasSocialesRouter = Router();
 
