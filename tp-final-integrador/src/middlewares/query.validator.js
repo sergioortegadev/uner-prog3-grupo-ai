@@ -21,6 +21,20 @@ export const validateListQuery = (allowedSortFields = [], allowedFilters = []) =
     .toInt()
     .default(0),
 
+  query('activo')
+    .optional()
+    .custom((value) => {
+      if (value === 'all' || value === 0 || value === 1 || value === '0' || value === '1') {
+        return true;
+      }
+      throw new Error('El param "activo" debe ser 0, 1 o "all"');
+    })
+    .customSanitizer((value) => {
+      if (value === 'all') return 'all';
+      return Number(value);
+    })
+    .default(1),
+
   query('order')
     .optional()
     .isIn(allowedSortFields)

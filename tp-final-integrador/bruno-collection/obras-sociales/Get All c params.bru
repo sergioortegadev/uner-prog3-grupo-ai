@@ -1,0 +1,35 @@
+meta {
+  name: Get All c params
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/obras-sociales?limit=10&offset=0&order=nombre&asc=true&nombre=OSUNER
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 10
+  offset: 0
+  order: nombre
+  asc: true
+  nombre: OSUNER
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+script:pre-request {
+  const token = bru.getEnvVar('authToken');
+  console.log("authToken desde script:", token);
+}
+
+docs {
+  Obtiene obras sociales con paginación y filtros.
+  Parámetros: limit, offset, order, asc, nombre, activo (0, 1, o "all").
+  Por defecto trae solo activas (activo=1).
+}
