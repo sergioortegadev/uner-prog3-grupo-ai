@@ -233,6 +233,66 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(indexZZZ).toBeLessThan(indexAAA);
     });
 
+    it('debería retornar solo obras sociales activas por defecto', async () => {
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Activa Defecto', 'Test', 10, 1],
+      );
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Inactiva Defecto', 'Test', 10, 0],
+      );
+
+      const response = await request(app)
+        .get('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      const data = response.body.data;
+      expect(data.some((o) => o.nombre === 'Activa Defecto')).toBe(true);
+      expect(data.some((o) => o.nombre === 'Inactiva Defecto')).toBe(false);
+    });
+
+    it('debería retornar solo obras sociales inactivas cuando activo=0', async () => {
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Activa Filtro', 'Test', 10, 1],
+      );
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Inactiva Filtro', 'Test', 10, 0],
+      );
+
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?activo=0')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      const data = response.body.data;
+      expect(data.some((o) => o.nombre === 'Inactiva Filtro')).toBe(true);
+      expect(data.some((o) => o.nombre === 'Activa Filtro')).toBe(false);
+    });
+
+    it('debería retornar todas las obras sociales (activas e inactivas) cuando activo=all', async () => {
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Activa All', 'Test', 10, 1],
+      );
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Inactiva All', 'Test', 10, 0],
+      );
+
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?activo=all')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      const data = response.body.data;
+      expect(data.some((o) => o.nombre === 'Activa All')).toBe(true);
+      expect(data.some((o) => o.nombre === 'Inactiva All')).toBe(true);
+    });
+
     it('debería retornar 422 si el campo de orden es inválido', async () => {
       const response = await request(app)
         .get('/api/v1/obras-sociales?order=campo_inexistente')

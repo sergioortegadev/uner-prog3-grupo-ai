@@ -32,6 +32,16 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
       expect(obrasSocialesModel.findAll).toHaveBeenCalledWith(params);
       expect(result).toEqual(mockResult);
     });
+
+    it('debería pasar el parámetro "active" al modelo', async () => {
+      const mockResult = { data: [], total: 0 };
+      obrasSocialesModel.findAll.mockResolvedValue(mockResult);
+
+      const params = { active: 0 };
+      await obrasSocialesService.getAll(params);
+
+      expect(obrasSocialesModel.findAll).toHaveBeenCalledWith(params);
+    });
   });
 
   describe('createObraSocial()', () => {
@@ -52,7 +62,7 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
 
       const result = await obrasSocialesService.getObraSocialById(123);
 
-      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(123);
+      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(123, true);
       expect(result).toBeNull();
     });
   });

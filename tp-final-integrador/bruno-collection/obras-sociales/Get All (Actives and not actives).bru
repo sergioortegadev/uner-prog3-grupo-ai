@@ -1,18 +1,17 @@
 meta {
-  name: Get All (Actives and not actives)
+  name: Get All (Activos e inactivos)
   type: http
-  seq: NaN
+  seq: 7
 }
 
 get {
-  url: {{baseUrl}}/obras-sociales?active=1&active=0
+  url: {{baseUrl}}/obras-sociales?activo=all
   body: none
   auth: inherit
 }
 
 params:query {
-  active: 1
-  active: 0
+  activo: all
 }
 
 settings {

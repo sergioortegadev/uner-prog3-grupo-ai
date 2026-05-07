@@ -29,5 +29,7 @@ script:pre-request {
 }
 
 docs {
-  Obtiene todas las obras sociales activas. Requiere rol ADMIN.
+  Obtiene obras sociales con paginación y filtros.
+  Parámetros: limit, offset, order, asc, nombre, activo (0, 1, o "all").
+  Por defecto trae solo activas (activo=1).
 }

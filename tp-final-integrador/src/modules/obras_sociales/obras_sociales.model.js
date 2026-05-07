@@ -14,10 +14,11 @@ export const findAll = async (params = {}) => {
     order = 'id_obra_social',
     asc = true,
     nombre,
-    active = 1,
+    activo = 1,
   } = params;
 
-  const whereClauses = active === 1 ? ['activo = 1'] : active === 0 ? ['activo = 0'] : [];
+  const whereClauses =
+    activo === 'all' ? [] : activo === 1 ? ['activo = 1'] : activo === 0 ? ['activo = 0'] : [];
   const queryValues = [];
 
   if (nombre) {
