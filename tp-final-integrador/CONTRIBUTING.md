@@ -45,7 +45,7 @@ gitGraph
 
 ## 🏗️ 2. El Flujo de Código (Arquitectura)
 
-Seguimos una **Arquitectura de Capas** modular. El flujo de datos siempre es unidireccional: **Ruta -> Validador -> Controlador -> Servicio -> Modelo**.
+Seguimos una **Arquitectura de Capas**. El flujo de datos siempre es unidireccional: **Ruta -> Validador -> Controlador -> Servicio -> Database**.
 
 ```mermaid
 graph TD
@@ -60,20 +60,20 @@ graph TD
         Controller --> Service[Servicio]
     end
     subgraph Capa 4: Datos
-        Service --> Model[Modelo]
-        Model --> DB[(MySQL)]
+        Service --> Database[Database/Persistence]
+        Database --> DB[(MySQL)]
     end
 ```
 
-### ¿Cómo programo un nuevo módulo?
+### ¿Cómo programo una nueva funcionalidad?
 
 Programá siempre **de ADENTRO hacia AFUERA**:
 
-1.  **Modelo (`*.model.js`)**: Consultas SQL puras con `mysql2`.
-2.  **Servicio (`*.service.js`)**: Lógica de negocio y reglas de la clínica.
-3.  **Validador (`*.validator.js`)**: Esquemas de `express-validator`.
-4.  **Controlador (`*.controller.js`)**: Recibe `req` y envía `res` usando helpers.
-5.  **Rutas (`*.routes.js`)**: Conecta el endpoint con el flujo anterior.
+1.  **Database (`src/database/`)**: Consultas SQL puras con `mysql2` y sus respectivos mappers.
+2.  **Servicio (`src/services/`)**: Lógica de negocio y reglas de la clínica.
+3.  **Validador (`src/validators/`)**: Esquemas de `express-validator`.
+4.  **Controlador (`src/controllers/`)**: Recibe `req` y envía `res` usando helpers.
+5.  **Rutas (`src/routes/`)**: Conecta el endpoint con el flujo anterior.
 
 ---
 
