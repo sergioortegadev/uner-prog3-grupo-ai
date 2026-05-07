@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
-import * as usuariosModel from '../usuarios/usuarios.model.js';
-import { AppError, ERROR_CODES } from '../../helpers/errors.helper.js';
+import * as usuariosModel from '../database/usuarios.js';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Lógica de autenticación.

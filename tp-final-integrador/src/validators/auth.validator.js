@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { validateRequest } from '../../middlewares/validate.middleware.js';
+import { validateRequest } from '../middlewares/validate.middleware.js';
 
 /**
  * Validaciones para el módulo de autenticación.

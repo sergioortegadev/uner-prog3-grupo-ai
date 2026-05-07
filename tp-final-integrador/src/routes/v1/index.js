@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { ROUTES } from '../../constants/routes.constants.js';
 
-import healthRoutes from '../../modules/health/health.routes.js';
-import authRoutes from '../../modules/auth/auth.routes.js';
-import obrasSocialesRouter from '../../modules/obras_sociales/obras_sociales.routes.js';
+import healthRoutes from '../health.routes.js';
+import authRoutes from '../auth.routes.js';
+import obrasSocialesRouter from '../obras_sociales.routes.js';
 
 const v1Router = Router();
 

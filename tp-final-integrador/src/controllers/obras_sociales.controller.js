@@ -1,11 +1,7 @@
 import { matchedData } from 'express-validator';
-import * as obrasSocialesService from './obras_sociales.service.js';
-import {
-  successResponse,
-  errorResponse,
-  paginatedResponse,
-} from '../../helpers/response.helper.js';
-import { ERROR_CODES } from '../../helpers/errors.helper.js';
+import * as obrasSocialesService from '../services/obras_sociales.service.js';
+import { successResponse, errorResponse, paginatedResponse } from '../helpers/response.helper.js';
+import { ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Controlador de obras sociales.

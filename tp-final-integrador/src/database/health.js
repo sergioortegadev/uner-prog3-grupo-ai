@@ -1,4 +1,4 @@
-import { pool } from '../../config/db.js';
+import { pool } from '../config/db.js';
 
 /**
  * Obtiene la versión del motor de base de datos

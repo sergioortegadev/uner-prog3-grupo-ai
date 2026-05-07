@@ -1,6 +1,6 @@
 import { matchedData } from 'express-validator';
-import * as authService from './auth.service.js';
-import { successResponse } from '../../helpers/response.helper.js';
+import * as authService from '../services/auth.service.js';
+import { successResponse } from '../helpers/response.helper.js';
 
 /**
  * Controladores para el módulo de autenticación.
