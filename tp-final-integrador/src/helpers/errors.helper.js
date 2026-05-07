@@ -34,7 +34,7 @@ export const ERROR_CODES = {
   UNSUPPORTED_MEDIA_TYPE: {
     code: 'UNSUPPORTED_MEDIA_TYPE',
     status: 415,
-    message: 'Formato de contenido no soportado. Se requiere application/json',
+    message: 'Formato de contenido no soportado',
   },
 };
 

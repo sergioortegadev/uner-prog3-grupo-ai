@@ -1,4 +1,5 @@
 import { query } from 'express-validator';
+import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Factory de validaciones para listados con paginación, orden y filtros.
@@ -12,28 +13,36 @@ export const validateListQuery = (allowedSortFields = [], allowedFilters = []) =
     .isInt({ min: 1, max: 100 })
     .withMessage('El límite debe ser un número entero entre 1 y 100')
     .toInt()
-    .default(10),
+    .default(QUERY_PARAMS.DEFAULT_LIMIT),
 
   query('offset')
     .optional()
     .isInt({ min: 0 })
     .withMessage('El offset debe ser un número entero no negativo')
     .toInt()
-    .default(0),
+    .default(QUERY_PARAMS.DEFAULT_OFFSET),
 
   query('activo')
     .optional()
     .custom((value) => {
-      if (value === 'all' || value === 0 || value === 1 || value === '0' || value === '1') {
+      if (
+        value === DB_STATUS.ALL ||
+        value === DB_STATUS.INACTIVE ||
+        value === DB_STATUS.ACTIVE ||
+        value === String(DB_STATUS.INACTIVE) ||
+        value === String(DB_STATUS.ACTIVE)
+      ) {
         return true;
       }
-      throw new Error('El param "activo" debe ser 0, 1 o "all"');
+      throw new Error(
+        `El param "activo" debe ser ${DB_STATUS.INACTIVE}, ${DB_STATUS.ACTIVE} o "${DB_STATUS.ALL}"`,
+      );
     })
     .customSanitizer((value) => {
-      if (value === 'all') return 'all';
+      if (value === DB_STATUS.ALL) return DB_STATUS.ALL;
       return Number(value);
     })
-    .default(1),
+    .default(DB_STATUS.ACTIVE),
 
   query('order')
     .optional()
