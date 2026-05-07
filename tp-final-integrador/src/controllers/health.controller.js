@@ -1,6 +1,6 @@
-import * as healthService from './health.service.js';
-import { successResponse, errorResponse } from '../../helpers/response.helper.js';
-import { ERROR_CODES } from '../../helpers/errors.helper.js';
+import * as healthService from '../services/health.service.js';
+import { successResponse, errorResponse } from '../helpers/response.helper.js';
+import { ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Controlador para el health check del sistema

@@ -1,6 +1,6 @@
-import { pool } from '../../config/db.js';
-import { AppError } from '../../helpers/errors.helper.js';
-import { ERROR_CODES } from '../../helpers/errors.helper.js';
+import { pool } from '../config/db.js';
+import { AppError } from '../helpers/errors.helper.js';
+import { ERROR_CODES } from '../helpers/errors.helper.js';
 import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
 /**
@@ -52,6 +52,19 @@ export const findAll = async (params = {}) => {
 };
 
 /**
+ * Busca una obra social por nombre exacto (case-insensitive).
+ * @param {string} nombre - Nombre de la obra social.
+ * @returns {Promise<Object|null>} Obra social encontrada o null.
+ */
+export const findByName = async (nombre) => {
+  const query =
+    'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE LOWER(nombre) = LOWER(?)';
+  const [rows] = await pool.execute(query, [nombre]);
+  if (rows.length === 0) return null;
+  return obrasSocialesMapper.toDTO(rows[0]);
+};
+
+/**
  * Busca una obra social por ID.
  * @param {number} id - ID de la obra social.
  * @param {boolean} onlyActive - Si es true, solo busca obras sociales activas.
@@ -71,18 +84,11 @@ export const findById = async (id, onlyActive = true) => {
 
 /**
  * Crea una nueva obra social.
+ * Nota: La validación de nombre duplicado la hace el Service (lógica de negocio).
+ * El modelo solo intenta el INSERT y maneja el error de BD como respaldo.
  */
 export const create = async (data) => {
   const { nombre, descripcion, porcentajeDescuento, esParticular } = data;
-
-  const [existing] = await pool.execute(
-    'SELECT id_obra_social, activo FROM obras_sociales WHERE LOWER(nombre) = LOWER(?)',
-    [nombre],
-  );
-
-  if (existing.length > 0) {
-    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
-  }
 
   const query =
     'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, 1)';

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import * as healthController from './health.controller.js';
-import { methodNotAllowedHandler } from '../../middlewares/method.middleware.js';
+import * as healthController from '../controllers/health.controller.js';
+import { methodNotAllowedHandler } from '../middlewares/method.middleware.js';
 
 const router = Router();
 

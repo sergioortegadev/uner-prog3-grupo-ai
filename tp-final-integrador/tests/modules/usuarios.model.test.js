@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { ROLES } from '../../src/constants/roles.constants.js';
-import * as usuariosModel from '../../src/modules/usuarios/usuarios.model.js';
+import * as usuariosModel from '../../src/database/usuarios.js';
 import { setupTestDB } from '../setup/db.js';
 
 describe('Usuarios Model', () => {

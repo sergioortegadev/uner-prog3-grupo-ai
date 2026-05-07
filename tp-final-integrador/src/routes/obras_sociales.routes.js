@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import * as obrasSocialesController from './obras_sociales.controller.js';
-import * as obrasSocialesValidator from './obras_sociales.validator.js';
-import { validateListQuery } from '../../middlewares/query.validator.js';
-// import { ROLES } from '../../constants/roles.constants.js';
-// import { verifyToken, requireRole } from '../../middlewares/auth.middleware.js';
-import { validateRequest } from '../../middlewares/validate.middleware.js';
-import { methodNotAllowedHandler } from '../../middlewares/method.middleware.js';
+import * as obrasSocialesController from '../controllers/obras_sociales.controller.js';
+import * as obrasSocialesValidator from '../validators/obras_sociales.validator.js';
+import { validateListQuery } from '../middlewares/query.validator.js';
+// import { ROLES } from '../constants/roles.constants.js';
+// import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
+import { validateRequest } from '../middlewares/validate.middleware.js';
+import { methodNotAllowedHandler } from '../middlewares/method.middleware.js';
 
 const obrasSocialesRouter = Router();
 

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../src/app.js';
-import * as healthModel from '../../src/modules/health/health.model.js';
+import * as healthModel from '../../src/database/health.js';
 
-vi.mock('../../src/modules/health/health.model.js', () => ({
+vi.mock('../../src/database/health.js', () => ({
   getDatabaseVersion: vi.fn(),
   getMaxConnections: vi.fn(),
   getActiveConnections: vi.fn(),

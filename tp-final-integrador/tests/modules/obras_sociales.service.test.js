@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as obrasSocialesService from '../../src/modules/obras_sociales/obras_sociales.service.js';
-import * as obrasSocialesModel from '../../src/modules/obras_sociales/obras_sociales.model.js';
+import * as obrasSocialesService from '../../src/services/obras_sociales.service.js';
+import * as obrasSocialesModel from '../../src/database/obras_sociales.js';
 
 // Mockeamos el modelo por completo
-vi.mock('../../src/modules/obras_sociales/obras_sociales.model.js', () => ({
+vi.mock('../../src/database/obras_sociales.js', () => ({
   findAll: vi.fn(),
+  findByName: vi.fn(),
   create: vi.fn(),
   findById: vi.fn(),
   update: vi.fn(),
@@ -47,12 +48,29 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
   describe('createObraSocial()', () => {
     it('debería delegar la creación al modelo con los datos correctos', async () => {
       const nuevaObra = { nombre: 'Swiss' };
+      // Mockeamos que no existe una obra social con ese nombre
+      obrasSocialesModel.findByName.mockResolvedValue(null);
       obrasSocialesModel.create.mockResolvedValue({ id: 99, ...nuevaObra });
 
       const result = await obrasSocialesService.createObraSocial(nuevaObra);
 
+      // Verificamos que se haya consultado por el nombre
+      expect(obrasSocialesModel.findByName).toHaveBeenCalledWith(nuevaObra.nombre);
       expect(obrasSocialesModel.create).toHaveBeenCalledWith(nuevaObra);
       expect(result.id).toBe(99);
+    });
+
+    it('debería lanzar error si ya existe una obra social con ese nombre', async () => {
+      const nuevaObra = { nombre: 'Swiss' };
+      // Mockeamos que YA existe una obra social con ese nombre
+      obrasSocialesModel.findByName.mockResolvedValue({ id: 1, nombre: 'Swiss' });
+
+      await expect(obrasSocialesService.createObraSocial(nuevaObra)).rejects.toThrow(
+        'Ya existe una obra social con ese nombre',
+      );
+
+      // Verificamos que NO se haya llamado al create
+      expect(obrasSocialesModel.create).not.toHaveBeenCalled();
     });
   });
 

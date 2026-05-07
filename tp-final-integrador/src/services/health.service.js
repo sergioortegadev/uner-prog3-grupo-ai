@@ -1,4 +1,4 @@
-import * as healthModel from './health.model.js';
+import * as healthModel from '../database/health.js';
 
 /**
  * Obtiene el reporte completo de salud del sistema
