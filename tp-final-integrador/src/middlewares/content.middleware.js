@@ -1,8 +1,9 @@
 import { errorResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
+import { CONTENT_TYPES } from '../constants/common.constants.js';
 
 /**
- * Middleware para validar que el Content-Type sea application/json
+ * Middleware para validar que el Content-Type sea compatible con la API
  * en peticiones que modifican datos (POST, PUT, PATCH).
  */
 const validateContentType = (req, res, next) => {
@@ -13,7 +14,7 @@ const validateContentType = (req, res, next) => {
   if (!hasBody) return next();
 
   const contentType = req.headers['content-type'];
-  const allowedTypes = ['application/json', 'multipart/form-data'];
+  const allowedTypes = [CONTENT_TYPES.JSON, CONTENT_TYPES.MULTIPART];
 
   if (
     ['POST', 'PUT', 'PATCH'].includes(req.method) &&

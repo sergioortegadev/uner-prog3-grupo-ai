@@ -1,6 +1,7 @@
 import { pool } from '../config/db.js';
 import { AppError } from '../helpers/errors.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
+import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
 /**
@@ -9,16 +10,22 @@ import * as obrasSocialesMapper from './obras_sociales.mapper.js';
  */
 export const findAll = async (params = {}) => {
   const {
-    limit = 10,
-    offset = 0,
+    limit = QUERY_PARAMS.DEFAULT_LIMIT,
+    offset = QUERY_PARAMS.DEFAULT_OFFSET,
     order = 'id_obra_social',
     asc = true,
     nombre,
-    activo = 1,
+    activo = DB_STATUS.ACTIVE,
   } = params;
 
   const whereClauses =
-    activo === 'all' ? [] : activo === 1 ? ['activo = 1'] : activo === 0 ? ['activo = 0'] : [];
+    activo === DB_STATUS.ALL
+      ? []
+      : activo === DB_STATUS.ACTIVE
+        ? ['activo = 1']
+        : activo === DB_STATUS.INACTIVE
+          ? ['activo = 0']
+          : [];
   const queryValues = [];
 
   if (nombre) {
@@ -27,7 +34,7 @@ export const findAll = async (params = {}) => {
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-  const direction = asc ? 'ASC' : 'DESC';
+  const direction = asc ? QUERY_PARAMS.ASC.toUpperCase() : QUERY_PARAMS.DESC.toUpperCase();
 
   // Obtener total para metadatos
   const countQuery = `SELECT COUNT(*) as total FROM obras_sociales ${whereSql}`;
