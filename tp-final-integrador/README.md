@@ -29,11 +29,11 @@ Desarrollo de una API REST robusta para la gestión integral de una clínica mé
 
 ### Requisitos Técnicos Implementados:
 
-- **Arquitectura**: Modular por dominio de 4 capas.
+- **Arquitectura**: Arquitectura de capas (Layered Architecture) de 4 capas.
 - **Seguridad**: Autenticación con JWT y autorización por Roles.
 - **Base de Datos**: MySQL con soporte para Transacciones y Stored Procedures.
 - **Calidad**: Validaciones con `express-validator`, logs con `Morgan` y borrado lógico (Soft Delete).
-- **Documentación**: API documentada con Swagger (proximamente).
+- **Documentación**: [Referencia de Endpoints](./docs/ENDPOINTS.md).
 
 ---
 
@@ -86,11 +86,17 @@ Si vas a contribuir al código, por favor leé nuestra **[Guía de Contribución
 ```text
 src/
 ├── config/          # Configuración de conexión
-├── helpers/         # Respuestas estandarizadas
+├── constants/       # Constantes de roles y rutas
+├── controllers/     # Controladores (Orquestación HTTP)
+├── database/        # Capa de datos (Consultas SQL)
+├── helpers/         # Respuestas estandarizadas y errores
+├── mappers/         # Transformadores de datos (DB -> JS)
 ├── middlewares/     # Middlewares (auth, validate, error)
-└── modules/         # Dominios de negocio (Código principal)
+├── routes/          # Definición de rutas
+├── services/        # Lógica de negocio (Core)
+└── validators/      # Esquemas de validación
 init/                # Scripts SQL para la base de datos
-tests/               # Tests automáticos (opcionales)
+tests/               # Tests automáticos
 ```
 
 ---
