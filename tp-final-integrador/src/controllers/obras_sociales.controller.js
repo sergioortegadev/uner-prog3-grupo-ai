@@ -17,10 +17,8 @@ export const getAll = async (req, res) => {
 
 export const getById = async (req, res) => {
   const { id } = matchedData(req);
-  // Buscamos incluyendo inactivas (onlyActive = false) ya que este módulo
-  // es de gestión exclusiva para el Administrador, quien debe poder
-  // visualizar y reactivar registros borrados lógicamente.
-  const obraSocial = await obrasSocialesService.getObraSocialById(id, false);
+  // Por defecto solo buscamos obras sociales activas.
+  const obraSocial = await obrasSocialesService.getObraSocialById(id);
 
   if (!obraSocial) {
     return errorResponse({ res, errorType: ERROR_CODES.NOT_FOUND });
