@@ -11,12 +11,11 @@ export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return errorResponse(
+    return errorResponse({
       res,
-      'Error de validación en los datos enviados',
-      ERROR_CODES.VALIDATION_ERROR,
-      errors.array(),
-    );
+      errorType: ERROR_CODES.VALIDATION_ERROR,
+      details: errors.array(),
+    });
   }
 
   next();

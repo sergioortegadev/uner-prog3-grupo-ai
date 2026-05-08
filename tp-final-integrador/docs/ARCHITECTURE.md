@@ -1,49 +1,61 @@
 # Arquitectura del Sistema - Backend
 
-Este documento describe la arquitectura interna y los patrones de diseño implementados en el backend. El sistema está construido sobre **Node.js** y **Express 5**, utilizando una estructura modular orientada a dominios.
+Este documento describe la arquitectura interna y los patrones de diseño implementados en el backend. El sistema está construido sobre **Node.js** y **Express 5**, utilizando una **Arquitectura de Capas (Layered Architecture)**.
 
 ## 1. Patrón Arquitectónico: Arquitectura de 4 Capas
 
-El proyecto sigue un patrón de **Separación de Responsabilidades**  dividido en capas lógicas dentro de cada módulo funcional.
+El proyecto sigue un patrón de **Separación de Responsabilidades** dividido en capas lógicas. A diferencia de una estructura modular, aquí las responsabilidades se agrupan por su función técnica.
 
-### Capa 1: Ruteo y Validación (`*.routes.js` & `*.validator.js`)
+### Capa 1: Ruteo y Validación (`src/routes/` & `src/validators/`)
 - **Responsabilidad**: Definir puntos de entrada y asegurar la integridad de los datos.
 - **Acciones**:
-  - `routes`: Conecta el endpoint con el validador y el controlador.
-  - `validator`: Define esquemas de `express-validator`. Se usa el middleware `validateRequest` para interceptar errores antes de llegar al controlador.
+  - `routes`: Define los endpoints y conecta con el validador y el controlador.
+  - `validators`: Define esquemas de `express-validator`. Se usa el middleware `validateRequest` para interceptar errores antes de llegar al controlador.
 - **Restricción**: No contiene lógica de negocio.
 
-### Capa 2: Controlador (`*.controller.js`)
+### Capa 2: Controlador (`src/controllers/`)
 - **Responsabilidad**: Orquestar la comunicación HTTP.
 - **Acciones**: Extrae datos de la petición, invoca al Servicio y envía la respuesta usando los **Response Helpers** (`successResponse`, `errorResponse`).
 - **Magia Express 5**: No requiere bloques `try/catch`. Los errores asíncronos son capturados automáticamente por el `globalErrorHandler`.
 
-### Capa 3: Servicio (`*.service.js`) - *El Corazón*
+### Capa 3: Servicio (`src/services/`) - *El Corazón*
 - **Responsabilidad**: Implementar el 100% de la **Lógica de Negocio**.
 - **Acciones**: Cálculos, validaciones de reglas de negocio, y manejo de transacciones SQL. Es agnóstico a HTTP (no conoce `req` ni `res`).
 
-### Capa 4: Modelo / Persistencia (`*.model.js`)
+### Capa 4: Base de Datos / Persistencia (`src/database/`)
 - **Responsabilidad**: Acceso directo a los datos.
-- **Acciones**: Consultas SQL puras con `mysql2`. Mapea resultados de `snake_case` (DB) a `camelCase` (JS).
+- **Acciones**: Consultas SQL puras con `mysql2`. Se apoya en **Mappers** para transformar los resultados de `snake_case` (DB) a `camelCase` (JS).
 
 ---
 
-## 2. Estructura de un Módulo de Dominio
+## 2. Estructura de Directorios
 
-Ubicados en `src/modules/`, cada carpeta representa un dominio autónomo:
+La organización del código sigue una estructura centralizada por capas:
 
 ```text
-nombre_modulo/
-├── nombre_modulo.routes.js     # Definición de rutas
-├── nombre_modulo.validator.js  # Esquemas de validación
-├── nombre_modulo.controller.js # Orquestador HTTP
-├── nombre_modulo.service.js    # Lógica de negocio
-└── nombre_modulo.model.js      # Consultas SQL
+src/
+├── config/             # Configuración (DB, etc.)
+├── constants/          # Constantes globales y de rutas
+├── controllers/        # Controladores (Orquestación HTTP)
+├── database/           # Capa de datos (Consultas SQL y Mappers)
+├── helpers/            # Utilidades y Response Helpers
+├── mappers/            # Transformación de datos
+├── middlewares/        # Middlewares globales
+├── routes/             # Definición de rutas y endpoints
+├── services/           # Lógica de Negocio
+└── validators/         # Esquemas de validación
 ```
 
 ---
 
-## 3. Estándares de Código y Respuestas
+## 3. Flujo de Datos
+
+El flujo de una petición es siempre unidireccional:
+`Cliente -> Route -> Validator -> Controller -> Service -> Database -> DB`
+
+---
+
+## 4. Estándares de Código y Respuestas
 
 ### Formato Único de Respuesta
 Todas las respuestas deben usar los helpers de `src/helpers/response.helper.js`:

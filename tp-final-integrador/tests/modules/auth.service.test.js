@@ -1,6 +1,6 @@
 import { ROLES } from '../../src/constants/roles.constants.js';
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as authService from '../../src/modules/auth/auth.service.js';
+import * as authService from '../../src/services/auth.service.js';
 import { setupTestDB } from '../setup/db.js';
 
 describe('Auth Service', () => {

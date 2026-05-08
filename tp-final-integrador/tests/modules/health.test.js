@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../src/app.js';
-import * as healthModel from '../../src/modules/health/health.model.js';
+import * as healthModel from '../../src/database/health.js';
 
-vi.mock('../../src/modules/health/health.model.js', () => ({
+vi.mock('../../src/database/health.js', () => ({
   getDatabaseVersion: vi.fn(),
   getMaxConnections: vi.fn(),
   getActiveConnections: vi.fn(),
@@ -35,6 +35,15 @@ describe('Health Module Integration Tests', () => {
       expect(response.status).toBe(503);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('DATABASE_ERROR');
+    });
+
+    it('debería retornar 405 Method Not Allowed para métodos no soportados', async () => {
+      const response = await request(app).post('/api/v1/health');
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET');
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
     });
   });
 });

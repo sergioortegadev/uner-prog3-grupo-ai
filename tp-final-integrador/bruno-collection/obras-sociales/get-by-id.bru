@@ -1,0 +1,20 @@
+meta {
+  name: Get Obra Social by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/obras-sociales/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Obtiene el detalle de una obra social específica por su ID.
+}
