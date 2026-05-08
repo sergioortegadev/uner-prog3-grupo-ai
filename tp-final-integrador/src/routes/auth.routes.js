@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as authController from '../controllers/auth.controller.js';
 import { loginValidator } from '../validators/auth.validator.js';
-import { methodNotAllowedHandler } from '../middlewares/method.middleware.js';
+import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
 
 const router = Router();
 
