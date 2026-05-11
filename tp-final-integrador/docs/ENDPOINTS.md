@@ -1,9 +1,19 @@
 # Referencia de Endpoints (API v1)
 
 Este documento detalla los endpoints disponibles en la API para facilitar las pruebas y la revisión por parte de la cátedra. Swagger será implementado en una etapa posterior.
+## 🧬 Especialidades (`/especialidades`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/especialidades` | Listar todas (soporta filtros) | Paciente/Admin |
+| `POST` | `/api/v1/especialidades` | Registrar nueva especialidad | Admin |
+| `GET` | `/api/v1/especialidades/:id` | Obtener detalle por ID | Paciente/Admin |
+| `PUT` | `/api/v1/especialidades/:id` | Actualizar datos por ID | Admin |
+| `DELETE` | `/api/v1/especialidades/:id` | Baja lógica (Soft Delete) | Admin |
+
+---
 
 ## 🏥 Obras Sociales (`/obras-sociales`)
-
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |

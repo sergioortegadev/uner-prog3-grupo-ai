@@ -1,0 +1,24 @@
+meta {
+  name: Get By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/especialidades/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Obtiene el detalle de una especialidad por su ID.
+  Acceso: Paciente / Admin.
+}

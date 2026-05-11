@@ -1,0 +1,24 @@
+meta {
+  name: Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/especialidades/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+docs {
+  Realiza la baja lógica (activo = 0) de una especialidad.
+  Acceso: Solo Admin.
+}

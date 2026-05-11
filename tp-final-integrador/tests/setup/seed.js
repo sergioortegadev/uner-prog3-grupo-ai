@@ -14,4 +14,12 @@ export async function seedTestUser() {
     'INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     ['51000111', 'Fernandez', 'Benito', 'ferben@correo.com', hashedPassword, '', ROLES.ADMIN, 1],
   );
+
+  // Especialidades básicas
+  await pool.execute('INSERT IGNORE INTO especialidades (nombre, activo) VALUES (?, ?), (?, ?)', [
+    'PEDIATRÍA',
+    1,
+    'CLÍNICA',
+    1,
+  ]);
 }
