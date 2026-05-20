@@ -1,6 +1,4 @@
 import { pool } from '../config/db.js';
-import { AppError } from '../helpers/errors.helper.js';
-import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
@@ -107,20 +105,13 @@ export const create = async (data) => {
 
   const query =
     'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, 1)';
-  try {
-    const [result] = await pool.execute(query, [
-      nombre,
-      descripcion ?? '',
-      porcentajeDescuento ?? 0,
-      esParticular ? 1 : 0,
-    ]);
-    return result.insertId;
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
-    }
-    throw error;
-  }
+  const [result] = await pool.execute(query, [
+    nombre,
+    descripcion ?? '',
+    porcentajeDescuento ?? 0,
+    esParticular ? 1 : 0,
+  ]);
+  return result.insertId;
 };
 
 /**
@@ -152,24 +143,17 @@ export const update = async (id, data) => {
   }
 
   if (fields.length === 0) {
-    throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'No hay campos válidos para actualizar');
+    throw new Error('No hay campos válidos para actualizar');
   }
 
   const query = `UPDATE obras_sociales SET ${fields.join(', ')} WHERE id_obra_social = ?`;
   values.push(id);
 
-  try {
-    const [result] = await pool.execute(query, values);
+  const [result] = await pool.execute(query, values);
 
-    if (result.affectedRows === 0) return false;
+  if (result.affectedRows === 0) return false;
 
-    return true;
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
-    }
-    throw error;
-  }
+  return true;
 };
 
 /**
