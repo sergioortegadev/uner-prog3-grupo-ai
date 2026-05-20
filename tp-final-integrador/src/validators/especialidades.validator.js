@@ -5,12 +5,15 @@ import { body, param } from 'express-validator';
  */
 
 export const validateId = [
-  param('id').isInt({ min: 1 }).withMessage('El ID debe ser un número entero positivo'),
+  param('id').isInt({ min: 1 }).withMessage('El ID debe ser un número entero positivo').toInt(),
 ];
 
 export const validateCreate = [
   body('nombre')
+    .isString()
+    .withMessage('El nombre debe ser una cadena de texto')
     .trim()
+    .escape()
     .notEmpty()
     .withMessage('El nombre es obligatorio')
     .isLength({ max: 120 })
@@ -21,7 +24,10 @@ export const validateUpdate = [
   ...validateId,
   body('nombre')
     .optional()
+    .isString()
+    .withMessage('El nombre debe ser una cadena de texto')
     .trim()
+    .escape()
     .notEmpty()
     .withMessage('El nombre no puede estar vacío')
     .isLength({ max: 120 })
