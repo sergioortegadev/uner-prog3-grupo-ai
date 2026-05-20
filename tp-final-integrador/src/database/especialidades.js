@@ -1,6 +1,4 @@
 import { pool } from '../config/db.js';
-import { AppError } from '../helpers/errors.helper.js';
-import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 import * as especialidadesMapper from './especialidades.mapper.js';
 
@@ -103,15 +101,8 @@ export const create = async (data) => {
   const { nombre } = data;
 
   const query = 'INSERT INTO especialidades (nombre, activo) VALUES (?, 1)';
-  try {
-    const [result] = await pool.execute(query, [nombre]);
-    return result.insertId;
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una especialidad con ese nombre');
-    }
-    throw error;
-  }
+  const [result] = await pool.execute(query, [nombre]);
+  return result.insertId;
 };
 
 /**
@@ -131,24 +122,17 @@ export const update = async (id, data) => {
   }
 
   if (fields.length === 0) {
-    throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'No hay campos válidos para actualizar');
+    throw new Error('No hay campos válidos para actualizar');
   }
 
   const query = `UPDATE especialidades SET ${fields.join(', ')} WHERE id_especialidad = ?`;
   values.push(id);
 
-  try {
-    const [result] = await pool.execute(query, values);
+  const [result] = await pool.execute(query, values);
 
-    if (result.affectedRows === 0) return false;
+  if (result.affectedRows === 0) return false;
 
-    return true;
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una especialidad con ese nombre');
-    }
-    throw error;
-  }
+  return true;
 };
 
 /**
