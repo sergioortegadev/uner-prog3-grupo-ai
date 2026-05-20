@@ -4,6 +4,12 @@ import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 import * as especialidadesMapper from './especialidades.mapper.js';
 
+const ORDER_MAP = {
+  id: 'id_especialidad',
+  nombre: 'nombre',
+  activo: 'activo',
+};
+
 /**
  * Retorna todas las especialidades activas o no, con paginación, orden y filtros.
  * @param {Object} params - Parámetros de búsqueda (limit, offset, order, asc, nombre, active)
@@ -12,20 +18,21 @@ export const findAll = async (params = {}) => {
   const {
     limit = QUERY_PARAMS.DEFAULT_LIMIT,
     offset = QUERY_PARAMS.DEFAULT_OFFSET,
-    order = 'id_especialidad',
+    order = 'id',
     asc = true,
     nombre,
     activo = DB_STATUS.ACTIVE,
   } = params;
 
-  const whereClauses =
-    activo === DB_STATUS.ALL
-      ? []
-      : activo === DB_STATUS.ACTIVE
-        ? ['activo = 1']
-        : activo === DB_STATUS.INACTIVE
-          ? ['activo = 0']
-          : [];
+  const dbOrder = ORDER_MAP[order] || 'id_especialidad';
+
+  const whereClauses = [];
+  if (activo === DB_STATUS.ACTIVE) {
+    whereClauses.push('activo = 1');
+  } else if (activo === DB_STATUS.INACTIVE) {
+    whereClauses.push('activo = 0');
+  }
+
   const queryValues = [];
 
   if (nombre) {
@@ -46,7 +53,7 @@ export const findAll = async (params = {}) => {
     SELECT id_especialidad, nombre, activo
     FROM especialidades
     ${whereSql}
-    ORDER BY ${order} ${direction}
+    ORDER BY ${dbOrder} ${direction}
     LIMIT ? OFFSET ?
   `;
 
