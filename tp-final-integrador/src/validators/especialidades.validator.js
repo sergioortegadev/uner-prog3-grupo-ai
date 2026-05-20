@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Validaciones para el módulo de especialidades.
@@ -22,6 +23,17 @@ export const validateCreate = [
 
 export const validateUpdate = [
   ...validateId,
+  body().custom((value, { req }) => {
+    const fields = ['nombre', 'activo'];
+    const hasField = fields.some((field) => req.body[field] !== undefined);
+    if (!hasField) {
+      throw new AppError(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Debe proporcionar al menos un campo válido para actualizar (nombre, activo)',
+      );
+    }
+    return true;
+  }),
   body('nombre')
     .optional()
     .isString()

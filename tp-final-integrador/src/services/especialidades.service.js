@@ -11,9 +11,13 @@ export const getAll = async (params) => {
 
 export const createEspecialidad = async (data) => {
   // Validar que no exista una especialidad con el mismo nombre
-  const alreadyExist = await especialidadesModel.findByName(data.nombre);
-  if (alreadyExist) {
-    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una especialidad con ese nombre');
+  const existing = await especialidadesModel.findByName(data.nombre);
+  if (existing) {
+    const message =
+      existing.activo === 0
+        ? `Ya existe la especialidad '${data.nombre}' pero se encuentra inactiva. Debería reactivarla.`
+        : 'Ya existe una especialidad con ese nombre';
+    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);
   }
 
   return await especialidadesModel.create(data);
@@ -28,7 +32,11 @@ export const updateEspecialidad = async (id, data) => {
   if (data.nombre) {
     const existing = await especialidadesModel.findByName(data.nombre);
     if (existing && existing.id !== id) {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe otra especialidad con ese nombre');
+      const message =
+        existing.activo === 0
+          ? `Ya existe la especialidad '${data.nombre}' pero se encuentra inactiva. No puede usar este nombre.`
+          : 'Ya existe otra especialidad con ese nombre';
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);
     }
   }
 
