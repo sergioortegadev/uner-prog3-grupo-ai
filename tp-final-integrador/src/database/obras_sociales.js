@@ -4,6 +4,13 @@ import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js';
 import * as obrasSocialesMapper from './obras_sociales.mapper.js';
 
+const ORDER_MAP = {
+  id: 'id_obra_social',
+  nombre: 'nombre',
+  porcentajeDescuento: 'porcentaje_descuento',
+  activo: 'activo',
+};
+
 /**
  * Retorna todas las obras sociales activas o no, con paginación, orden y filtros.
  * @param {Object} params - Parámetros de búsqueda (limit, offset, order, asc, nombre, active)
@@ -12,20 +19,21 @@ export const findAll = async (params = {}) => {
   const {
     limit = QUERY_PARAMS.DEFAULT_LIMIT,
     offset = QUERY_PARAMS.DEFAULT_OFFSET,
-    order = 'id_obra_social',
+    order = 'id',
     asc = true,
     nombre,
     activo = DB_STATUS.ACTIVE,
   } = params;
 
-  const whereClauses =
-    activo === DB_STATUS.ALL
-      ? []
-      : activo === DB_STATUS.ACTIVE
-        ? ['activo = 1']
-        : activo === DB_STATUS.INACTIVE
-          ? ['activo = 0']
-          : [];
+  const dbOrder = ORDER_MAP[order] || 'id_obra_social';
+
+  const whereClauses = [];
+  if (activo === DB_STATUS.ACTIVE) {
+    whereClauses.push('activo = 1');
+  } else if (activo === DB_STATUS.INACTIVE) {
+    whereClauses.push('activo = 0');
+  }
+
   const queryValues = [];
 
   if (nombre) {
@@ -46,7 +54,7 @@ export const findAll = async (params = {}) => {
     SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo
     FROM obras_sociales
     ${whereSql}
-    ORDER BY ${order} ${direction}
+    ORDER BY ${dbOrder} ${direction}
     LIMIT ? OFFSET ?
   `;
 
