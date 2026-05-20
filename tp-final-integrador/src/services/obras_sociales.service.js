@@ -11,9 +11,13 @@ export const getAll = async (params) => {
 
 export const createObraSocial = async (data) => {
   //  Validar que no exista una obra social con el mismo nombre
-  const alreadyExist = await obrasSocialesModel.findByName(data.nombre);
-  if (alreadyExist) {
-    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe una obra social con ese nombre');
+  const existing = await obrasSocialesModel.findByName(data.nombre);
+  if (existing) {
+    const message =
+      existing.activo === 0
+        ? `Ya existe la obra social '${data.nombre}' pero se encuentra inactiva. Debería reactivarla.`
+        : 'Ya existe una obra social con ese nombre';
+    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);
   }
 
   return await obrasSocialesModel.create(data);
@@ -28,7 +32,11 @@ export const updateObraSocial = async (id, data) => {
   if (data.nombre) {
     const existing = await obrasSocialesModel.findByName(data.nombre);
     if (existing && existing.id !== id) {
-      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'Ya existe otra obra social con ese nombre');
+      const message =
+        existing.activo === 0
+          ? `Ya existe la obra social '${data.nombre}' pero se encuentra inactiva. No puede usar este nombre.`
+          : 'Ya existe otra obra social con ese nombre';
+      throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);
     }
   }
 
