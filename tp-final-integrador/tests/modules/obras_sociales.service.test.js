@@ -84,4 +84,73 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('updateObraSocial()', () => {
+    it('debería actualizar correctamente si la obra social existe y el nombre no se repite', async () => {
+      const id = 1;
+      const currentObra = { id: 1, nombre: 'Vieja', activo: 1 };
+      const updateData = { nombre: 'Nueva' };
+
+      obrasSocialesModel.findById.mockResolvedValue(currentObra);
+      obrasSocialesModel.findByName.mockResolvedValue(null);
+      obrasSocialesModel.update.mockResolvedValue(true);
+
+      const result = await obrasSocialesService.updateObraSocial(id, updateData);
+
+      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(id, true);
+      expect(obrasSocialesModel.findByName).toHaveBeenCalledWith(updateData.nombre);
+      expect(obrasSocialesModel.update).toHaveBeenCalledWith(id, updateData);
+      expect(result).toBe(true);
+    });
+
+    it('debería retornar false si la obra social no existe o está inactiva', async () => {
+      obrasSocialesModel.findById.mockResolvedValue(null);
+
+      const result = await obrasSocialesService.updateObraSocial(123, { nombre: 'Cambio' });
+
+      expect(result).toBe(false);
+      expect(obrasSocialesModel.update).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar error si el nombre nuevo ya existe en otra obra social', async () => {
+      const id = 1;
+      const currentObra = { id: 1, nombre: 'Original', activo: 1 };
+      const updateData = { nombre: 'Repetido' };
+
+      obrasSocialesModel.findById.mockResolvedValue(currentObra);
+      obrasSocialesModel.findByName.mockResolvedValue({ id: 2, nombre: 'Repetido', activo: 1 });
+
+      await expect(obrasSocialesService.updateObraSocial(id, updateData)).rejects.toThrow(
+        'Ya existe otra obra social con ese nombre',
+      );
+
+      expect(obrasSocialesModel.update).not.toHaveBeenCalled();
+    });
+
+    it('debería permitir actualizar si el nombre es el mismo que el actual (case-insensitive)', async () => {
+      const id = 1;
+      const currentObra = { id: 1, nombre: 'OSDE', activo: 1 };
+      const updateData = { nombre: 'osde', descripcion: 'Nueva desc' };
+
+      obrasSocialesModel.findById.mockResolvedValue(currentObra);
+      obrasSocialesModel.update.mockResolvedValue(true);
+
+      const result = await obrasSocialesService.updateObraSocial(id, updateData);
+
+      expect(obrasSocialesModel.findByName).not.toHaveBeenCalled();
+      expect(obrasSocialesModel.update).toHaveBeenCalledWith(id, updateData);
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('removeObraSocial()', () => {
+    it('debería delegar el borrado lógico al modelo', async () => {
+      obrasSocialesModel.softDelete.mockResolvedValue(true);
+
+      const result = await obrasSocialesService.removeObraSocial(1);
+
+      expect(obrasSocialesModel.softDelete).toHaveBeenCalledWith(1);
+      expect(result).toBe(true);
+    });
+  });
 });
