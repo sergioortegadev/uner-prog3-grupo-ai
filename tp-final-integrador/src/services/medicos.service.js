@@ -22,7 +22,7 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     const encontradasIds = encontradas.map((os) => os.id);
     const faltantes = uniqueIds.filter((id) => !encontradasIds.includes(id));
     throw new AppError(
-      ERROR_CODES.BAD_REQUEST,
+      ERROR_CODES.VALIDATION_ERROR,
       `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
     );
   }

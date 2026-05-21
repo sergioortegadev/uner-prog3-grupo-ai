@@ -102,12 +102,12 @@ describe('Médicos - Integration Tests', () => {
       expect(response.body.success).toBe(false);
     });
 
-    it('debería retornar 400 si alguna obra social no existe o está inactiva', async () => {
+    it('debería retornar 422 si alguna obra social no existe o está inactiva', async () => {
       const response = await request(app)
         .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
         .send({ obrasSociales: [osActivaId1, osInactivaId] });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
 
       // Verificar que no se insertó ninguna (rollback)
