@@ -127,6 +127,26 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
       expect(result).toBe(true);
     });
 
+    it('debería manejar la condición de carrera si el nombre se duplica entre el chequeo y la actualización', async () => {
+      const id = 1;
+      const currentObra = { id: 1, nombre: 'Original', activo: 1 };
+      const updateData = { nombre: 'Nuevo' };
+
+      // 1. Pasa el chequeo de existencia
+      obrasSocialesModel.findById.mockResolvedValue(currentObra);
+      // 2. Pasa el chequeo de nombre duplicado (en ese instante no hay otro)
+      obrasSocialesModel.findByName.mockResolvedValue(null);
+
+      // 3. Al intentar actualizar, falla porque otro proceso insertó el mismo nombre justo antes (Race Condition)
+      const dbError = new Error("Duplicate entry 'Nuevo' for key 'nombre'");
+      dbError.code = 'ER_DUP_ENTRY';
+      obrasSocialesModel.update.mockRejectedValue(dbError);
+
+      await expect(obrasSocialesService.updateObraSocial(id, updateData)).rejects.toThrow(
+        'Duplicate entry',
+      );
+    });
+
     it('debería lanzar error si el nombre nuevo ya existe en otra obra social', async () => {
       const id = 1;
       const currentObra = { id: 1, nombre: 'Original', activo: 1 };
