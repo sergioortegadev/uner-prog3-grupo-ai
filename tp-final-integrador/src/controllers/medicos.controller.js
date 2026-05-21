@@ -4,16 +4,13 @@ import { successResponse } from '../helpers/response.helper.js';
 
 /**
  * Controlador para el módulo de Médicos
+ * Nota: No requiere try/catch gracias a Express 5+ que maneja promesas rechazadas automáticamente.
  */
 
-export const asociarObrasSociales = async (req, res, next) => {
-  try {
-    const { id_medico, obrasSociales } = matchedData(req);
+export const asociarObrasSociales = async (req, res) => {
+  const { id_medico, obrasSociales } = matchedData(req);
 
-    const result = await medicosService.asociarObrasSociales(id_medico, obrasSociales);
+  const result = await medicosService.asociarObrasSociales(id_medico, obrasSociales);
 
-    return successResponse(res, result, 201);
-  } catch (error) {
-    next(error);
-  }
+  return successResponse(res, result, 201);
 };
