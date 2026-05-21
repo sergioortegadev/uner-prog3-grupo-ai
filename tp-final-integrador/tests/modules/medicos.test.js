@@ -134,4 +134,14 @@ describe('Médicos - Integration Tests', () => {
       expect(response.status).toBe(422);
     });
   });
+
+  describe('Métodos No Permitidos (405)', () => {
+    it('debería retornar 405 para métodos no soportados en /:id_medico/obras-sociales', async () => {
+      const response = await request(app).get(`/api/v1/medicos/${medicoId}/obras-sociales`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'POST');
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
+  });
 });
