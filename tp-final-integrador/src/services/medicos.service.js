@@ -15,19 +15,21 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
   }
 
   // 2. Validar que todas las obras sociales existan y estén activas
-  for (const idOS of idsObrasSociales) {
-    const os = await obrasSocialesModel.findById(idOS, true);
-    if (!os) {
-      throw new AppError(
-        ERROR_CODES.BAD_REQUEST,
-        `Obra Social con ID ${idOS} no encontrada o inactiva`,
-      );
-    }
+  const uniqueIds = [...new Set(idsObrasSociales)];
+  const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
+
+  if (encontradas.length !== uniqueIds.length) {
+    const encontradasIds = encontradas.map((os) => os.id);
+    const faltantes = uniqueIds.filter((id) => !encontradasIds.includes(id));
+    throw new AppError(
+      ERROR_CODES.BAD_REQUEST,
+      `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
+    );
   }
 
   // 3. Filtrar las que ya están asociadas (opcional por INSERT IGNORE, pero útil para lógica de negocio)
   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
-  const nuevas = idsObrasSociales.filter((id) => !actuales.includes(id));
+  const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
 
   if (nuevas.length === 0) {
     return { message: 'El médico ya tiene todas las obras sociales indicadas asociadas' };
