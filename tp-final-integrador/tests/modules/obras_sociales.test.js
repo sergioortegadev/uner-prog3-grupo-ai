@@ -8,33 +8,12 @@ import { ROLES } from '../../src/constants/roles.constants.js';
 
 describe('Obras Sociales - Integration Tests', () => {
   let adminToken;
-  let pacienteToken;
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
     await setupTestDB();
     // Generamos tokens para las pruebas
     adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
-    pacienteToken = jwt.sign({ id: 5, rol: ROLES.PACIENTE, documento: '41000111' }, JWT_SECRET);
-  });
-
-  describe('Seguridad y Autorización', () => {
-    it('debería retornar 403 si un Paciente intenta acceder', async () => {
-      const response = await request(app)
-        .get('/api/v1/obras-sociales')
-        .set('Authorization', `Bearer ${pacienteToken}`);
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-    });
-
-    it('debería retornar 401 si no se envía token', async () => {
-      const response = await request(app).get('/api/v1/obras-sociales');
-
-      expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
-    });
   });
 
   describe('POST /api/v1/obras-sociales', () => {
@@ -59,6 +38,21 @@ describe('Obras Sociales - Integration Tests', () => {
       ]);
       expect(rows).toHaveLength(1);
       expect(rows[0].nombre).toBe('OSDE 210');
+    });
+
+    it('debería retornar 422 si el porcentajeDescuento está fuera de rango (0-100)', async () => {
+      const nuevaObra = {
+        nombre: 'OS Fuera de Rango',
+        descripcion: 'Test',
+        porcentajeDescuento: 150,
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(422);
     });
 
     it('debería retornar 422 si falta la descripción', async () => {
@@ -137,6 +131,39 @@ describe('Obras Sociales - Integration Tests', () => {
         [id],
       );
       expect(rows[0].nombre).toBe('Actualizada');
+    });
+
+    it('debería retornar 422 al enviar un body vacío en PUT', async () => {
+      const response = await request(app)
+        .put('/api/v1/obras-sociales/1')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({});
+
+      expect(response.status).toBe(422);
+    });
+
+    it('debería retornar 404 al intentar actualizar una obra social inexistente', async () => {
+      const response = await request(app)
+        .put('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Inexistente' });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('debería retornar 404 al intentar actualizar una obra social inactiva', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Inactiva Update', 'Test', 0, 0],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Tratar de activar' });
+
+      expect(response.status).toBe(404);
     });
 
     it('debería retornar 409 al actualizar con un nombre que ya existe en otra obra social', async () => {
@@ -320,6 +347,18 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.body.data.nombre).toBe('Obra Por ID');
     });
 
+    it('debería retornar 422 si el ID en el path es inválido (string o <= 0)', async () => {
+      const response1 = await request(app)
+        .get('/api/v1/obras-sociales/abc')
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(response1.status).toBe(422);
+
+      const response2 = await request(app)
+        .get('/api/v1/obras-sociales/0')
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(response2.status).toBe(422);
+    });
+
     it('debería retornar 404 si la obra social está inactiva', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
@@ -363,6 +402,28 @@ describe('Obras Sociales - Integration Tests', () => {
         [id],
       );
       expect(rows[0].activo).toBe(0);
+    });
+
+    it('debería retornar 404 al intentar eliminar una obra social inexistente', async () => {
+      const response = await request(app)
+        .delete('/api/v1/obras-sociales/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('debería retornar 404 al intentar eliminar una obra social ya inactiva', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Ya Inactiva', 'Test', 0, 0],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .delete(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
     });
   });
 

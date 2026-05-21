@@ -28,10 +28,14 @@ export const removeObraSocial = async (id) => {
 };
 
 export const updateObraSocial = async (id, data) => {
-  //  Si se cambia el nombre, validar que no exista con ese nombre (excluyendo el actual)
-  if (data.nombre) {
+  // 1. Validar que la obra social exista y esté activa
+  const current = await obrasSocialesModel.findById(id, true);
+  if (!current) return false;
+
+  // 2. Si se cambia el nombre, validar que no exista con ese nombre (excluyendo el actual)
+  if (data.nombre && data.nombre.toLowerCase() !== current.nombre.toLowerCase()) {
     const existing = await obrasSocialesModel.findByName(data.nombre);
-    if (existing && existing.id !== id) {
+    if (existing) {
       const message =
         existing.activo === 0
           ? `Ya existe la obra social '${data.nombre}' pero se encuentra inactiva. No puede usar este nombre.`
