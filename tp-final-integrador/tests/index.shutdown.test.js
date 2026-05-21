@@ -1,16 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('Graceful Shutdown - src/index.js', () => {
   it('should export startServer function', async () => {
     const index = await import('../src/index.js');
-    
+
     expect(typeof index.startServer).toBe('function');
   });
 
   it('should import closePool from db.js', async () => {
     // Check that db.js exports closePool
     const db = await import('../src/config/db.js');
-    
+
     expect(typeof db.closePool).toBe('function');
   });
 
@@ -19,7 +19,7 @@ describe('Graceful Shutdown - src/index.js', () => {
     const fs = require('fs');
     const path = require('path');
     const indexContent = fs.readFileSync(path.join(__dirname, '../src/index.js'), 'utf-8');
-    
+
     // Check for SIGTERM handler
     expect(indexContent).toContain("process.on('SIGTERM'");
     // Check for SIGINT handler
