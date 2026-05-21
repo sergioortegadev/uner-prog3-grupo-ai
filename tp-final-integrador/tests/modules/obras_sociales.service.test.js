@@ -97,19 +97,34 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
 
       const result = await obrasSocialesService.updateObraSocial(id, updateData);
 
-      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(id, true);
+      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(id, false);
       expect(obrasSocialesModel.findByName).toHaveBeenCalledWith(updateData.nombre);
       expect(obrasSocialesModel.update).toHaveBeenCalledWith(id, updateData);
       expect(result).toBe(true);
     });
 
-    it('debería retornar false si la obra social no existe o está inactiva', async () => {
+    it('debería retornar false si la obra social no existe', async () => {
       obrasSocialesModel.findById.mockResolvedValue(null);
 
       const result = await obrasSocialesService.updateObraSocial(123, { nombre: 'Cambio' });
 
       expect(result).toBe(false);
       expect(obrasSocialesModel.update).not.toHaveBeenCalled();
+    });
+
+    it('debería permitir actualizar una obra social inactiva (reactivación)', async () => {
+      const id = 1;
+      const currentObra = { id: 1, nombre: 'Inactiva', activo: 0 };
+      const updateData = { activo: 1 };
+
+      obrasSocialesModel.findById.mockResolvedValue(currentObra);
+      obrasSocialesModel.update.mockResolvedValue(true);
+
+      const result = await obrasSocialesService.updateObraSocial(id, updateData);
+
+      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(id, false);
+      expect(obrasSocialesModel.update).toHaveBeenCalledWith(id, updateData);
+      expect(result).toBe(true);
     });
 
     it('debería lanzar error si el nombre nuevo ya existe en otra obra social', async () => {
@@ -144,13 +159,24 @@ describe('Obras Sociales - Unit Tests (Service)', () => {
   });
 
   describe('removeObraSocial()', () => {
-    it('debería delegar el borrado lógico al modelo', async () => {
+    it('debería delegar el borrado lógico al modelo si existe y está activa', async () => {
+      obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: 1 });
       obrasSocialesModel.softDelete.mockResolvedValue(true);
 
       const result = await obrasSocialesService.removeObraSocial(1);
 
+      expect(obrasSocialesModel.findById).toHaveBeenCalledWith(1, true);
       expect(obrasSocialesModel.softDelete).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
+    });
+
+    it('debería retornar false si la obra social no existe o ya está inactiva', async () => {
+      obrasSocialesModel.findById.mockResolvedValue(null);
+
+      const result = await obrasSocialesService.removeObraSocial(123);
+
+      expect(result).toBe(false);
+      expect(obrasSocialesModel.softDelete).not.toHaveBeenCalled();
     });
   });
 });

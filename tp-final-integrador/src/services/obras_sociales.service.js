@@ -24,12 +24,16 @@ export const createObraSocial = async (data) => {
 };
 
 export const removeObraSocial = async (id) => {
+  // 1. Validar que la obra social exista y esté activa antes de borrar
+  const current = await obrasSocialesModel.findById(id, true);
+  if (!current) return false;
+
   return await obrasSocialesModel.softDelete(id);
 };
 
 export const updateObraSocial = async (id, data) => {
-  // 1. Validar que la obra social exista y esté activa
-  const current = await obrasSocialesModel.findById(id, true);
+  // 1. Validar que la obra social exista (independientemente de si está activa o no, para permitir reactivación)
+  const current = await obrasSocialesModel.findById(id, false);
   if (!current) return false;
 
   // 2. Si se cambia el nombre, validar que no exista con ese nombre (excluyendo el actual)

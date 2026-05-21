@@ -151,7 +151,7 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.status).toBe(404);
     });
 
-    it('debería retornar 404 al intentar actualizar una obra social inactiva', async () => {
+    it('debería permitir actualizar una obra social inactiva (reactivación)', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
         ['Inactiva Update', 'Test', 0, 0],
@@ -161,9 +161,14 @@ describe('Obras Sociales - Integration Tests', () => {
       const response = await request(app)
         .put(`/api/v1/obras-sociales/${id}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ nombre: 'Tratar de activar' });
+        .send({ nombre: 'Ya Activa', activo: 1 });
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(200);
+      const [rows] = await pool.execute(
+        'SELECT activo FROM obras_sociales WHERE id_obra_social = ?',
+        [id],
+      );
+      expect(rows[0].activo).toBe(1);
     });
 
     it('debería retornar 409 al actualizar con un nombre que ya existe en otra obra social', async () => {
