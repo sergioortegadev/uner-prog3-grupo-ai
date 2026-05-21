@@ -11,6 +11,7 @@ export const asociarObrasSociales = async (req, res) => {
   const { id_medico, obrasSociales } = matchedData(req);
 
   const result = await medicosService.asociarObrasSociales(id_medico, obrasSociales);
+  const status = result.asociadas.length > 0 ? 201 : 200;
 
-  return successResponse(res, result, 201);
+  return successResponse(res, result, status);
 };

@@ -27,16 +27,25 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     );
   }
 
-  // 3. Filtrar las que ya están asociadas (opcional por INSERT IGNORE, pero útil para lógica de negocio)
+  // 3. Filtrar las que ya están asociadas
   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
+  const yaExistentes = uniqueIds.filter((id) => actuales.includes(id));
 
   if (nuevas.length === 0) {
-    return { message: 'El médico ya tiene todas las obras sociales indicadas asociadas' };
+    return {
+      message: 'El médico ya tiene todas las obras sociales indicadas asociadas',
+      asociadas: [],
+      yaExistentes,
+    };
   }
 
   // 4. Ejecutar la asociación
   await medicosModel.assignObrasSociales(idMedico, nuevas);
 
-  return { message: 'Obras sociales asociadas correctamente', nuevasAsociaciones: nuevas.length };
+  return {
+    message: 'Obras sociales asociadas correctamente',
+    asociadas: nuevas,
+    yaExistentes,
+  };
 };

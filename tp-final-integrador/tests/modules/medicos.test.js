@@ -62,15 +62,15 @@ describe('Médicos - Integration Tests', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
+      expect(response.body.data.asociadas).toContain(osActivaId1);
+      expect(response.body.data.asociadas).toContain(osActivaId2);
+      expect(response.body.data.yaExistentes).toHaveLength(0);
 
       const [rows] = await pool.execute(
         'SELECT * FROM medicos_obras_sociales WHERE id_medico = ?',
         [medicoId],
       );
       expect(rows).toHaveLength(2);
-      const ids = rows.map((r) => r.id_obra_social);
-      expect(ids).toContain(osActivaId1);
-      expect(ids).toContain(osActivaId2);
     });
 
     it('debería ser idempotente si ya existe una asociación (201/200)', async () => {
@@ -85,6 +85,8 @@ describe('Médicos - Integration Tests', () => {
         .send({ obrasSociales: [osActivaId1, osActivaId2] });
 
       expect(response.status).toBe(201);
+      expect(response.body.data.asociadas).toContain(osActivaId2);
+      expect(response.body.data.yaExistentes).toContain(osActivaId1);
 
       const [rows] = await pool.execute(
         'SELECT * FROM medicos_obras_sociales WHERE id_medico = ?',
@@ -132,6 +134,71 @@ describe('Médicos - Integration Tests', () => {
         .send({ obrasSociales: [] });
 
       expect(response.status).toBe(422);
+    });
+
+    it('debería retornar 422 si falta la key obrasSociales en el body', async () => {
+      const response = await request(app)
+        .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
+        .send({ otraKey: [1] });
+
+      expect(response.status).toBe(422);
+    });
+
+    it('debería retornar 400 si el id_medico en el path es inválido (string o <= 0)', async () => {
+      const response1 = await request(app)
+        .post('/api/v1/medicos/abc/obras-sociales')
+        .send({ obrasSociales: [osActivaId1] });
+      expect(response1.status).toBe(422);
+
+      const response2 = await request(app)
+        .post('/api/v1/medicos/0/obras-sociales')
+        .send({ obrasSociales: [osActivaId1] });
+      expect(response2.status).toBe(422);
+    });
+
+    it('debería retornar 422 si el array contiene IDs inválidos (negativos o no enteros)', async () => {
+      const response1 = await request(app)
+        .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
+        .send({ obrasSociales: [-1, 2] });
+      expect(response1.status).toBe(422);
+
+      const response2 = await request(app)
+        .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
+        .send({ obrasSociales: [1.5] });
+      expect(response2.status).toBe(422);
+    });
+
+    it('debería manejar duplicados en el mismo request (idempotencia en el lote)', async () => {
+      const response = await request(app)
+        .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
+        .send({ obrasSociales: [osActivaId1, osActivaId1, osActivaId1] });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data.asociadas).toHaveLength(1);
+      expect(response.body.data.asociadas).toContain(osActivaId1);
+
+      const [rows] = await pool.execute(
+        'SELECT * FROM medicos_obras_sociales WHERE id_medico = ? AND id_obra_social = ?',
+        [medicoId, osActivaId1],
+      );
+      expect(rows).toHaveLength(1);
+    });
+
+    it('debería retornar 200 si todas las obras sociales ya estaban asociadas', async () => {
+      // Pre-asociar OS 1
+      await pool.execute(
+        'INSERT INTO medicos_obras_sociales (id_medico, id_obra_social, activo) VALUES (?, ?, 1)',
+        [medicoId, osActivaId1],
+      );
+
+      const response = await request(app)
+        .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
+        .send({ obrasSociales: [osActivaId1] });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.asociadas).toHaveLength(0);
+      expect(response.body.data.yaExistentes).toContain(osActivaId1);
+      expect(response.body.data.message).toMatch(/ya tiene todas las obras sociales/i);
     });
   });
 
