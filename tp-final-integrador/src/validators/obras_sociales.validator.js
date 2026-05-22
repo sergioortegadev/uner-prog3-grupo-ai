@@ -40,12 +40,6 @@ export const validateCreate = [
     .isBoolean()
     .withMessage('esParticular debe ser un valor booleano')
     .toBoolean(),
-
-  body('activo')
-    .optional()
-    .isBoolean()
-    .withMessage('activo debe ser un valor booleano')
-    .toBoolean(),
 ];
 
 export const validateUpdate = [

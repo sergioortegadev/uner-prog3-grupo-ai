@@ -27,9 +27,9 @@ export const findAll = async (params = {}) => {
 
   const whereClauses = [];
   if (activo === DB_STATUS.ACTIVE) {
-    whereClauses.push('activo = 1');
+    whereClauses.push(`activo = ${DB_STATUS.ACTIVE}`);
   } else if (activo === DB_STATUS.INACTIVE) {
-    whereClauses.push('activo = 0');
+    whereClauses.push(`activo = ${DB_STATUS.INACTIVE}`);
   }
 
   const queryValues = [];
@@ -87,7 +87,7 @@ export const findById = async (id, onlyActive = true) => {
     'SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo FROM obras_sociales WHERE id_obra_social = ?';
 
   if (onlyActive) {
-    query += ' AND activo = 1';
+    query += ` AND activo = ${DB_STATUS.ACTIVE}`;
   }
 
   const [rows] = await pool.execute(query, [id]);
@@ -97,19 +97,18 @@ export const findById = async (id, onlyActive = true) => {
 
 /**
  * Crea una nueva obra social.
- * Nota: La validación de nombre duplicado la hace el Service (lógica de negocio).
- * El modelo solo intenta el INSERT y maneja el error de BD como respaldo.
  */
 export const create = async (data) => {
   const { nombre, descripcion, porcentajeDescuento, esParticular } = data;
 
   const query =
-    'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, 1)';
+    'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)';
   const [result] = await pool.execute(query, [
     nombre,
     descripcion ?? '',
     porcentajeDescuento ?? 0,
-    esParticular ? 1 : 0,
+    esParticular ?? false,
+    DB_STATUS.ACTIVE,
   ]);
   return result.insertId;
 };
@@ -135,11 +134,11 @@ export const update = async (id, data) => {
   }
   if (data.esParticular !== undefined) {
     fields.push('es_particular = ?');
-    values.push(data.esParticular ? 1 : 0);
+    values.push(data.esParticular);
   }
   if (data.activo !== undefined) {
     fields.push('activo = ?');
-    values.push(data.activo ? 1 : 0);
+    values.push(data.activo ? DB_STATUS.ACTIVE : DB_STATUS.INACTIVE);
   }
 
   if (fields.length === 0) {
@@ -160,7 +159,7 @@ export const update = async (id, data) => {
  * Realiza un borrado lógico.
  */
 export const softDelete = async (id) => {
-  const query = 'UPDATE obras_sociales SET activo = 0 WHERE id_obra_social = ? AND activo = 1';
-  const [result] = await pool.execute(query, [id]);
+  const query = 'UPDATE obras_sociales SET activo = ? WHERE id_obra_social = ? AND activo = ?';
+  const [result] = await pool.execute(query, [DB_STATUS.INACTIVE, id, DB_STATUS.ACTIVE]);
   return result.affectedRows > 0;
 };

@@ -109,6 +109,119 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
     });
+
+    it('debería retornar 422 si el body está vacío', async () => {
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({});
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si falta el nombre', async () => {
+      const nuevaObra = {
+        descripcion: 'Solo descripción',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 409 si el nombre ya existe con diferente case (case-insensitive)', async () => {
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Swiss Medical', 'Test', 15, 0, 1],
+      );
+
+      const nuevaObra = {
+        nombre: 'swiss medical',
+        descripcion: 'Otra desc',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(409);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar el formato DTO camelCase correcto en la respuesta', async () => {
+      const nuevaObra = {
+        nombre: 'Sancor Salud',
+        descripcion: 'Plan 2000',
+        porcentajeDescuento: 25.5,
+        esParticular: true,
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('id');
+      expect(response.body.data.nombre).toBe('Sancor Salud');
+      expect(response.body.data.descripcion).toBe('Plan 2000');
+      expect(response.body.data.porcentajeDescuento).toBe(25.5);
+      expect(response.body.data.esParticular).toBe(true);
+      expect(response.body.data.activo).toBe(1);
+    });
+
+    it('debería retornar 422 si el nombre supera los 120 caracteres', async () => {
+      const nuevaObra = {
+        nombre: 'a'.repeat(121),
+        descripcion: 'Descripción válida',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si la descripción supera los 255 caracteres', async () => {
+      const nuevaObra = {
+        nombre: 'Obra Social Válida',
+        descripcion: 'a'.repeat(256),
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si el porcentajeDescuento es negativo', async () => {
+      const nuevaObra = {
+        nombre: 'Obra Social Negativa',
+        descripcion: 'Test desc',
+        porcentajeDescuento: -5,
+      };
+
+      const response = await request(app)
+        .post('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(nuevaObra);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
   });
 
   describe('PUT /api/v1/obras-sociales/:id', () => {
@@ -189,6 +302,134 @@ describe('Obras Sociales - Integration Tests', () => {
 
       expect(response.status).toBe(409);
       expect(response.body.success).toBe(false);
+    });
+
+    it('debería permitir actualizar manteniendo el mismo nombre', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Mismo Nombre', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Mismo Nombre', descripcion: 'Nueva desc' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      const [rows] = await pool.execute(
+        'SELECT descripcion FROM obras_sociales WHERE id_obra_social = ?',
+        [id],
+      );
+      expect(rows[0].descripcion).toBe('Nueva desc');
+    });
+
+    it('debería actualizar múltiples campos simultáneamente', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Multiples Campos', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          nombre: 'Campos Multiples',
+          descripcion: 'Desc cambiada',
+          porcentajeDescuento: 50.0,
+          esParticular: true,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      const [rows] = await pool.execute(
+        'SELECT nombre, descripcion, porcentaje_descuento, es_particular FROM obras_sociales WHERE id_obra_social = ?',
+        [id],
+      );
+      expect(rows[0].nombre).toBe('Campos Multiples');
+      expect(rows[0].descripcion).toBe('Desc cambiada');
+      expect(Number(rows[0].porcentaje_descuento)).toBe(50.0);
+      expect(rows[0].es_particular).toBe(1);
+    });
+
+    it('debería retornar 422 si el porcentajeDescuento en PUT es inválido (> 100)', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Descuento Mal', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ porcentajeDescuento: 101 });
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si el nombre en PUT supera los 120 caracteres', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Nombre Largo Put', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'a'.repeat(121) });
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería actualizar sólo la descripción', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Solo Desc', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ descripcion: 'Nueva descripción' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      const [rows] = await pool.execute(
+        'SELECT descripcion FROM obras_sociales WHERE id_obra_social = ?',
+        [id],
+      );
+      expect(rows[0].descripcion).toBe('Nueva descripción');
+    });
+
+    it('debería ignorar campos desconocidos en el body', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['Ignora Desconocidos', 'Test', 15, 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .put(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'Ignora Ok', campoInexistente: 'hack' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      const [rows] = await pool.execute(
+        'SELECT nombre FROM obras_sociales WHERE id_obra_social = ?',
+        [id],
+      );
+      expect(rows[0].nombre).toBe('Ignora Ok');
     });
   });
 
@@ -333,6 +574,65 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
     });
+
+    it('debería retornar 200 con data vacía y total=0 si no hay obras sociales', async () => {
+      // Como setupTestDB limpia todo y no siembra obras sociales, la tabla está vacía.
+      const response = await request(app)
+        .get('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual([]);
+      expect(response.body.meta.total).toBe(0);
+    });
+
+    it('debería retornar 422 si limit=0', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?limit=0')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si limit > 100', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?limit=101')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar 422 si offset es negativo', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?offset=-1')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería filtrar por nombre y estado activo=0 simultáneamente', async () => {
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['PAMI Activa', 'Test', 0, 1],
+      );
+      await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['PAMI Inactiva', 'Test', 0, 0],
+      );
+
+      const response = await request(app)
+        .get('/api/v1/obras-sociales?nombre=pami&activo=0')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].nombre).toBe('PAMI Inactiva');
+    });
   });
 
   describe('GET /api/v1/obras-sociales/:id', () => {
@@ -386,6 +686,38 @@ describe('Obras Sociales - Integration Tests', () => {
 
       expect(response.status).toBe(404);
     });
+
+    it('debería retornar 422 si el ID en el path es negativo', async () => {
+      const response = await request(app)
+        .get('/api/v1/obras-sociales/-5')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería retornar la estructura DTO camelCase completa para una obra social', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
+        ['DTO Completo', 'Plan Full', 20.0, 1, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .get(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      const data = response.body.data;
+      expect(data).toHaveProperty('id', id);
+      expect(data).toHaveProperty('nombre', 'DTO Completo');
+      expect(data).toHaveProperty('descripcion', 'Plan Full');
+      expect(data).toHaveProperty('porcentajeDescuento', 20.0);
+      expect(data).toHaveProperty('esParticular', true);
+      expect(data).toHaveProperty('activo', 1);
+    });
   });
 
   describe('DELETE /api/v1/obras-sociales/:id', () => {
@@ -430,6 +762,73 @@ describe('Obras Sociales - Integration Tests', () => {
 
       expect(response.status).toBe(404);
     });
+
+    it('debería retornar 422 si el ID en DELETE es inválido (string)', async () => {
+      const response = await request(app)
+        .delete('/api/v1/obras-sociales/abc')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('debería realizar un soft delete y no un hard delete (el registro permanece en la base de datos)', async () => {
+      const [result] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['Soft Delete Test', 'Test', 0, 1],
+      );
+      const id = result.insertId;
+
+      const response = await request(app)
+        .delete(`/api/v1/obras-sociales/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+
+      // Verificamos que el registro sigue existiendo en la DB
+      const [rows] = await pool.execute('SELECT * FROM obras_sociales WHERE id_obra_social = ?', [
+        id,
+      ]);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].activo).toBe(0); // Pero inactivo
+    });
+
+    it('debería permitir soft delete incluso si está vinculada a un paciente (integridad referencial de BD intacta)', async () => {
+      // 1. Insertamos obra social
+      const [osResult] = await pool.execute(
+        'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
+        ['OS Vinculada', 'Para Paciente', 10, 1],
+      );
+      const idObraSocial = osResult.insertId;
+
+      // 2. Insertamos usuario para el paciente
+      const [userResult] = await pool.execute(
+        'INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        ['55555555', 'Paciente', 'Test', 'paciente@test.com', 'password', '', ROLES.PACIENTE, 1],
+      );
+      const idUsuario = userResult.insertId;
+
+      // 3. Insertamos paciente vinculado a la obra social y al usuario
+      await pool.execute('INSERT INTO pacientes (id_usuario, id_obra_social) VALUES (?, ?)', [
+        idUsuario,
+        idObraSocial,
+      ]);
+
+      // 4. Intentamos realizar el soft delete
+      const response = await request(app)
+        .delete(`/api/v1/obras-sociales/${idObraSocial}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      // 5. La respuesta debe ser exitosa ya que es soft-delete y no viola FK de MySQL
+      expect(response.status).toBe(200);
+
+      // 6. Verificamos que sigue estando en la base de datos con activo = 0
+      const [rows] = await pool.execute(
+        'SELECT activo FROM obras_sociales WHERE id_obra_social = ?',
+        [idObraSocial],
+      );
+      expect(rows[0].activo).toBe(0);
+    });
   });
 
   describe('Métodos No Permitidos (405)', () => {
@@ -451,6 +850,33 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.status).toBe(405);
       expect(response.header).toHaveProperty('allow', 'GET, PUT, DELETE');
       expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
+
+    it('debería retornar 405 para PUT en la colección (/)', async () => {
+      const response = await request(app)
+        .put('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET, POST');
+    });
+
+    it('debería retornar 405 para DELETE en la colección (/)', async () => {
+      const response = await request(app)
+        .delete('/api/v1/obras-sociales')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET, POST');
+    });
+
+    it('debería retornar 405 para PATCH en el recurso (/:id)', async () => {
+      const response = await request(app)
+        .patch('/api/v1/obras-sociales/1')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET, PUT, DELETE');
     });
   });
 });
