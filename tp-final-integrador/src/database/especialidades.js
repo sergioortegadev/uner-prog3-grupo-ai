@@ -26,9 +26,9 @@ export const findAll = async (params = {}) => {
 
   const whereClauses = [];
   if (activo === DB_STATUS.ACTIVE) {
-    whereClauses.push('activo = 1');
+    whereClauses.push(`activo = ${DB_STATUS.ACTIVE}`);
   } else if (activo === DB_STATUS.INACTIVE) {
-    whereClauses.push('activo = 0');
+    whereClauses.push(`activo = ${DB_STATUS.INACTIVE}`);
   }
 
   const queryValues = [];
@@ -86,7 +86,7 @@ export const findById = async (id, onlyActive = true) => {
     'SELECT id_especialidad, nombre, activo FROM especialidades WHERE id_especialidad = ?';
 
   if (onlyActive) {
-    query += ' AND activo = 1';
+    query += ` AND activo = ${DB_STATUS.ACTIVE}`;
   }
 
   const [rows] = await pool.execute(query, [id]);
@@ -100,8 +100,8 @@ export const findById = async (id, onlyActive = true) => {
 export const create = async (data) => {
   const { nombre } = data;
 
-  const query = 'INSERT INTO especialidades (nombre, activo) VALUES (?, 1)';
-  const [result] = await pool.execute(query, [nombre]);
+  const query = 'INSERT INTO especialidades (nombre, activo) VALUES (?, ?)';
+  const [result] = await pool.execute(query, [nombre, DB_STATUS.ACTIVE]);
   return result.insertId;
 };
 
@@ -118,7 +118,7 @@ export const update = async (id, data) => {
   }
   if (data.activo !== undefined) {
     fields.push('activo = ?');
-    values.push(data.activo ? 1 : 0);
+    values.push(data.activo ? DB_STATUS.ACTIVE : DB_STATUS.INACTIVE);
   }
 
   if (fields.length === 0) {
@@ -139,7 +139,7 @@ export const update = async (id, data) => {
  * Realiza un borrado lógico.
  */
 export const softDelete = async (id) => {
-  const query = 'UPDATE especialidades SET activo = 0 WHERE id_especialidad = ? AND activo = 1';
+  const query = `UPDATE especialidades SET activo = ${DB_STATUS.INACTIVE} WHERE id_especialidad = ? AND activo = ${DB_STATUS.ACTIVE}`;
   const [result] = await pool.execute(query, [id]);
   return result.affectedRows > 0;
 };
