@@ -1,4 +1,5 @@
 import { pool } from '../config/db.js';
+import * as medicosMapper from './medicos.mapper.js';
 
 /**
  * Busca un médico por su ID.
@@ -16,7 +17,7 @@ export const findById = async (id) => {
   const [rows] = await pool.execute(query, [id]);
 
   if (rows.length === 0) return null;
-  return rows[0];
+  return medicosMapper.toDTO(rows[0]);
 };
 
 /**

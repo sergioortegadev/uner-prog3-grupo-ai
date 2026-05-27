@@ -4,7 +4,6 @@ import { successResponse } from '../helpers/response.helper.js';
 
 /**
  * Controlador para el módulo de Médicos
- * Nota: No requiere try/catch gracias a Express 5+ que maneja promesas rechazadas automáticamente.
  */
 
 export const asociarObrasSociales = async (req, res) => {
