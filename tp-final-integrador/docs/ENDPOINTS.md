@@ -14,8 +14,8 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | `DELETE` | `/api/v1/obras-sociales/:id` | Baja lógica (Soft Delete) |
 
 ### Parámetros de consulta (GET)
-- `sort`: Campo por el cual ordenar (ej: `nombre`).
-- `order`: Dirección del orden (`asc` o `desc`).
+- `order`: Campo por el cual ordenar (`id`, `nombre`, `porcentajeDescuento` o `activo`).
+- `asc`: Dirección del orden (`true` o `false`).
 - `limit`: Cantidad de resultados.
 - Filtros directos: `activo=1`, `nombre=Jerárquicos`.
 

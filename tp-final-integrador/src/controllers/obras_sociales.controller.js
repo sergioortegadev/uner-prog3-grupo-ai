@@ -43,7 +43,7 @@ export const updateObraSocial = async (req, res) => {
     return errorResponse({
       res,
       errorType: ERROR_CODES.NOT_FOUND,
-      message: 'Obra social no encontrada o inactiva',
+      message: 'Obra social no encontrada',
     });
   }
 

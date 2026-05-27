@@ -6,9 +6,7 @@
       "request": "launch",
       "name": "Lanzar Backend (Debug)",
       "program": "${workspaceFolder}/src/index.js",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "envFile": "${workspaceFolder}/.env"
     }
   ]
