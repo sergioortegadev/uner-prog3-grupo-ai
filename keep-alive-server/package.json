@@ -1,0 +1,22 @@
+{
+  "name": "keep-server-alive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --env-file=.env --loader ts-node/esm src/main.ts",
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node --env-file=.env dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^25.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}
