@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Validaciones para el módulo de Obras Sociales
@@ -39,16 +40,21 @@ export const validateCreate = [
     .isBoolean()
     .withMessage('esParticular debe ser un valor booleano')
     .toBoolean(),
-
-  body('activo')
-    .optional()
-    .isBoolean()
-    .withMessage('activo debe ser un valor booleano')
-    .toBoolean(),
 ];
 
 export const validateUpdate = [
   ...validateId,
+  body().custom((value, { req }) => {
+    const fields = ['nombre', 'descripcion', 'porcentajeDescuento', 'esParticular', 'activo'];
+    const hasField = fields.some((field) => req.body[field] !== undefined);
+    if (!hasField) {
+      throw new AppError(
+        ERROR_CODES.VALIDATION_ERROR,
+        `Debe proporcionar al menos un campo válido para actualizar (${fields.join(', ')})`,
+      );
+    }
+    return true;
+  }),
   body('nombre')
     .optional()
     .trim()
