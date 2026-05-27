@@ -125,6 +125,7 @@ export const update = async (id, data) => {
     throw new Error('No hay campos válidos para actualizar');
   }
 
+  // No filtramos por activo = 1 intencionalmente: permite reactivar especialidades con activo = true
   const query = `UPDATE especialidades SET ${fields.join(', ')} WHERE id_especialidad = ?`;
   values.push(id);
 
