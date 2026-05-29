@@ -15,6 +15,7 @@ export const getAll = async (req, res) => {
 
 export const getById = async (req, res) => {
   const { id } = matchedData(req);
+  // TODO: pasar rol una vez habilitado autorización
   const especialidad = await especialidadesService.getEspecialidadById(id);
 
   if (!especialidad) {

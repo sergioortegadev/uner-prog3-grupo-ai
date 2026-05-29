@@ -1,11 +1,18 @@
 import * as especialidadesModel from '../database/especialidades.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
+import { ROLES } from '../constants/roles.constants.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Lógica de negocio para especialidades.
  */
 
-export const getAll = async (params) => {
+export const getAll = async (params, userRole) => {
+  // forzar usuarios no Admin restringidos a ver solo activos por mas que pasen query param activo
+  // TODO: una vez habilitado la autorizacion eliminar el guard
+  if (userRole && userRole !== ROLES.ADMIN) {
+    params.activo = DB_STATUS.ACTIVE;
+  }
   return await especialidadesModel.findAll(params);
 };
 
@@ -43,6 +50,10 @@ export const updateEspecialidad = async (id, data) => {
   return await especialidadesModel.update(id, data);
 };
 
-export const getEspecialidadById = async (id, onlyActive = true) => {
+// eslint-disable-next-line no-unused-vars
+export const getEspecialidadById = async (id, userRole) => {
+  // TODO: una vez habilitado la autorizacion
+  //  const onlyActive = !userRole || userRole !== ROLES.ADMIN;
+  const onlyActive = false;
   return await especialidadesModel.findById(id, onlyActive);
 };
