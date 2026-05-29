@@ -50,10 +50,7 @@ export const updateEspecialidad = async (id, data) => {
   return await especialidadesModel.update(id, data);
 };
 
-// eslint-disable-next-line no-unused-vars
 export const getEspecialidadById = async (id, userRole) => {
-  // TODO: una vez habilitado la autorizacion
-  //  const onlyActive = !userRole || userRole !== ROLES.ADMIN;
-  const onlyActive = false;
+  const onlyActive = !userRole || userRole !== ROLES.ADMIN;
   return await especialidadesModel.findById(id, onlyActive);
 };

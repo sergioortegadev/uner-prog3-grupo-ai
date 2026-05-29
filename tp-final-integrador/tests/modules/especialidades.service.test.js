@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as especialidadesService from '../../src/services/especialidades.service.js';
 import * as especialidadesModel from '../../src/database/especialidades.js';
+import { ROLES } from '../../src/constants/roles.constants.js';
 
 vi.mock('../../src/database/especialidades.js', () => ({
   findAll: vi.fn(),
@@ -69,7 +70,7 @@ describe('Especialidades - Unit Tests (Service)', () => {
   });
 
   describe('getEspecialidadById()', () => {
-    it('debería retornar el objeto si existe', async () => {
+    it('debería buscar solo activos cuando no se pasa rol (default seguro)', async () => {
       const mockEspecialidad = { id: 1, nombre: 'PEDIATRÍA', activo: 1 };
       especialidadesModel.findById.mockResolvedValue(mockEspecialidad);
 
@@ -79,10 +80,29 @@ describe('Especialidades - Unit Tests (Service)', () => {
       expect(result).toEqual(mockEspecialidad);
     });
 
-    it('debería retornar nulo si el modelo no encuentra nada', async () => {
+    it('debería buscar solo activos cuando el rol es Paciente', async () => {
+      const mockEspecialidad = { id: 1, nombre: 'PEDIATRÍA', activo: 1 };
+      especialidadesModel.findById.mockResolvedValue(mockEspecialidad);
+
+      await especialidadesService.getEspecialidadById(1, ROLES.PACIENTE);
+
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(1, true);
+    });
+
+    it('debería buscar activos e inactivos cuando el rol es Admin', async () => {
+      const mockEspecialidad = { id: 2, nombre: 'KINESIOLOGÍA', activo: 0 };
+      especialidadesModel.findById.mockResolvedValue(mockEspecialidad);
+
+      const result = await especialidadesService.getEspecialidadById(2, ROLES.ADMIN);
+
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(2, false);
+      expect(result).toEqual(mockEspecialidad);
+    });
+
+    it('debería retornar null si el modelo no encuentra nada', async () => {
       especialidadesModel.findById.mockResolvedValue(null);
 
-      const result = await especialidadesService.getEspecialidadById(123, false);
+      const result = await especialidadesService.getEspecialidadById(123, ROLES.ADMIN);
 
       expect(especialidadesModel.findById).toHaveBeenCalledWith(123, false);
       expect(result).toBeNull();

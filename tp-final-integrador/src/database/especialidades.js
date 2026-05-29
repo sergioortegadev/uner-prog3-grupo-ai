@@ -24,14 +24,13 @@ export const findAll = async (params = {}) => {
 
   const dbOrder = ORDER_MAP[order] || 'id_especialidad';
 
-  const whereClauses = [];
-  if (activo === DB_STATUS.ACTIVE) {
-    whereClauses.push(`activo = ${DB_STATUS.ACTIVE}`);
-  } else if (activo === DB_STATUS.INACTIVE) {
-    whereClauses.push(`activo = ${DB_STATUS.INACTIVE}`);
-  }
-
   const queryValues = [];
+  const whereClauses = [];
+
+  if (activo === DB_STATUS.ACTIVE || activo === DB_STATUS.INACTIVE) {
+    whereClauses.push('activo = ?');
+    queryValues.push(activo);
+  }
 
   if (nombre) {
     whereClauses.push('LOWER(nombre) LIKE LOWER(?)');
@@ -84,12 +83,14 @@ export const findByName = async (nombre) => {
 export const findById = async (id, onlyActive = true) => {
   let query =
     'SELECT id_especialidad, nombre, activo FROM especialidades WHERE id_especialidad = ?';
+  const values = [id];
 
   if (onlyActive) {
-    query += ` AND activo = ${DB_STATUS.ACTIVE}`;
+    query += ' AND activo = ?';
+    values.push(DB_STATUS.ACTIVE);
   }
 
-  const [rows] = await pool.execute(query, [id]);
+  const [rows] = await pool.execute(query, values);
   if (rows.length === 0) return null;
   return especialidadesMapper.toDTO(rows[0]);
 };
@@ -140,7 +141,7 @@ export const update = async (id, data) => {
  * Realiza un borrado lógico.
  */
 export const softDelete = async (id) => {
-  const query = `UPDATE especialidades SET activo = ${DB_STATUS.INACTIVE} WHERE id_especialidad = ? AND activo = ${DB_STATUS.ACTIVE}`;
-  const [result] = await pool.execute(query, [id]);
+  const query = 'UPDATE especialidades SET activo = ? WHERE id_especialidad = ? AND activo = ?';
+  const [result] = await pool.execute(query, [DB_STATUS.INACTIVE, id, DB_STATUS.ACTIVE]);
   return result.affectedRows > 0;
 };
