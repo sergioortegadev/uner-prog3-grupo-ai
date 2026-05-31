@@ -31,6 +31,8 @@ export const createEspecialidad = async (data) => {
 };
 
 export const removeEspecialidad = async (id) => {
+  const current = await especialidadesModel.findById(id, true);
+  if (!current) return false;
   return await especialidadesModel.softDelete(id);
 };
 
