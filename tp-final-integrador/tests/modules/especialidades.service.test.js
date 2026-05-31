@@ -176,21 +176,25 @@ describe('Especialidades - Unit Tests (Service)', () => {
   });
 
   describe('removeEspecialidad()', () => {
-    it('debería delegar el borrado lógico al modelo', async () => {
+    it('debería llamar a softDelete si la especialidad existe y está activa', async () => {
+      const mockEspecialidad = { id: 1, nombre: 'PEDIATRÍA', activo: 1 };
+      especialidadesModel.findById.mockResolvedValue(mockEspecialidad);
       especialidadesModel.softDelete.mockResolvedValue(true);
 
       const result = await especialidadesService.removeEspecialidad(1);
 
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(1, true);
       expect(especialidadesModel.softDelete).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
     });
 
-    it('debería retornar false si la especialidad no existe o ya está inactiva en el modelo', async () => {
-      especialidadesModel.softDelete.mockResolvedValue(false);
+    it('debería retornar false sin llamar a softDelete si la especialidad no existe o está inactiva', async () => {
+      especialidadesModel.findById.mockResolvedValue(null);
 
       const result = await especialidadesService.removeEspecialidad(123);
 
-      expect(especialidadesModel.softDelete).toHaveBeenCalledWith(123);
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(123, true);
+      expect(especialidadesModel.softDelete).not.toHaveBeenCalled();
       expect(result).toBe(false);
     });
   });

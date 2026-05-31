@@ -83,6 +83,22 @@ describe('Especialidades - Integration Tests', () => {
       expect(response.body.success).toBe(false);
     });
 
+    it('debería retornar 409 con mensaje de reactivación si el nombre existe pero está inactivo', async () => {
+      // Insertar una especialidad inactiva con nombre único
+      await pool.execute("INSERT INTO especialidades (nombre, activo) VALUES ('HOMEOPATÍA', 0)");
+
+      const response = await request(app)
+        .post('/api/v1/especialidades')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ nombre: 'HOMEOPATÍA' });
+
+      expect(response.status).toBe(409);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('DUPLICATE_ENTRY');
+      expect(response.body.error.message).toContain('inactiva');
+      expect(response.body.error.message).toContain('reactivarla');
+    });
+
     it('debería retornar 422 si el body está vacío', async () => {
       const response = await request(app)
         .post('/api/v1/especialidades')
@@ -328,7 +344,9 @@ describe('Especialidades - Integration Tests', () => {
 
   describe('DELETE /api/v1/especialidades/:id', () => {
     it('debería realizar un borrado lógico', async () => {
-      const [rowsBefore] = await pool.execute('SELECT id_especialidad FROM especialidades LIMIT 1');
+      const [rowsBefore] = await pool.execute(
+        'SELECT id_especialidad FROM especialidades WHERE activo = 1 LIMIT 1',
+      );
       const id = rowsBefore[0].id_especialidad;
 
       const response = await request(app)
@@ -342,6 +360,28 @@ describe('Especialidades - Integration Tests', () => {
         [id],
       );
       expect(rowsAfter[0].activo).toBe(0);
+    });
+
+    it('debería retornar 404 si la especialidad no existe', async () => {
+      const response = await request(app)
+        .delete('/api/v1/especialidades/999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('debería retornar 404 si la especialidad ya fue eliminada (inactiva)', async () => {
+      // Insertar una especialidad inactiva directamente
+      const [inserted] = await pool.execute(
+        "INSERT INTO especialidades (nombre, activo) VALUES ('INACTIVA TEST DELETE', 0)",
+      );
+      const id = inserted.insertId;
+
+      const response = await request(app)
+        .delete(`/api/v1/especialidades/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
     });
 
     it('debería retornar 422 si el ID es inválido (string)', async () => {
