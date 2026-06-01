@@ -1,0 +1,29 @@
+meta {
+  name: Registrar Turno (Obra Social)
+  type: "http"
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/turnos
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "idMedico": 1,
+    "idPaciente": 1,
+    "idObraSocial": 1,
+    "fecha": "2026-07-15",
+    "hora": "14:30"
+  }
+}
+
+docs {
+  Registra un nuevo turno para un paciente con un médico y obra social.
+
+  **Cálculo de valor_total**:
+  Si la obra social NO es particular, se aplica el descuento:
+  `valor_total = valor_consulta - (porcentaje_descuento * valor_consulta / 100)`
+}

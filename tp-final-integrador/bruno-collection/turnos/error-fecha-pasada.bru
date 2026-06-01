@@ -1,0 +1,25 @@
+meta {
+  name: Error - Fecha Pasada
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/turnos
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "idMedico": 1,
+    "idPaciente": 1,
+    "idObraSocial": 1,
+    "fecha": "2020-01-01",
+    "hora": "10:00"
+  }
+}
+
+docs {
+  Prueba de validación: el sistema debe retornar 422 si la fecha es anterior a la actual.
+}

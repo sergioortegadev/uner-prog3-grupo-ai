@@ -1,0 +1,28 @@
+meta {
+  name: Registrar Turno (Particular)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/turnos
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "idMedico": 1,
+    "idPaciente": 1,
+    "idObraSocial": 6,
+    "fecha": "2026-07-16",
+    "hora": "09:00"
+  }
+}
+
+docs {
+  Registra un nuevo turno para un paciente con un médico y obra social particular.
+
+  **Cálculo de valor_total**:
+  Si la obra social ES particular, se cobra el `valor_consulta` neto del médico.
+}

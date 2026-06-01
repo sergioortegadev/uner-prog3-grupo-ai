@@ -37,12 +37,30 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 📅 Turnos (`/turnos`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin |
+
+### Cuerpo de la Petición (Payload JSON)
+```json
+{
+  "idMedico": 1,
+  "idPaciente": 1,
+  "idObraSocial": 1,
+  "fecha": "2026-07-15",
+  "hora": "14:30"
+}
+```
+
+---
+
 ## 🚀 Próximamente
 
 Los siguientes módulos están en desarrollo:
 - **Médicos**: Gestión de profesionales y especialidades.
 - **Pacientes**: Gestión de perfiles y obras sociales.
-- **Turnos**: Sistema de reserva y agenda médica.
 
 ---
 
