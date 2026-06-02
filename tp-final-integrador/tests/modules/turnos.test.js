@@ -142,6 +142,24 @@ describe('Turnos - Integration Tests', () => {
       expect(response.body.success).toBe(false);
     });
 
+    it('Scenario validation error: Invalid hour format (422)', async () => {
+      const payload = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 1,
+        fecha: '2026-07-15',
+        hora: '25:99',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+    });
+
     it('Scenario 5: Related entity not found (404)', async () => {
       const payload = {
         idMedico: 999, // No existe

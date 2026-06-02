@@ -128,6 +128,32 @@ describe('Turnos Service - Unit Tests', () => {
       );
     });
 
+    it('debería lanzar error si el paciente no está activo', async () => {
+      medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: false });
+
+      await expect(
+        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 1 }),
+      ).rejects.toMatchObject({
+        status: 422,
+        code: 'VALIDATION_ERROR',
+        message: 'El paciente solicitado no se encuentra activo',
+      });
+    });
+
+    it('debería lanzar error si la obra social del turno no coincide con la del paciente', async () => {
+      medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+
+      await expect(
+        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 2 }),
+      ).rejects.toMatchObject({
+        status: 422,
+        code: 'VALIDATION_ERROR',
+        message: 'La obra social del turno no coincide con la del paciente',
+      });
+    });
+
     it('debería lanzar error si la obra social no existe', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
       pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 999, activo: true });
@@ -214,6 +240,26 @@ describe('Turnos Service - Unit Tests', () => {
 
       expect(medicosModel.acceptsObraSocial).not.toHaveBeenCalled();
       expect(result.idTurno).toBe(100);
+    });
+
+    it('debería lanzar error si el médico ya tiene un turno reservado para la misma fecha y hora', async () => {
+      const data = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 1,
+        fecha: '2026-07-15',
+        hora: '14:30',
+      };
+      medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
+      turnosModel.existsByMedicoAndFechaHora.mockResolvedValue(true);
+
+      await expect(turnosService.registrarTurno(data)).rejects.toMatchObject({
+        status: 422,
+        code: 'VALIDATION_ERROR',
+        message: 'El médico ya tiene un turno reservado para la misma fecha y hora',
+      });
     });
 
     it('debería lanzar error si el paciente ya tiene un turno reservado para la misma fecha y hora', async () => {
