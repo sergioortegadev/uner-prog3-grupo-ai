@@ -37,12 +37,15 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
-## 🚀 Próximamente
+## 👨‍⚕️ Médicos (`/medicos`)
 
-Los siguientes módulos están en desarrollo:
-- **Médicos**: Gestión de profesionales y especialidades.
-- **Pacientes**: Gestión de perfiles y obras sociales.
-- **Turnos**: Sistema de reserva y agenda médica.
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/medicos/:id/obras-sociales` | Asociar múltiples obras sociales | Admin |
+
+---
+
+
 
 ---
 

@@ -25,8 +25,8 @@ export const findByCredentials = async (email, password) => {
  */
 export const findById = async (id) => {
   const [rows] = await pool.execute(
-    'SELECT id_usuario, documento, apellido, nombres, email, rol FROM usuarios WHERE id_usuario = ? AND activo = 1',
-    [id],
+    'SELECT id_usuario, documento, apellido, nombres, email, rol FROM usuarios WHERE id_usuario = ? AND activo = ?',
+    [id, DB_STATUS.ACTIVE],
   );
 
   if (rows.length === 0) return null;

@@ -1,5 +1,6 @@
 import * as obrasSocialesModel from '../database/obras_sociales.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Lógica de negocio para obras sociales.
@@ -14,7 +15,7 @@ export const createObraSocial = async (data) => {
   const existing = await obrasSocialesModel.findByName(data.nombre);
   if (existing) {
     const message =
-      existing.activo === 0
+      existing.activo === DB_STATUS.INACTIVE
         ? `Ya existe la obra social '${data.nombre}' pero se encuentra inactiva. Debería reactivarla.`
         : 'Ya existe una obra social con ese nombre';
     throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);
@@ -41,7 +42,7 @@ export const updateObraSocial = async (id, data) => {
     const existing = await obrasSocialesModel.findByName(data.nombre);
     if (existing) {
       const message =
-        existing.activo === 0
+        existing.activo === DB_STATUS.INACTIVE
           ? `Ya existe la obra social '${data.nombre}' pero se encuentra inactiva. No puede usar este nombre.`
           : 'Ya existe otra obra social con ese nombre';
       throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, message);

@@ -1,0 +1,37 @@
+meta {
+  name: Asociar Obras Sociales
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/medicos/:id_medico/obras-sociales
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id_medico: 1
+}
+
+body:json {
+  {
+    "obrasSociales": [1, 2]
+  }
+}
+
+docs {
+  Asocia una o más obras sociales a un médico.
+
+  **Parámetros de Path:**
+  - id_medico: ID del médico al que se desea asociar las obras sociales.
+
+  **Cuerpo de la Petición:**
+  - obrasSociales: Array de IDs de obras sociales a asociar.
+
+  **Respuestas:**
+  - 201 Created: Asociación exitosa.
+  - 404 Not Found: El médico no existe.
+  - 400 Bad Request: Alguna obra social no existe, está inactiva o el formato es inválido.
+  - 422 Unprocessable Entity: Error de validación en los datos enviados.
+}
