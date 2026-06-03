@@ -4,6 +4,7 @@ import { ROUTES } from '../../constants/routes.constants.js';
 import healthRoutes from '../health.routes.js';
 import authRoutes from '../auth.routes.js';
 import obrasSocialesRouter from '../obras_sociales.routes.js';
+import especialidadesRouter from '../especialidades.routes.js';
 
 const v1Router = Router();
 
@@ -14,5 +15,6 @@ const v1Router = Router();
 v1Router.use(ROUTES.HEALTH, healthRoutes);
 v1Router.use(ROUTES.AUTH, authRoutes);
 v1Router.use(ROUTES.OBRAS_SOCIALES, obrasSocialesRouter);
+v1Router.use(ROUTES.ESPECIALIDADES, especialidadesRouter);
 
 export default v1Router;
