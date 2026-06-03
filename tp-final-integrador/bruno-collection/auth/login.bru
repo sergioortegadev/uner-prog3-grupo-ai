@@ -23,8 +23,16 @@ body:json {
 }
 
 script:post-response {
-  if (res.body && res.body.success && res.body.data && res.body.data.token) {
-    bru.setEnvVar("authToken", res.body.data.token);
+  let body = res.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {}
+  }
+  const token = body && (body.token || (body.data && body.data.token));
+  if (token) {
+    bru.setEnvVar("authToken", token);
+    bru.setVar("authToken", token);
   }
 }
 
