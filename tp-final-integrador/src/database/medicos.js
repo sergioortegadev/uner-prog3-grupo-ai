@@ -8,11 +8,10 @@ import * as medicosMapper from './medicos.mapper.js';
  */
 export const findById = async (id) => {
   const query = `
-    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.descripcion, m.valor_consulta,
-           u.apellido, u.nombres, u.email
+    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo
     FROM medicos m
-    INNER JOIN usuarios u ON m.id_usuario = u.id_usuario
-    WHERE m.id_medico = ? AND u.activo = 1
+    JOIN usuarios u ON m.id_usuario = u.id_usuario
+    WHERE m.id_medico = ?
   `;
   const [rows] = await pool.execute(query, [id]);
 
@@ -21,44 +20,16 @@ export const findById = async (id) => {
 };
 
 /**
- * Asocia múltiples obras sociales a un médico en una transacción.
- * Maneja la idempotencia ignorando duplicados.
+ * Verifica si un médico atiende una obra social específica de forma activa.
  * @param {number} idMedico
- * @param {number[]} idsObrasSociales
+ * @param {number} idObraSocial
  * @returns {Promise<boolean>}
  */
-export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    const query = `
-      INSERT IGNORE INTO medicos_obras_sociales (id_medico, id_obra_social, activo)
-      VALUES (?, ?, 1)
-    `;
-
-    for (const idObraSocial of idsObrasSociales) {
-      await connection.execute(query, [idMedico, idObraSocial]);
-    }
-
-    await connection.commit();
-    return true;
-  } catch (error) {
-    await connection.rollback();
-    throw error;
-  } finally {
-    connection.release();
-  }
-};
-
-/**
- * Obtiene las obras sociales asociadas a un médico.
- * @param {number} idMedico
- * @returns {Promise<number[]>} IDs de obras sociales
- */
-export const getObrasSocialesIds = async (idMedico) => {
-  const query =
-    'SELECT id_obra_social FROM medicos_obras_sociales WHERE id_medico = ? AND activo = 1';
-  const [rows] = await pool.execute(query, [idMedico]);
-  return rows.map((row) => row.id_obra_social);
+export const acceptsObraSocial = async (idMedico, idObraSocial) => {
+  const query = `
+    SELECT 1 FROM medicos_obras_sociales
+    WHERE id_medico = ? AND id_obra_social = ? AND activo = ?
+  `;
+  const [rows] = await pool.execute(query, [idMedico, idObraSocial, DB_STATUS.ACTIVE]);
+  return rows.length > 0;
 };
