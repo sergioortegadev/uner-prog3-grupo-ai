@@ -17,6 +17,8 @@ app.use(
   }),
 );
 
+console.log();
+
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
