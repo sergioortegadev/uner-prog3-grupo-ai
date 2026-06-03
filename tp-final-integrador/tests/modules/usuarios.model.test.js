@@ -8,18 +8,19 @@ describe('Usuarios Model', () => {
     await setupTestDB();
   });
 
-  it('debe encontrar un usuario por su email', async () => {
+  it('debe encontrar un usuario por sus credenciales', async () => {
     const email = 'ferben@correo.com';
-    const user = await usuariosModel.findByEmail(email);
+    const password = 'password123';
+    const user = await usuariosModel.findByCredentials(email, password);
 
     expect(user).toBeDefined();
-    expect(user.email).toBe(email);
-    expect(user.id_usuario).toBeDefined();
+    expect(user.id).toBeDefined();
     expect(user.rol).toBe(ROLES.ADMIN);
+    expect(user.nombreCompleto).toBeDefined();
   });
 
-  it('debe devolver null si el email no existe', async () => {
-    const user = await usuariosModel.findByEmail('inexistente@correo.com');
+  it('debe devolver null si las credenciales son inválidas', async () => {
+    const user = await usuariosModel.findByCredentials('ferben@correo.com', 'wrongpassword');
     expect(user).toBeNull();
   });
 });
