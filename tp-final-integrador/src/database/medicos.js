@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import * as medicosMapper from './medicos.mapper.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Busca un médico por su ID.
