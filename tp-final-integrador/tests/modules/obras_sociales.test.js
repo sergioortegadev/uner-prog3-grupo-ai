@@ -21,7 +21,7 @@ describe('Obras Sociales - Integration Tests', () => {
       const nuevaObra = {
         nombre: 'OSDE 210',
         descripcion: 'Plan básico',
-        porcentajeDescuento: 10.5,
+        porcentajeDescuento: 0.105,
         esParticular: false,
       };
 
@@ -40,11 +40,11 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(rows[0].nombre).toBe('OSDE 210');
     });
 
-    it('debería retornar 422 si el porcentajeDescuento está fuera de rango (0-100)', async () => {
+    it('debería retornar 422 si el porcentajeDescuento está fuera de rango (0-1)', async () => {
       const nuevaObra = {
         nombre: 'OS Fuera de Rango',
         descripcion: 'Test',
-        porcentajeDescuento: 150,
+        porcentajeDescuento: 1.5,
       };
 
       const response = await request(app)
@@ -58,7 +58,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 422 si falta la descripción', async () => {
       const nuevaObra = {
         nombre: 'Sin Descripción',
-        porcentajeDescuento: 10.5,
+        porcentajeDescuento: 0.105,
       };
 
       const response = await request(app)
@@ -73,7 +73,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 409 si el nombre ya existe', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Duplicada', 'Test', 15, 0, 1],
+        ['Duplicada', 'Test', 0.15, 0, 1],
       );
 
       const nuevaObra = {
@@ -93,7 +93,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 409 si el nombre existe pero está inactivo (sin reactivación automática)', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Inactiva', 'Vieja', 10, 0, 0],
+        ['Inactiva', 'Vieja', 0.1, 0, 0],
       );
 
       const nuevaObra = {
@@ -137,7 +137,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 409 si el nombre ya existe con diferente case (case-insensitive)', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Swiss Medical', 'Test', 15, 0, 1],
+        ['Swiss Medical', 'Test', 0.15, 0, 1],
       );
 
       const nuevaObra = {
@@ -158,7 +158,7 @@ describe('Obras Sociales - Integration Tests', () => {
       const nuevaObra = {
         nombre: 'Sancor Salud',
         descripcion: 'Plan 2000',
-        porcentajeDescuento: 25.5,
+        porcentajeDescuento: 0.255,
         esParticular: true,
       };
 
@@ -172,7 +172,7 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data.nombre).toBe('Sancor Salud');
       expect(response.body.data.descripcion).toBe('Plan 2000');
-      expect(response.body.data.porcentajeDescuento).toBe(25.5);
+      expect(response.body.data.porcentajeDescuento).toBe(0.255);
       expect(response.body.data.esParticular).toBe(true);
       expect(response.body.data.activo).toBe(1);
     });
@@ -228,7 +228,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería actualizar los datos correctamente', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['A Actualizar', 'Test', 15, 0, 1],
+        ['A Actualizar', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -287,11 +287,11 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 409 al actualizar con un nombre que ya existe en otra obra social', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Existe', 'Test', 15, 0, 1],
+        ['Existe', 'Test', 0.15, 0, 1],
       );
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Otra', 'Test', 15, 0, 1],
+        ['Otra', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -307,7 +307,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería permitir actualizar manteniendo el mismo nombre', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Mismo Nombre', 'Test', 15, 0, 1],
+        ['Mismo Nombre', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -329,7 +329,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería actualizar múltiples campos simultáneamente', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Multiples Campos', 'Test', 15, 0, 1],
+        ['Multiples Campos', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -339,7 +339,7 @@ describe('Obras Sociales - Integration Tests', () => {
         .send({
           nombre: 'Campos Multiples',
           descripcion: 'Desc cambiada',
-          porcentajeDescuento: 50.0,
+          porcentajeDescuento: 0.5,
           esParticular: true,
         });
 
@@ -352,21 +352,21 @@ describe('Obras Sociales - Integration Tests', () => {
       );
       expect(rows[0].nombre).toBe('Campos Multiples');
       expect(rows[0].descripcion).toBe('Desc cambiada');
-      expect(Number(rows[0].porcentaje_descuento)).toBe(50.0);
+      expect(Number(rows[0].porcentaje_descuento)).toBe(0.5);
       expect(rows[0].es_particular).toBe(1);
     });
 
-    it('debería retornar 422 si el porcentajeDescuento en PUT es inválido (> 100)', async () => {
+    it('debería retornar 422 si el porcentajeDescuento en PUT es inválido (> 1)', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Descuento Mal', 'Test', 15, 0, 1],
+        ['Descuento Mal', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
       const response = await request(app)
         .put(`/api/v1/obras-sociales/${id}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ porcentajeDescuento: 101 });
+        .send({ porcentajeDescuento: 1.01 });
 
       expect(response.status).toBe(422);
       expect(response.body.success).toBe(false);
@@ -375,7 +375,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar 422 si el nombre en PUT supera los 120 caracteres', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Nombre Largo Put', 'Test', 15, 0, 1],
+        ['Nombre Largo Put', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -391,7 +391,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería actualizar sólo la descripción', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Solo Desc', 'Test', 15, 0, 1],
+        ['Solo Desc', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -413,7 +413,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería ignorar campos desconocidos en el body', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Ignora Desconocidos', 'Test', 15, 0, 1],
+        ['Ignora Desconocidos', 'Test', 0.15, 0, 1],
       );
       const id = result.insertId;
 
@@ -437,7 +437,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar la lista con metadatos de paginación', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['Swiss Medical', 'Prepaga', 15, 0, 1],
+        ['Swiss Medical', 'Prepaga', 0.15, 0, 1],
       );
 
       const response = await request(app)
@@ -509,11 +509,11 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar solo obras sociales activas por defecto', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Activa Defecto', 'Test', 10, 1],
+        ['Activa Defecto', 'Test', 0.1, 1],
       );
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Inactiva Defecto', 'Test', 10, 0],
+        ['Inactiva Defecto', 'Test', 0.1, 0],
       );
 
       const response = await request(app)
@@ -529,11 +529,11 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar solo obras sociales inactivas cuando activo=0', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Activa Filtro', 'Test', 10, 1],
+        ['Activa Filtro', 'Test', 0.1, 1],
       );
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Inactiva Filtro', 'Test', 10, 0],
+        ['Inactiva Filtro', 'Test', 0.1, 0],
       );
 
       const response = await request(app)
@@ -549,11 +549,11 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar todas las obras sociales (activas e inactivas) cuando activo=all', async () => {
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Activa All', 'Test', 10, 1],
+        ['Activa All', 'Test', 0.1, 1],
       );
       await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['Inactiva All', 'Test', 10, 0],
+        ['Inactiva All', 'Test', 0.1, 0],
       );
 
       const response = await request(app)
@@ -699,7 +699,7 @@ describe('Obras Sociales - Integration Tests', () => {
     it('debería retornar la estructura DTO camelCase completa para una obra social', async () => {
       const [result] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?)',
-        ['DTO Completo', 'Plan Full', 20.0, 1, 1],
+        ['DTO Completo', 'Plan Full', 0.2, 1, 1],
       );
       const id = result.insertId;
 
@@ -714,7 +714,7 @@ describe('Obras Sociales - Integration Tests', () => {
       expect(data).toHaveProperty('id', id);
       expect(data).toHaveProperty('nombre', 'DTO Completo');
       expect(data).toHaveProperty('descripcion', 'Plan Full');
-      expect(data).toHaveProperty('porcentajeDescuento', 20.0);
+      expect(data).toHaveProperty('porcentajeDescuento', 0.2);
       expect(data).toHaveProperty('esParticular', true);
       expect(data).toHaveProperty('activo', 1);
     });
@@ -797,7 +797,7 @@ describe('Obras Sociales - Integration Tests', () => {
       // 1. Insertamos obra social
       const [osResult] = await pool.execute(
         'INSERT INTO obras_sociales (nombre, descripcion, porcentaje_descuento, activo) VALUES (?, ?, ?, ?)',
-        ['OS Vinculada', 'Para Paciente', 10, 1],
+        ['OS Vinculada', 'Para Paciente', 0.1, 1],
       );
       const idObraSocial = osResult.insertId;
 

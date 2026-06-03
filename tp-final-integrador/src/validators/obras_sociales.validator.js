@@ -30,8 +30,10 @@ export const validateCreate = [
 
   body('porcentajeDescuento')
     .optional()
-    .isFloat({ min: 0, max: 100 })
-    .withMessage('El porcentaje de descuento debe estar entre 0 y 100')
+    .isFloat({ min: 0, max: 1 })
+    .withMessage(
+      'El porcentaje de descuento debe ser un valor decimal entre 0 y 1 (ej: 0.1 para 10%)',
+    )
     .toFloat()
     .default(0.0),
 
@@ -75,8 +77,10 @@ export const validateUpdate = [
 
   body('porcentajeDescuento')
     .optional()
-    .isFloat({ min: 0, max: 100 })
-    .withMessage('El porcentaje de descuento debe estar entre 0 y 100')
+    .isFloat({ min: 0, max: 1 })
+    .withMessage(
+      'El porcentaje de descuento debe ser un valor decimal entre 0 y 1 (ej: 0.1 para 10%)',
+    )
     .toFloat(),
 
   body('esParticular')
