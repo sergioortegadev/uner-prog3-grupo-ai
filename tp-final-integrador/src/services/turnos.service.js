@@ -3,6 +3,7 @@ import * as medicosModel from '../database/medicos.js';
 import * as pacientesModel from '../database/pacientes.js';
 import * as obrasSocialesModel from '../database/obras_sociales.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Registra un nuevo turno con cálculo de valor_total.
@@ -100,6 +101,6 @@ export const registrarTurno = async (data) => {
     fechaHora,
     valorTotal,
     atendido: 0,
-    activo: 1,
+    activo: DB_STATUS.ACTIVE,
   };
 };
