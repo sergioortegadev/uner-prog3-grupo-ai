@@ -1,5 +1,4 @@
 import { pool } from '../config/db.js';
-import { DB_STATUS } from '../constants/common.constants.js';
 import * as medicosMapper from './medicos.mapper.js';
 
 /**

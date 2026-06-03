@@ -12,4 +12,5 @@ export const ROUTES = {
   AUTH: '/auth',
   OBRAS_SOCIALES: '/obras-sociales',
   TURNOS: '/turnos',
+  MEDICOS: '/medicos',
 };

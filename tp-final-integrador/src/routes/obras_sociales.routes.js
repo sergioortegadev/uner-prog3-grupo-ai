@@ -5,6 +5,11 @@ import { validateListQuery } from '../middlewares/query.validator.js';
 // import { ROLES } from '../constants/roles.constants.js';
 // import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
+import {
+  cacheMiddleware,
+  clearCacheMiddleware,
+  CACHE_DURATIONS,
+} from '../middlewares/cache.middleware.js';
 import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
 
 const obrasSocialesRouter = Router();
@@ -21,11 +26,13 @@ const obrasSocialesRouter = Router();
 obrasSocialesRouter
   .route('/')
   .get(
+    cacheMiddleware(CACHE_DURATIONS.SHORT, 'obras-sociales'),
     validateListQuery(['id', 'nombre', 'porcentajeDescuento', 'activo'], ['nombre']),
     validateRequest,
     obrasSocialesController.getAll,
   )
   .post(
+    clearCacheMiddleware('obras-sociales'),
     obrasSocialesValidator.validateCreate,
     validateRequest,
     obrasSocialesController.createObraSocial,
@@ -34,13 +41,20 @@ obrasSocialesRouter
 
 obrasSocialesRouter
   .route('/:id')
-  .get(obrasSocialesValidator.validateId, validateRequest, obrasSocialesController.getById)
+  .get(
+    cacheMiddleware(CACHE_DURATIONS.SHORT, 'obras-sociales'),
+    obrasSocialesValidator.validateId,
+    validateRequest,
+    obrasSocialesController.getById,
+  )
   .put(
+    clearCacheMiddleware('obras-sociales'),
     obrasSocialesValidator.validateUpdate,
     validateRequest,
     obrasSocialesController.updateObraSocial,
   )
   .delete(
+    clearCacheMiddleware('obras-sociales'),
     obrasSocialesValidator.validateId,
     validateRequest,
     obrasSocialesController.removeObraSocial,

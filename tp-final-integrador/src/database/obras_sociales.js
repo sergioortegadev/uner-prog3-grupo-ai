@@ -96,6 +96,25 @@ export const findById = async (id, onlyActive = true) => {
 };
 
 /**
+ * Busca múltiples obras sociales por sus IDs y verifica que estén activas.
+ * @param {number[]} ids
+ * @returns {Promise<Object[]>} Lista de obras sociales encontradas.
+ */
+export const findByIds = async (ids) => {
+  if (!ids || ids.length === 0) return [];
+
+  const placeholders = ids.map(() => '?').join(', ');
+  const query = `
+    SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo
+    FROM obras_sociales
+    WHERE id_obra_social IN (${placeholders}) AND activo = 1
+  `;
+
+  const [rows] = await pool.query(query, ids);
+  return obrasSocialesMapper.toDTOList(rows);
+};
+
+/**
  * Crea una nueva obra social.
  */
 export const create = async (data) => {
