@@ -1,34 +1,56 @@
-import jwt from 'jsonwebtoken';
+import passport from 'passport';
 import { errorResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
- * Middleware para verificar el token JWT
+ * Middleware para autenticar solicitudes mediante token JWT
  */
-export const verifyToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+export const authenticateJwt = async (req, res, next) => {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      return errorResponse({
+        res,
+        errorType: ERROR_CODES.INTERNAL_ERROR,
+      });
+    }
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return errorResponse({
-      res,
-      errorType: ERROR_CODES.UNAUTHORIZED,
-      message: 'No se proporcionó un token',
-    });
-  }
+    if (!user) {
+      let message = 'Token inválido o expirado';
+      if (info && info.message === 'No auth token') {
+        message = 'No se proporcionó un token';
+      } else if (info && (info.name === 'TokenExpiredError' || info.message === 'jwt expired')) {
+        message = 'Token expirado';
+      }
+      return errorResponse({
+        res,
+        errorType: ERROR_CODES.UNAUTHORIZED,
+        message,
+      });
+    }
 
-  const token = authHeader.split(' ')[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    req.user = decoded;
+    req.user = user;
     next();
-  } catch {
-    return errorResponse({
-      res,
-      errorType: ERROR_CODES.UNAUTHORIZED,
-      message: 'Token inválido o expirado',
-    });
-  }
+  })(req, res, next);
+};
+
+/**
+ * Middleware para autenticar credenciales locales (email/contraseña)
+ */
+export const authenticateLocal = (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return errorResponse({
+        res,
+        errorType: ERROR_CODES.UNAUTHORIZED,
+        message: info?.message || ERROR_CODES.UNAUTHORIZED.message,
+      });
+    }
+    req.user = user;
+    next();
+  })(req, res, next);
 };
 
 /**

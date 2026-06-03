@@ -803,7 +803,7 @@ describe('Obras Sociales - Integration Tests', () => {
 
       // 2. Insertamos usuario para el paciente
       const [userResult] = await pool.execute(
-        'INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)',
         ['55555555', 'Paciente', 'Test', 'paciente@test.com', 'password', '', ROLES.PACIENTE, 1],
       );
       const idUsuario = userResult.insertId;
