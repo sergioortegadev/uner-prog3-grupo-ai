@@ -1,19 +1,21 @@
 import { pool } from '../config/db.js';
 import { DB_STATUS } from '../constants/common.constants.js';
+import * as usuariosMapper from './usuarios.mapper.js';
 
 /**
- * Busca un usuario por su email.
+ * Busca un usuario por email y contraseña (la comparación SHA2-256 se realiza a nivel de base de datos).
  * @param {string} email
- * @returns {Promise<Object|null>}
+ * @param {string} password - Contraseña en texto plano; hasheada a nivel de base de datos.
+ * @returns {Promise<Object|null>} `{ id, rol, nombreCompleto }` o null si las credenciales son inválidas.
  */
-export const findByEmail = async (email) => {
+export const findByCredentials = async (email, password) => {
   const [rows] = await pool.execute(
-    'SELECT id_usuario, documento, apellido, nombres, email, contrasenia, rol FROM usuarios WHERE email = ? AND activo = ?',
-    [email, DB_STATUS.ACTIVE],
+    "SELECT id_usuario, rol, CONCAT(apellido, ', ', nombres) AS nombre_completo FROM usuarios WHERE email = ? AND contrasenia = SHA2(?, 256) AND activo = ?",
+    [email, password, DB_STATUS.ACTIVE],
   );
 
   if (rows.length === 0) return null;
-  return rows[0];
+  return usuariosMapper.toDTO(rows[0]);
 };
 
 /**
@@ -28,5 +30,5 @@ export const findById = async (id) => {
   );
 
   if (rows.length === 0) return null;
-  return rows[0];
+  return usuariosMapper.toDTO(rows[0]);
 };

@@ -1,10 +1,17 @@
 import { ROLES } from '../../src/constants/roles.constants.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import jwt from 'jsonwebtoken';
+import passport from 'passport';
+
+vi.mock('passport', () => {
+  return {
+    default: {
+      authenticate: vi.fn(),
+    },
+  };
+});
 
 describe('Auth Middleware', () => {
   let req, res, next;
-  const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(() => {
     req = { headers: {} };
@@ -24,14 +31,19 @@ describe('Auth Middleware', () => {
     vi.clearAllMocks();
   });
 
-  describe('verifyToken', () => {
+  describe('authenticateJwt', () => {
     it('debería permitir acceso con un token válido', async () => {
       const payload = { id: 1, rol: ROLES.ADMIN, documento: '12345678' };
-      const token = jwt.sign(payload, JWT_SECRET);
-      req.headers.authorization = `Bearer ${token}`;
+      passport.authenticate.mockImplementation((strategy, options, callback) => {
+        return (_req, _res, _next) => {
+          callback(null, payload, null);
+        };
+      });
 
-      const { verifyToken } = await import('../../src/middlewares/auth.middleware.js');
-      await verifyToken(req, res, next);
+      req.headers.authorization = 'Bearer valid-token';
+
+      const { authenticateJwt } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateJwt(req, res, next);
 
       expect(req.user).toBeDefined();
       expect(req.user.id).toBe(payload.id);
@@ -39,18 +51,30 @@ describe('Auth Middleware', () => {
     });
 
     it('debería retornar 401 si no hay token', async () => {
-      const { verifyToken } = await import('../../src/middlewares/auth.middleware.js');
-      await verifyToken(req, res, next);
+      passport.authenticate.mockImplementation((strategy, options, callback) => {
+        return (_req, _res, _next) => {
+          callback(null, false, { message: 'No auth token' });
+        };
+      });
+
+      const { authenticateJwt } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateJwt(req, res, next);
 
       expect(res.statusCode).toBe(401);
       expect(res.body.error.code).toBe('UNAUTHORIZED');
     });
 
     it('debería retornar 401 si el token es inválido', async () => {
+      passport.authenticate.mockImplementation((strategy, options, callback) => {
+        return (_req, _res, _next) => {
+          callback(null, false, { message: 'Token inválido o expirado' });
+        };
+      });
+
       req.headers.authorization = 'Bearer token-invalido';
 
-      const { verifyToken } = await import('../../src/middlewares/auth.middleware.js');
-      await verifyToken(req, res, next);
+      const { authenticateJwt } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateJwt(req, res, next);
 
       expect(res.statusCode).toBe(401);
       expect(res.body.error.code).toBe('UNAUTHORIZED');
@@ -77,6 +101,51 @@ describe('Auth Middleware', () => {
       await middleware(req, res, next);
 
       expect(next).toHaveBeenCalled();
+    });
+  });
+
+  describe('authenticateLocal', () => {
+    it('debería autenticar con credenciales válidas y setear req.user', async () => {
+      const mockUser = { id: 1, email: 'test@example.com' };
+      passport.authenticate.mockImplementation((_strategy, _options, callback) => {
+        return (_req, _res, _next) => {
+          callback(null, mockUser, null);
+        };
+      });
+
+      const { authenticateLocal } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateLocal(req, res, next);
+
+      expect(req.user).toBe(mockUser);
+      expect(next).toHaveBeenCalled();
+    });
+
+    it('debería retornar 401 si las credenciales son inválidas', async () => {
+      passport.authenticate.mockImplementation((_strategy, _options, callback) => {
+        return (_req, _res, _next) => {
+          callback(null, false, { message: 'Credenciales inválidas' });
+        };
+      });
+
+      const { authenticateLocal } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateLocal(req, res, next);
+
+      expect(res.statusCode).toBe(401);
+      expect(res.body.error.code).toBe('UNAUTHORIZED');
+    });
+
+    it('debería retornar 500 si ocurre un error interno en la autenticación', async () => {
+      const mockError = new Error('Auth failure');
+      passport.authenticate.mockImplementation((_strategy, _options, callback) => {
+        return (_req, _res, _next) => {
+          callback(mockError, null, null);
+        };
+      });
+
+      const { authenticateLocal } = await import('../../src/middlewares/auth.middleware.js');
+      await authenticateLocal(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(mockError);
     });
   });
 });

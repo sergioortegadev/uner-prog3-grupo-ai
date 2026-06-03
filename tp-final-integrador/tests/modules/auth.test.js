@@ -12,19 +12,18 @@ describe('Auth Integration Tests', () => {
     it('debería iniciar sesión correctamente con credenciales válidas', async () => {
       const response = await request(app).post('/api/v1/auth/login').send({
         email: 'ferben@correo.com',
-        password: 'password123',
+        contrasenia: 'password123',
       });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.token).toBeDefined();
-      expect(response.body.data.user.email).toBe('ferben@correo.com');
     });
 
     it('debería fallar con credenciales incorrectas', async () => {
       const response = await request(app).post('/api/v1/auth/login').send({
         email: 'ferben@correo.com',
-        password: 'wrong',
+        contrasenia: 'wrong',
       });
 
       expect(response.status).toBe(401);
@@ -35,7 +34,7 @@ describe('Auth Integration Tests', () => {
     it('debería fallar con datos de entrada inválidos (express-validator)', async () => {
       const response = await request(app).post('/api/v1/auth/login').send({
         email: 'not-an-email',
-        password: '',
+        contrasenia: '',
       });
 
       expect(response.status).toBe(422);

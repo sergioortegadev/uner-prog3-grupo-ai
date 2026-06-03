@@ -1,5 +1,3 @@
-import { matchedData } from 'express-validator';
-import * as authService from '../services/auth.service.js';
 import { successResponse } from '../helpers/response.helper.js';
 
 /**
@@ -10,8 +8,7 @@ import { successResponse } from '../helpers/response.helper.js';
  * Maneja el inicio de sesión.
  */
 export const login = async (req, res) => {
-  const { email, password } = matchedData(req);
-  const result = await authService.login(email, password);
+  const { token } = req.user;
 
-  return successResponse(res, result);
+  return successResponse(res, { token });
 };

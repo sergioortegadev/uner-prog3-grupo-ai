@@ -1,0 +1,35 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "ferben@correo.com",
+    "contrasenia": "password123"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.success && res.body.data && res.body.data.token) {
+    bru.setVar("authToken", res.body.data.token);
+  }
+}
+
+docs {
+  Inicia sesión de un usuario con sus credenciales (email y contrasenia).
+  Retorna un JWT de acceso en la respuesta y guarda el token en la variable `authToken`.
+}
+​

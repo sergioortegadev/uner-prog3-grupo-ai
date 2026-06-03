@@ -7,7 +7,12 @@ meta {
 get {
   url: {{baseUrl}}/obras-sociales?activo=all
   body: none
-  auth: inherit
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
 }
 
 params:query {
