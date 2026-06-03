@@ -1,4 +1,5 @@
 import { pool } from '../config/db.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 
 /**
  * Registra un nuevo turno.
@@ -10,7 +11,7 @@ export const create = async (data) => {
 
   const query = `
     INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo)
-    VALUES (?, ?, ?, ?, ?, 0, 1)
+    VALUES (?, ?, ?, ?, ?, 0, ?)
   `;
 
   const [result] = await pool.execute(query, [
@@ -19,6 +20,7 @@ export const create = async (data) => {
     idObraSocial,
     fechaHora,
     valorTotal,
+    DB_STATUS.ACTIVE,
   ]);
 
   return result.insertId;
@@ -33,9 +35,9 @@ export const create = async (data) => {
 export const checkPatientOverlap = async (idPaciente, fechaHora) => {
   const query = `
     SELECT 1 FROM turnos_reservas
-    WHERE id_paciente = ? AND fecha_hora = ? AND activo = 1
+    WHERE id_paciente = ? AND fecha_hora = ? AND activo = ?
   `;
-  const [rows] = await pool.execute(query, [idPaciente, fechaHora]);
+  const [rows] = await pool.execute(query, [idPaciente, fechaHora, DB_STATUS.ACTIVE]);
   return rows.length > 0;
 };
 
@@ -48,8 +50,8 @@ export const checkPatientOverlap = async (idPaciente, fechaHora) => {
 export const existsByMedicoAndFechaHora = async (idMedico, fechaHora) => {
   const query = `
     SELECT 1 FROM turnos_reservas
-    WHERE id_medico = ? AND fecha_hora = ? AND activo = 1
+    WHERE id_medico = ? AND fecha_hora = ? AND activo = ?
   `;
-  const [rows] = await pool.execute(query, [idMedico, fechaHora]);
+  const [rows] = await pool.execute(query, [idMedico, fechaHora, DB_STATUS.ACTIVE]);
   return rows.length > 0;
 };

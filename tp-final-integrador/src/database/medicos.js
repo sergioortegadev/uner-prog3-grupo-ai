@@ -1,4 +1,5 @@
 import { pool } from '../config/db.js';
+import { DB_STATUS } from '../constants/common.constants.js';
 import * as medicosMapper from './medicos.mapper.js';
 
 /**
@@ -28,8 +29,8 @@ export const findById = async (id) => {
 export const acceptsObraSocial = async (idMedico, idObraSocial) => {
   const query = `
     SELECT 1 FROM medicos_obras_sociales
-    WHERE id_medico = ? AND id_obra_social = ? AND activo = 1
+    WHERE id_medico = ? AND id_obra_social = ? AND activo = ?
   `;
-  const [rows] = await pool.execute(query, [idMedico, idObraSocial]);
+  const [rows] = await pool.execute(query, [idMedico, idObraSocial, DB_STATUS.ACTIVE]);
   return rows.length > 0;
 };
