@@ -36,3 +36,6 @@ build/
 # Uploads
 public/uploads/**
 !public/uploads/**/.gitkeep
+
+# logs
+logs/
