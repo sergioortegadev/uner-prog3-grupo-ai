@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import passport from './config/passport.js';
 import apiRouter from './routes/index.js';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.js';
 import validateContentType from './middlewares/content.middleware.js';
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(validateContentType);
 app.use(express.json());
 app.use(express.static('public'));
+app.use(passport.initialize());
 
 // Enrutamiento  (API)
 app.use(apiRouter);
