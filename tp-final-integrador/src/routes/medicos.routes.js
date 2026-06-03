@@ -3,8 +3,8 @@ import * as medicosController from '../controllers/medicos.controller.js';
 import * as medicosValidator from '../validators/medicos.validator.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
 import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
-// import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
-// import { ROLES } from '../constants/roles.constants.js';
+import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
+import { ROLES } from '../constants/roles.constants.js';
 
 const router = Router();
 
@@ -15,8 +15,8 @@ const router = Router();
 router
   .route('/:id_medico/obras-sociales')
   .post(
-    // verifyToken,
-    // requireRole([ROLES.ADMIN]),
+    authenticateJwt,
+    requireRole([ROLES.ADMIN]),
     medicosValidator.validateAsociarObrasSociales,
     validateRequest,
     medicosController.asociarObrasSociales,
