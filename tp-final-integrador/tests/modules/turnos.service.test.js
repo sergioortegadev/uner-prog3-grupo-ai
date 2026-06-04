@@ -4,20 +4,25 @@ import * as turnosModel from '../../src/database/turnos.js';
 import * as medicosModel from '../../src/database/medicos.js';
 import * as pacientesModel from '../../src/database/pacientes.js';
 import * as obrasSocialesModel from '../../src/database/obras_sociales.js';
+import { ROLES } from '../../src/constants/roles.constants.js';
 
 vi.mock('../../src/database/turnos.js', () => ({
   create: vi.fn(),
   checkPatientOverlap: vi.fn(),
   existsByMedicoAndFechaHora: vi.fn(),
+  findByMedicoId: vi.fn(),
+  findByPacienteId: vi.fn(),
 }));
 
 vi.mock('../../src/database/medicos.js', () => ({
   findById: vi.fn(),
+  findByUserId: vi.fn(),
   acceptsObraSocial: vi.fn(),
 }));
 
 vi.mock('../../src/database/pacientes.js', () => ({
   findById: vi.fn(),
+  findByUserId: vi.fn(),
 }));
 
 vi.mock('../../src/database/obras_sociales.js', () => ({
@@ -30,6 +35,65 @@ describe('Turnos Service - Unit Tests', () => {
     medicosModel.acceptsObraSocial.mockResolvedValue(true);
     turnosModel.checkPatientOverlap.mockResolvedValue(false);
     turnosModel.existsByMedicoAndFechaHora.mockResolvedValue(false);
+  });
+
+  describe('listarTurnosPropios()', () => {
+    it('debería retornar los turnos del médico cuando el rol es MEDICO', async () => {
+      const mockMedico = { idMedico: 1 };
+      const mockTurnos = [{ id: 1, fecha: '2026-07-15' }];
+      medicosModel.findByUserId.mockResolvedValue(mockMedico);
+      turnosModel.findByMedicoId.mockResolvedValue(mockTurnos);
+
+      const result = await turnosService.listarTurnosPropios({ id: 2, rol: ROLES.MEDICO });
+
+      expect(medicosModel.findByUserId).toHaveBeenCalledWith(2);
+      expect(turnosModel.findByMedicoId).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockTurnos);
+    });
+
+    it('debería lanzar NOT_FOUND si el médico no tiene perfil', async () => {
+      medicosModel.findByUserId.mockResolvedValue(null);
+
+      await expect(
+        turnosService.listarTurnosPropios({ id: 99, rol: ROLES.MEDICO }),
+      ).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        message: 'Perfil de médico no encontrado',
+      });
+    });
+
+    it('debería retornar los turnos del paciente cuando el rol es PACIENTE', async () => {
+      const mockPaciente = { idPaciente: 5 };
+      const mockTurnos = [{ id: 2, fecha: '2026-08-10' }];
+      pacientesModel.findByUserId.mockResolvedValue(mockPaciente);
+      turnosModel.findByPacienteId.mockResolvedValue(mockTurnos);
+
+      const result = await turnosService.listarTurnosPropios({ id: 3, rol: ROLES.PACIENTE });
+
+      expect(pacientesModel.findByUserId).toHaveBeenCalledWith(3);
+      expect(turnosModel.findByPacienteId).toHaveBeenCalledWith(5);
+      expect(result).toEqual(mockTurnos);
+    });
+
+    it('debería lanzar NOT_FOUND si el paciente no tiene perfil', async () => {
+      pacientesModel.findByUserId.mockResolvedValue(null);
+
+      await expect(
+        turnosService.listarTurnosPropios({ id: 99, rol: ROLES.PACIENTE }),
+      ).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        message: 'Perfil de paciente no encontrado',
+      });
+    });
+
+    it('debería lanzar FORBIDDEN si el rol no es médico ni paciente', async () => {
+      await expect(
+        turnosService.listarTurnosPropios({ id: 1, rol: 'admin' }),
+      ).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+        message: 'El rol del usuario no tiene permisos para esta acción',
+      });
+    });
   });
 
   describe('registrarTurno() - Calculation Logic', () => {
