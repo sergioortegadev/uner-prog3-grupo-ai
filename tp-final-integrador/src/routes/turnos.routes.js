@@ -10,15 +10,19 @@ const turnosRouter = Router();
 
 /**
  * Rutas para el módulo de Turnos.
- * Solo el Administrador (Role 3) puede registrar turnos.
  */
 
 turnosRouter.use(authenticateJwt);
-turnosRouter.use(requireRole([ROLES.ADMIN]));
 
 turnosRouter
   .route('/')
-  .post(turnosValidator.validateRegistrarTurno, validateRequest, turnosController.registrarTurno)
-  .all(methodNotAllowedHandler(['POST']));
+  .get(requireRole([ROLES.MEDICO, ROLES.PACIENTE]), turnosController.listarTurnosPropios)
+  .post(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateRegistrarTurno,
+    validateRequest,
+    turnosController.registrarTurno,
+  )
+  .all(methodNotAllowedHandler(['GET', 'POST']));
 
 export default turnosRouter;

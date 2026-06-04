@@ -12,3 +12,8 @@ export const registrarTurno = async (req, res) => {
 
   return successResponse(res, nuevoTurno, 201);
 };
+
+export const listarTurnosPropios = async (req, res) => {
+  const turnos = await turnosService.listarTurnosPropios(req.user);
+  return successResponse(res, turnos);
+};
