@@ -4,8 +4,7 @@ import { app } from '../../src/app.js';
 import { pool } from '../../src/config/db.js';
 import { setupTestDB } from '../setup/db.js';
 
-// eslint-disable-next-line vitest/no-disabled-tests
-describe.skip('Médicos - Integration Tests', () => {
+describe('Médicos - Integration Tests', () => {
   let medicoId;
   let osActivaId1;
   let osActivaId2;
@@ -18,7 +17,7 @@ describe.skip('Médicos - Integration Tests', () => {
     // 0. Login para obtener token
     const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: 'ferben@correo.com',
-      password: 'password123',
+      contrasenia: 'password123',
     });
     adminToken = loginRes.body.data.token;
 

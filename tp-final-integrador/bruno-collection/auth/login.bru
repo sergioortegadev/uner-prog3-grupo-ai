@@ -18,13 +18,21 @@ headers {
 body:json {
   {
     "email": "ferben@correo.com",
-    "contrasenia": "password123"
+    "contrasenia": "ferben"
   }
 }
 
 script:post-response {
-  if (res.body && res.body.success && res.body.data && res.body.data.token) {
-    bru.setVar("authToken", res.body.data.token);
+  let body = res.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {}
+  }
+  const token = body && (body.token || (body.data && body.data.token));
+  if (token) {
+    bru.setEnvVar("authToken", token);
+    bru.setVar("authToken", token);
   }
 }
 
@@ -32,4 +40,3 @@ docs {
   Inicia sesión de un usuario con sus credenciales (email y contrasenia).
   Retorna un JWT de acceso en la respuesta y guarda el token en la variable `authToken`.
 }
-​

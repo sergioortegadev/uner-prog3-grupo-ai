@@ -107,10 +107,10 @@ export const findByIds = async (ids) => {
   const query = `
     SELECT id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo
     FROM obras_sociales
-    WHERE id_obra_social IN (${placeholders}) AND activo = 1
+    WHERE id_obra_social IN (${placeholders}) AND activo = ?
   `;
 
-  const [rows] = await pool.query(query, ids);
+  const [rows] = await pool.query(query, [...ids, DB_STATUS.ACTIVE]);
   return obrasSocialesMapper.toDTOList(rows);
 };
 

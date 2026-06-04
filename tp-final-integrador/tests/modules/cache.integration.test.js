@@ -51,7 +51,7 @@ describe('Cache Integration Tests', () => {
       .send({
         nombre: 'Nueva OS Cache Inval',
         descripcion: 'Test cache invalidation',
-        porcentajeDescuento: 10,
+        porcentajeDescuento: 0.1,
         esParticular: false,
       });
 
