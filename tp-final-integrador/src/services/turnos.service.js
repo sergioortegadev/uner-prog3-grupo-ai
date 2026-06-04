@@ -4,6 +4,35 @@ import * as pacientesModel from '../database/pacientes.js';
 import * as obrasSocialesModel from '../database/obras_sociales.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 import { DB_STATUS } from '../constants/common.constants.js';
+import { ROLES } from '../constants/roles.constants.js';
+
+/**
+ * Obtiene los turnos propios del usuario según su rol.
+ * @param {Object} usuario - El usuario autenticado (extraído de req.user).
+ * @returns {Promise<Object[]>} Lista de turnos.
+ */
+export const listarTurnosPropios = async (usuario) => {
+  if (usuario.rol === ROLES.MEDICO) {
+    const medico = await medicosModel.findByUserId(usuario.id);
+    if (!medico) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, 'Perfil de médico no encontrado');
+    }
+    return await turnosModel.findByMedicoId(medico.idMedico);
+  }
+
+  if (usuario.rol === ROLES.PACIENTE) {
+    const paciente = await pacientesModel.findByUserId(usuario.id);
+    if (!paciente) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, 'Perfil de paciente no encontrado');
+    }
+    return await turnosModel.findByPacienteId(paciente.idPaciente);
+  }
+
+  throw new AppError(
+    ERROR_CODES.FORBIDDEN,
+    'El rol del usuario no tiene permisos para esta acción',
+  );
+};
 
 /**
  * Registra un nuevo turno con cálculo de valor_total.
