@@ -21,6 +21,24 @@ export const findById = async (id) => {
 };
 
 /**
+ * Busca un médico por su ID de usuario.
+ * @param {number} idUsuario
+ * @returns {Promise<Object|null>}
+ */
+export const findByUserId = async (idUsuario) => {
+  const query = `
+    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo
+    FROM medicos m
+    JOIN usuarios u ON m.id_usuario = u.id_usuario
+    WHERE m.id_usuario = ?
+  `;
+  const [rows] = await pool.execute(query, [idUsuario]);
+
+  if (rows.length === 0) return null;
+  return medicosMapper.toDTO(rows[0]);
+};
+
+/**
  * Verifica si un médico atiende una obra social específica de forma activa.
  * @param {number} idMedico
  * @param {number} idObraSocial
