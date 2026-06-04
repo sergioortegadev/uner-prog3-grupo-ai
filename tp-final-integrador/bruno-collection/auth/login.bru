@@ -17,23 +17,16 @@ headers {
 
 body:json {
   {
-    "email": "ferben@correo.com",
-    "contrasenia": "ferben"
+    "email": "gomsil@correo.com",
+    "contrasenia": "gomsil"
   }
 }
 
 script:post-response {
-  let body = res.body;
-  if (typeof body === 'string') {
-    try {
-      body = JSON.parse(body);
-    } catch (e) {}
-  }
-  const token = body && (body.token || (body.data && body.data.token));
-  if (token) {
-    bru.setEnvVar("authToken", token);
-    bru.setVar("authToken", token);
-  }
+  const {data} = res.getBody();
+    if (Boolean(data) === true && Boolean(data.token) === true) {
+      bru.setVar("authToken", data.token);
+    }
 }
 
 docs {

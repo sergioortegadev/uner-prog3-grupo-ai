@@ -1,0 +1,23 @@
+meta {
+  name: Listar Turnos Propios
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/turnos
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Obtiene la lista de turnos propios del usuario autenticado.
+  
+  - Si el usuario es **Médico**, verá sus turnos con datos del paciente.
+  - Si el usuario es **Paciente**, verá sus turnos con datos del médico.
+  - Requiere un token válido en la variable de entorno `authToken`.
+}

@@ -45,6 +45,21 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 📅 Turnos (`/turnos`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/turnos` | Listar turnos propios | Médico / Paciente |
+| `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin |
+
+### Detalles de Turnos
+- El listado de turnos (`GET`) devuelve los turnos del usuario autenticado según su rol.
+- Si el usuario es **Médico**, el listado incluye datos del paciente y la obra social.
+- Si el usuario es **Paciente**, el listado incluye datos del médico, su especialidad y la obra social.
+- El registro de turnos (`POST`) calcula automáticamente el `valor_total` basándose en el valor de consulta del médico y el descuento de la obra social del paciente.
+
+---
+
 
 
 ---
