@@ -19,6 +19,10 @@ body:json {
     "obrasSociales": [1, 2]
   }
 }
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
 
 docs {
   Asocia una o más obras sociales a un médico.

@@ -7,7 +7,6 @@ meta {
 post {
   url: {{baseUrl}}/turnos
   body: json
-  auth: inherit
 }
 
 body:json {
@@ -18,6 +17,10 @@ body:json {
     "fecha": "2026-07-16",
     "hora": "09:00"
   }
+}
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
 }
 
 docs {

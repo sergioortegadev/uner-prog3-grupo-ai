@@ -19,6 +19,10 @@ body:json {
     "hora": "10:00"
   }
 }
+headers {
+  Accept: application/json
+  Authorization: Bearer {{authToken}}
+}
 
 docs {
   Prueba de validación: el sistema debe retornar 422 si la fecha es anterior a la actual.
