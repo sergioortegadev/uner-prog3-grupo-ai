@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as turnosController from '../controllers/turnos.controller.js';
 import * as turnosValidator from '../validators/turnos.validator.js';
 import { ROLES } from '../constants/roles.constants.js';
-import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
+import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
 import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
 
@@ -13,7 +13,7 @@ const turnosRouter = Router();
  * Solo el Administrador (Role 3) puede registrar turnos.
  */
 
-turnosRouter.use(verifyToken);
+turnosRouter.use(authenticateJwt);
 turnosRouter.use(requireRole([ROLES.ADMIN]));
 
 turnosRouter
