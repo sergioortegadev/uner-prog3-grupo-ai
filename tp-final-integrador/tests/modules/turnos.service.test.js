@@ -117,7 +117,7 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue(mockObraSocial);
       turnosModel.create.mockResolvedValue(100);
 
-      const result = await turnosService.registrarTurno(data);
+      const result = await turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN });
 
       expect(turnosModel.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -150,7 +150,7 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue(mockObraSocial);
       turnosModel.create.mockResolvedValue(101);
 
-      const result = await turnosService.registrarTurno(data);
+      const result = await turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN });
 
       expect(turnosModel.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -166,19 +166,66 @@ describe('Turnos Service - Unit Tests', () => {
     });
   });
 
+  describe('registrarTurno() - Identity Resolution (PACIENTE)', () => {
+    it('debería usar idPaciente e idObraSocial del perfil si el rol es PACIENTE, ignorando el payload', async () => {
+      const data = {
+        idMedico: 1,
+        idPaciente: 999, // Ignorado
+        idObraSocial: 999, // Ignorado
+        fecha: '2026-07-15',
+        hora: '14:30',
+      };
+
+      const mockPacientePerfil = { idPaciente: 5, idObraSocial: 2, activo: true };
+      const mockMedico = { idMedico: 1, valorConsulta: 5000, activo: true };
+      const mockObraSocial = { id: 2, porcentajeDescuento: 0, esParticular: true, activo: true };
+
+      pacientesModel.findByUserId.mockResolvedValue(mockPacientePerfil);
+      medicosModel.findById.mockResolvedValue(mockMedico);
+      pacientesModel.findById.mockResolvedValue(mockPacientePerfil); // Llamado interno para validación de existencia
+      obrasSocialesModel.findById.mockResolvedValue(mockObraSocial);
+      turnosModel.create.mockResolvedValue(200);
+
+      const result = await turnosService.registrarTurno(data, { id: 3, role: ROLES.PACIENTE });
+
+      expect(pacientesModel.findByUserId).toHaveBeenCalledWith(3);
+      expect(turnosModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          idPaciente: 5,
+          idObraSocial: 2,
+        }),
+      );
+      expect(result.idPaciente).toBe(5);
+      expect(result.idObraSocial).toBe(2);
+    });
+
+    it('debería lanzar NOT_FOUND si el paciente no tiene perfil al intentar registrar un turno', async () => {
+      pacientesModel.findByUserId.mockResolvedValue(null);
+
+      await expect(
+        turnosService.registrarTurno({}, { id: 3, role: ROLES.PACIENTE }),
+      ).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        message: 'Perfil de paciente no encontrado',
+      });
+    });
+  });
+
   describe('registrarTurno() - Validations', () => {
     it('debería lanzar error si el médico no existe', async () => {
       medicosModel.findById.mockResolvedValue(null);
 
-      await expect(turnosService.registrarTurno({ idMedico: 999 })).rejects.toThrow(
-        'El médico solicitado no existe',
-      );
+      await expect(
+        turnosService.registrarTurno({ idMedico: 999 }, { id: 1, role: ROLES.ADMIN }),
+      ).rejects.toThrow('El médico solicitado no existe');
     });
 
     it('debería lanzar error si el médico no está activo', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: false });
 
-      await expect(turnosService.registrarTurno({ idMedico: 1 })).rejects.toMatchObject({
+      await expect(
+        turnosService.registrarTurno({ idMedico: 1 }, { id: 1, role: ROLES.ADMIN }),
+      ).rejects.toMatchObject({
         status: 422,
         code: 'VALIDATION_ERROR',
         message: 'El médico solicitado no se encuentra activo',
@@ -189,9 +236,12 @@ describe('Turnos Service - Unit Tests', () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
       pacientesModel.findById.mockResolvedValue(null);
 
-      await expect(turnosService.registrarTurno({ idMedico: 1, idPaciente: 999 })).rejects.toThrow(
-        'El paciente solicitado no existe',
-      );
+      await expect(
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 999 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
+      ).rejects.toThrow('El paciente solicitado no existe');
     });
 
     it('debería lanzar error si el paciente no está activo', async () => {
@@ -199,7 +249,10 @@ describe('Turnos Service - Unit Tests', () => {
       pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: false });
 
       await expect(
-        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 1 }),
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 1, idObraSocial: 1 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
       ).rejects.toMatchObject({
         status: 422,
         code: 'VALIDATION_ERROR',
@@ -212,7 +265,10 @@ describe('Turnos Service - Unit Tests', () => {
       pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
 
       await expect(
-        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 2 }),
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 1, idObraSocial: 2 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
       ).rejects.toMatchObject({
         status: 422,
         code: 'VALIDATION_ERROR',
@@ -226,7 +282,10 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue(null);
 
       await expect(
-        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 999 }),
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 1, idObraSocial: 999 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
       ).rejects.toThrow('La obra social solicitada no existe');
     });
 
@@ -236,7 +295,10 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: false });
 
       await expect(
-        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 1 }),
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 1, idObraSocial: 1 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
       ).rejects.toMatchObject({
         status: 422,
         code: 'VALIDATION_ERROR',
@@ -251,7 +313,10 @@ describe('Turnos Service - Unit Tests', () => {
       medicosModel.acceptsObraSocial.mockResolvedValue(false);
 
       await expect(
-        turnosService.registrarTurno({ idMedico: 1, idPaciente: 1, idObraSocial: 1 }),
+        turnosService.registrarTurno(
+          { idMedico: 1, idPaciente: 1, idObraSocial: 1 },
+          { id: 1, role: ROLES.ADMIN },
+        ),
       ).rejects.toMatchObject({
         status: 422,
         code: 'VALIDATION_ERROR',
@@ -278,7 +343,7 @@ describe('Turnos Service - Unit Tests', () => {
       medicosModel.acceptsObraSocial.mockResolvedValue(true);
       turnosModel.create.mockResolvedValue(100);
 
-      const result = await turnosService.registrarTurno(data);
+      const result = await turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN });
 
       expect(medicosModel.acceptsObraSocial).toHaveBeenCalledWith(1, 1);
       expect(result.idTurno).toBe(100);
@@ -302,7 +367,7 @@ describe('Turnos Service - Unit Tests', () => {
       });
       turnosModel.create.mockResolvedValue(100);
 
-      const result = await turnosService.registrarTurno(data);
+      const result = await turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN });
 
       expect(medicosModel.acceptsObraSocial).not.toHaveBeenCalled();
       expect(result.idTurno).toBe(100);
@@ -321,9 +386,11 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
       turnosModel.existsByMedicoAndFechaHora.mockResolvedValue(true);
 
-      await expect(turnosService.registrarTurno(data)).rejects.toMatchObject({
-        status: 422,
-        code: 'VALIDATION_ERROR',
+      await expect(
+        turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN }),
+      ).rejects.toMatchObject({
+        status: 409,
+        code: 'DUPLICATE_ENTRY',
         message: 'El médico ya tiene un turno reservado para la misma fecha y hora',
       });
     });
@@ -341,9 +408,13 @@ describe('Turnos Service - Unit Tests', () => {
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
       turnosModel.checkPatientOverlap.mockResolvedValue(true);
 
-      await expect(turnosService.registrarTurno(data)).rejects.toThrow(
-        'El paciente ya tiene un turno reservado para la misma fecha y hora',
-      );
+      await expect(
+        turnosService.registrarTurno(data, { id: 1, role: ROLES.ADMIN }),
+      ).rejects.toMatchObject({
+        status: 409,
+        code: 'DUPLICATE_ENTRY',
+        message: 'El paciente ya tiene un turno reservado para la misma fecha y hora',
+      });
     });
   });
 
