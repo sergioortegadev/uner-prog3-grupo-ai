@@ -149,7 +149,9 @@ CREATE TABLE `pacientes` (
 INSERT INTO `pacientes` (`id_paciente`, `id_usuario`, `id_obra_social`) VALUES
 (1, 5, 1),
 (2, 6, 2),
-(3, 7, 3);
+(3, 7, 3),
+(4, 9, 1);
+
 
 -- --------------------------------------------------------
 
@@ -211,7 +213,9 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 (6, '41000112', 'Hunk', 'Lorena', 'hunlor@correo.com', '464db19217fabdaabc5add321054f39216d03edfef2efaf8c6769485415b7f25', '', 2, 1),
 (7, '41000113', 'Aguirre', 'Brian', 'agubri@correo.com', '2dfa174ae2688ec55d00f57c5a0a7783ba1f0e2981ab7df9f1cf933686c15274', '', 2, 1),
 (8, '51000111', 'Fernandez', 'Benito', 'ferben@correo.com', 'f127f4e9e4248f77eaa446ea9bff721e3e79eedf114ba6e1cfc633853ef07b4c', '', 3, 1),
-(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '601de117008d80e65ffad05dce97462d8f1b1e9aad6d68cf2b289703b8366b52', '', 3, 1);
+(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '76a8c23df7d396e6ff724af4263a4f1cb3f9858e1c29c449ac1153b34020bd26', '', 3, 1),
+(9, '41000114', 'Perez', 'Carlos', 'carlosperez@correo.com', 'bbe8be0ee37e9f1ce1cd25893151b35b6537ff607beca72e7b19814d2c7196c2', '', 2, 1);
+
 
 -- --------------------------------------------------------
 
