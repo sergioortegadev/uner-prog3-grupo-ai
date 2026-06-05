@@ -50,14 +50,17 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/turnos` | Listar turnos propios | Médico / Paciente |
-| `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin |
+| `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin / Paciente |
 | `PATCH` | `/api/v1/turnos/:id/atendido` | Marcar turno como atendido | Médico |
 
 ### Detalles de Turnos
 - El listado de turnos (`GET`) devuelve los turnos del usuario autenticado según su rol.
-- Si el usuario es **Médico**, el listado incluye datos del paciente y la obra social.
-- Si el usuario es **Paciente**, el listado incluye datos del médico, su especialidad y la obra social.
-- El registro de turnos (`POST`) calcula automáticamente el `valor_total` basándose en el valor de consulta del médico y el descuento de la obra social del paciente.
+  - Si el usuario es **Médico**, el listado incluye datos del paciente y la obra social.
+  - Si el usuario es **Paciente**, el listado incluye datos del médico, su especialidad y la obra social.
+- El registro de turnos (`POST`) funciona de la siguiente manera según el rol:
+  - **Administrador**: Debe pasar `idPaciente` e `idObraSocial` en el body para agendar el turno en nombre de cualquier paciente.
+  - **Paciente**: No debe enviar `idPaciente` ni `idObraSocial` en el body; el sistema los resuelve automáticamente de forma segura a partir de su perfil asociado.
+  - En ambos casos, se calcula automáticamente el `valor_total` basándose en el valor de consulta del médico y el descuento de la obra social aplicable.
 
 ---
 
