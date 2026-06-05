@@ -25,4 +25,14 @@ turnosRouter
   )
   .all(methodNotAllowedHandler(['GET', 'POST']));
 
+turnosRouter
+  .route('/:id/atendido')
+  .patch(
+    requireRole([ROLES.MEDICO]),
+    turnosValidator.validateMarcarAtendido,
+    validateRequest,
+    turnosController.marcarComoAtendido,
+  )
+  .all(methodNotAllowedHandler(['PATCH']));
+
 export default turnosRouter;

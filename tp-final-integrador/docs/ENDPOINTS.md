@@ -51,6 +51,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/turnos` | Listar turnos propios | Médico / Paciente |
 | `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin |
+| `PATCH` | `/api/v1/turnos/:id/atendido` | Marcar turno como atendido | Médico |
 
 ### Detalles de Turnos
 - El listado de turnos (`GET`) devuelve los turnos del usuario autenticado según su rol.

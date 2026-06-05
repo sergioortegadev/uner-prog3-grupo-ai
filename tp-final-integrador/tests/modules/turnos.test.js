@@ -9,6 +9,8 @@ import { ROLES } from '../../src/constants/roles.constants.js';
 describe('Turnos - Integration Tests', () => {
   let adminToken;
   let patientToken;
+  let medicoToken;
+  let otherMedicoToken;
   const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
   beforeEach(async () => {
@@ -62,6 +64,18 @@ describe('Turnos - Integration Tests', () => {
     // Generar tokens
     adminToken = jwt.sign({ id: 8, rol: ROLES.ADMIN, documento: '51000111' }, JWT_SECRET);
     patientToken = jwt.sign({ id: 3, rol: ROLES.PACIENTE, documento: '33333333' }, JWT_SECRET);
+    medicoToken = jwt.sign({ id: 2, rol: ROLES.MEDICO, documento: '22222222' }, JWT_SECRET);
+
+    // Otro médico para probar pertenencia
+    await pool.execute(
+      'INSERT INTO usuarios (id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [10, '10101010', 'Other', 'Medico', 'other@test.com', 'hash', '', ROLES.MEDICO, 1],
+    );
+    await pool.execute(
+      'INSERT INTO medicos (id_medico, id_usuario, id_especialidad, matricula, valor_consulta) VALUES (?, ?, ?, ?, ?)',
+      [2, 10, 1, 3000, 6000.0],
+    );
+    otherMedicoToken = jwt.sign({ id: 10, rol: ROLES.MEDICO, documento: '10101010' }, JWT_SECRET);
   });
 
   afterAll(async () => {
@@ -356,6 +370,78 @@ describe('Turnos - Integration Tests', () => {
 
       expect(response.status).toBe(422);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  describe('PATCH /api/v1/turnos/:id/atendido', () => {
+    let turnoId;
+
+    beforeEach(async () => {
+      // Crear un turno para las pruebas
+      const [result] = await pool.execute(
+        'INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [1, 1, 1, '2026-07-15 14:30:00', 4500.0, 0, 1],
+      );
+      turnoId = result.insertId;
+    });
+
+    it('Scenario 1: Doctor marks their own appointment as attended (200)', async () => {
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${turnoId}/atendido`)
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.atendido).toBe(1);
+    });
+
+    it('Scenario 2: Unauthorized role (Patient) (403)', async () => {
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${turnoId}/atendido`)
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it('Scenario 3: Ownership failure (403)', async () => {
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${turnoId}/atendido`)
+        .set('Authorization', `Bearer ${otherMedicoToken}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.message).toBe(
+        'No tiene permisos para marcar este turno como atendido',
+      );
+    });
+
+    it('Scenario 4: Conflict - Already attended (409)', async () => {
+      // Marcar como atendido primero
+      await pool.execute('UPDATE turnos_reservas SET atendido = 1 WHERE id_turno_reserva = ?', [
+        turnoId,
+      ]);
+
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${turnoId}/atendido`)
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(409);
+      expect(response.body.error.message).toBe('El turno ya ha sido marcado como atendido');
+    });
+
+    it('Scenario 5: Not found (404)', async () => {
+      const response = await request(app)
+        .patch('/api/v1/turnos/9999/atendido')
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('Scenario 6: Invalid ID format (422)', async () => {
+      const response = await request(app)
+        .patch('/api/v1/turnos/abc/atendido')
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(422);
     });
   });
 });
