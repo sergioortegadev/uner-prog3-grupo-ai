@@ -7,7 +7,7 @@ meta {
 get {
   url: {{baseUrl}}/obras-sociales?limit=10&offset=0&order=nombre&asc=true&nombre=OSUNER
   body: none
-  auth: none
+  auth: inherit
 }
 
 params:query {
@@ -20,7 +20,6 @@ params:query {
 
 headers {
   Accept: application/json
-  Authorization: Bearer {{authToken}}
 }
 
 script:pre-request {

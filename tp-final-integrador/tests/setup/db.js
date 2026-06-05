@@ -13,13 +13,13 @@ export const clearDatabase = async () => {
   try {
     await pool.execute('SET FOREIGN_KEY_CHECKS = 0');
 
-    // Lista de tablas a limpiar (en orden de dependencia si fuera necesario, aunque con checks en 0 no importa tanto)
+    // Lista de tablas a limpiar
     const tables = [
+      'especialidades',
       'turnos_reservas',
       'medicos_obras_sociales',
       'pacientes',
       'medicos',
-      'especialidades',
       'obras_sociales',
       'usuarios',
     ];

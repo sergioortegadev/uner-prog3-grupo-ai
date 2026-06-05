@@ -7,13 +7,12 @@ meta {
 post {
   url: {{baseUrl}}/obras-sociales
   body: json
-  auth: none
+  auth: inherit
 }
 
 headers {
   Accept: application/json
   Content-Type: application/json
-  Authorization: Bearer {{authToken}}
 }
 
 body:json {

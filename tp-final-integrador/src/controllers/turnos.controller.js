@@ -12,3 +12,15 @@ export const registrarTurno = async (req, res) => {
 
   return successResponse(res, nuevoTurno, 201);
 };
+
+export const listarTurnosPropios = async (req, res) => {
+  const turnos = await turnosService.listarTurnosPropios(req.user);
+  return successResponse(res, turnos);
+};
+
+export const marcarComoAtendido = async (req, res) => {
+  const { id } = matchedData(req);
+  const turnoActualizado = await turnosService.marcarComoAtendido(id, req.user.id);
+
+  return successResponse(res, turnoActualizado);
+};

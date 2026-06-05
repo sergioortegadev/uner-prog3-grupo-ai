@@ -1,0 +1,27 @@
+meta {
+  name: Marcar Turno como Atendido
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/turnos/:id/atendido
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Permite a un médico marcar uno de sus turnos asignados como atendido.
+  
+  - **Acceso**: Solo Médicos.
+  - **Validación**: Solo puede marcar turnos que le pertenecen.
+  - **Idempotencia**: Si el turno ya fue atendido, retorna un error 409 Conflict.
+}

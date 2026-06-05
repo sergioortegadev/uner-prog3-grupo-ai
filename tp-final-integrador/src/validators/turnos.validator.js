@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 /**
  * Validaciones para el módulo de Turnos
@@ -46,4 +46,13 @@ export const validateRegistrarTurno = [
     .withMessage('La hora es requerida')
     .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .withMessage('La hora debe tener un formato válido (HH:mm)'),
+];
+
+export const validateMarcarAtendido = [
+  param('id')
+    .notEmpty()
+    .withMessage('El ID del turno es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID del turno debe ser un número entero positivo')
+    .toInt(),
 ];
