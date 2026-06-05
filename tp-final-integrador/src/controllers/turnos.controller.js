@@ -8,7 +8,10 @@ import { successResponse } from '../helpers/response.helper.js';
 
 export const registrarTurno = async (req, res) => {
   const data = matchedData(req);
-  const nuevoTurno = await turnosService.registrarTurno(data);
+  const nuevoTurno = await turnosService.registrarTurno(data, {
+    id: req.user.id,
+    role: req.user.rol,
+  });
 
   return successResponse(res, nuevoTurno, 201);
 };

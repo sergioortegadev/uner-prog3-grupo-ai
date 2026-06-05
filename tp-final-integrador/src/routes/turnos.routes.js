@@ -18,7 +18,7 @@ turnosRouter
   .route('/')
   .get(requireRole([ROLES.MEDICO, ROLES.PACIENTE]), turnosController.listarTurnosPropios)
   .post(
-    requireRole([ROLES.ADMIN]),
+    requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
     turnosValidator.validateRegistrarTurno,
     validateRequest,
     turnosController.registrarTurno,

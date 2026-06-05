@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { ROLES } from '../constants/roles.constants.js';
 
 /**
  * Validaciones para el módulo de Turnos
@@ -13,6 +14,7 @@ export const validateRegistrarTurno = [
     .toInt(),
 
   body('idPaciente')
+    .if((value, { req }) => req.user?.rol === ROLES.ADMIN)
     .notEmpty()
     .withMessage('El ID del paciente es requerido')
     .isInt({ min: 1 })
@@ -20,6 +22,7 @@ export const validateRegistrarTurno = [
     .toInt(),
 
   body('idObraSocial')
+    .if((value, { req }) => req.user?.rol === ROLES.ADMIN)
     .notEmpty()
     .withMessage('El ID de la obra social es requerido')
     .isInt({ min: 1 })

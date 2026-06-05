@@ -121,7 +121,72 @@ describe('Turnos - Integration Tests', () => {
       expect(response.body.data.valorTotal).toBe(4500.0); // 5000 - 10%
     });
 
-    it('Scenario 3: Access denied for non-admin user (403)', async () => {
+    it('Scenario 3: Access allowed for patient user (201)', async () => {
+      const payload = {
+        idMedico: 1,
+        // idPaciente and idObraSocial should be resolved from profile, but let's send them to verify they are ignored/overridden
+        idPaciente: 999,
+        idObraSocial: 999,
+        fecha: '2026-07-20',
+        hora: '10:30',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${patientToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.idPaciente).toBe(1); // From profile
+      expect(response.body.data.idObraSocial).toBe(1); // From profile
+    });
+
+    it('Scenario: Successful registration as PACIENTE with minimal payload (201)', async () => {
+      const payload = {
+        idMedico: 1,
+        fecha: '2026-07-21',
+        hora: '11:00',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${patientToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.idPaciente).toBe(1);
+      expect(response.body.data.idObraSocial).toBe(1);
+    });
+
+    it('Scenario: Error 404 when PACIENTE has no record in pacientes table', async () => {
+      // Create a new user with role PACIENTE but no record in pacientes table
+      await pool.execute(
+        'INSERT INTO usuarios (id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [50, '50505050', 'NoProfile', 'User', 'noprofile@test.com', 'hash', '', ROLES.PACIENTE, 1],
+      );
+      const noProfileToken = jwt.sign(
+        { id: 50, rol: ROLES.PACIENTE, documento: '50505050' },
+        JWT_SECRET,
+      );
+
+      const payload = {
+        idMedico: 1,
+        fecha: '2026-07-15',
+        hora: '14:30',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${noProfileToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error.message).toBe('Perfil de paciente no encontrado');
+    });
+
+    it('Scenario: Access denied for unauthorized role (Medico) (403)', async () => {
       const payload = {
         idMedico: 1,
         idPaciente: 1,
@@ -132,7 +197,7 @@ describe('Turnos - Integration Tests', () => {
 
       const response = await request(app)
         .post('/api/v1/turnos')
-        .set('Authorization', `Bearer ${patientToken}`)
+        .set('Authorization', `Bearer ${medicoToken}`)
         .send(payload);
 
       expect(response.status).toBe(403);
@@ -256,7 +321,7 @@ describe('Turnos - Integration Tests', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('Scenario 9: Patient double booking (422)', async () => {
+    it('Scenario 9: Patient double booking (409)', async () => {
       const payload = {
         idMedico: 1,
         idPaciente: 1,
@@ -273,20 +338,20 @@ describe('Turnos - Integration Tests', () => {
 
       expect(firstResponse.status).toBe(201);
 
-      // Segundo registro (solapamiento)
+      // Segundo registro (solapamiento de paciente)
       const secondResponse = await request(app)
         .post('/api/v1/turnos')
         .set('Authorization', `Bearer ${adminToken}`)
         .send(payload);
 
-      expect(secondResponse.status).toBe(422);
-      expect(secondResponse.body.error.code).toBe('VALIDATION_ERROR');
+      expect(secondResponse.status).toBe(409);
+      expect(secondResponse.body.error.code).toBe('DUPLICATE_ENTRY');
       expect(secondResponse.body.error.message).toBe(
-        'El médico ya tiene un turno reservado para la misma fecha y hora',
+        'El paciente ya tiene un turno reservado para la misma fecha y hora',
       );
     });
 
-    it('Scenario X: Physician time conflict (422)', async () => {
+    it('Scenario X: Physician time conflict (409)', async () => {
       // Necesitamos un segundo paciente para que no falle por solapamiento de paciente
       await pool.execute(
         'INSERT INTO usuarios (id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -325,8 +390,8 @@ describe('Turnos - Integration Tests', () => {
         .set('Authorization', `Bearer ${adminToken}`)
         .send(payload2);
 
-      expect(secondResponse.status).toBe(422);
-      expect(secondResponse.body.error.code).toBe('VALIDATION_ERROR');
+      expect(secondResponse.status).toBe(409);
+      expect(secondResponse.body.error.code).toBe('DUPLICATE_ENTRY');
       expect(secondResponse.body.error.message).toBe(
         'El médico ya tiene un turno reservado para la misma fecha y hora',
       );

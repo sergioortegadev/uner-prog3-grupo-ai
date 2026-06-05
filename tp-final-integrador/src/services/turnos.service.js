@@ -57,9 +57,22 @@ export const listarTurnosPropios = async (usuario) => {
 /**
  * Registra un nuevo turno con cálculo de valor_total.
  * @param {Object} data - Datos del turno (idMedico, idPaciente, idObraSocial, fecha, hora).
+ * @param {Object} context - Contexto del usuario que realiza la acción ({ id, role }).
  * @returns {Promise<Object>} Datos del turno creado.
  */
-export const registrarTurno = async (data) => {
+export const registrarTurno = async (data, { id, role }) => {
+  if (role === ROLES.PACIENTE) {
+    const pacientePerfil = await pacientesModel.findByUserId(id);
+
+    if (!pacientePerfil) {
+      throw new AppError(ERROR_CODES.NOT_FOUND, 'Perfil de paciente no encontrado');
+    }
+
+    // Sobrescribimos los IDs con los del perfil del paciente
+    data.idPaciente = pacientePerfil.idPaciente;
+    data.idObraSocial = pacientePerfil.idObraSocial;
+  }
+
   const { idMedico, idPaciente, idObraSocial, fecha, hora } = data;
 
   const medico = await findActiveOrThrow(medicosModel.findById, idMedico, {
@@ -107,19 +120,19 @@ export const registrarTurno = async (data) => {
 
   const fechaHora = `${fecha} ${hora}`;
 
-  const medicoTieneTurno = await turnosModel.existsByMedicoAndFechaHora(idMedico, fechaHora);
-  if (medicoTieneTurno) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_ERROR,
-      'El médico ya tiene un turno reservado para la misma fecha y hora',
-    );
-  }
-
   const pacienteTieneTurno = await turnosModel.checkPatientOverlap(idPaciente, fechaHora);
   if (pacienteTieneTurno) {
     throw new AppError(
-      ERROR_CODES.VALIDATION_ERROR,
+      ERROR_CODES.DUPLICATE_ENTRY,
       'El paciente ya tiene un turno reservado para la misma fecha y hora',
+    );
+  }
+
+  const medicoTieneTurno = await turnosModel.existsByMedicoAndFechaHora(idMedico, fechaHora);
+  if (medicoTieneTurno) {
+    throw new AppError(
+      ERROR_CODES.DUPLICATE_ENTRY,
+      'El médico ya tiene un turno reservado para la misma fecha y hora',
     );
   }
 
