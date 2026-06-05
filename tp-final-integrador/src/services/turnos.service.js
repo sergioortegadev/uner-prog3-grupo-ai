@@ -7,24 +7,44 @@ import { DB_STATUS } from '../constants/common.constants.js';
 import { ROLES } from '../constants/roles.constants.js';
 
 /**
+ * Busca una entidad por ID y lanza un error si no existe o no está activa.
+ * @param {Function} findFn - Función async que recibe el ID y retorna la entidad o null.
+ * @param {*} id - El ID a buscar.
+ * @param {Object} messages - Mensajes de error personalizados.
+ * @param {string} messages.notFoundMessage - Mensaje cuando la entidad no existe.
+ * @param {string} messages.inactiveMessage - Mensaje cuando la entidad está inactiva.
+ * @returns {Promise<Object>} La entidad encontrada y activa.
+ */
+const findActiveOrThrow = async (findFn, id, { notFoundMessage, inactiveMessage }) => {
+  const entity = await findFn(id);
+  if (!entity) {
+    throw new AppError(ERROR_CODES.NOT_FOUND, notFoundMessage);
+  }
+  if (!entity.activo) {
+    throw new AppError(ERROR_CODES.VALIDATION_ERROR, inactiveMessage);
+  }
+  return entity;
+};
+
+/**
  * Obtiene los turnos propios del usuario según su rol.
  * @param {Object} usuario - El usuario autenticado (extraído de req.user).
  * @returns {Promise<Object[]>} Lista de turnos.
  */
 export const listarTurnosPropios = async (usuario) => {
   if (usuario.rol === ROLES.MEDICO) {
-    const medico = await medicosModel.findByUserId(usuario.id);
-    if (!medico) {
-      throw new AppError(ERROR_CODES.NOT_FOUND, 'Perfil de médico no encontrado');
-    }
+    const medico = await findActiveOrThrow(medicosModel.findByUserId, usuario.id, {
+      notFoundMessage: 'Perfil de médico no encontrado',
+      inactiveMessage: 'El médico solicitado no se encuentra activo',
+    });
     return await turnosModel.findByMedicoId(medico.idMedico);
   }
 
   if (usuario.rol === ROLES.PACIENTE) {
-    const paciente = await pacientesModel.findByUserId(usuario.id);
-    if (!paciente) {
-      throw new AppError(ERROR_CODES.NOT_FOUND, 'Perfil de paciente no encontrado');
-    }
+    const paciente = await findActiveOrThrow(pacientesModel.findByUserId, usuario.id, {
+      notFoundMessage: 'Perfil de paciente no encontrado',
+      inactiveMessage: 'El paciente solicitado no se encuentra activo',
+    });
     return await turnosModel.findByPacienteId(paciente.idPaciente);
   }
 
@@ -42,24 +62,15 @@ export const listarTurnosPropios = async (usuario) => {
 export const registrarTurno = async (data) => {
   const { idMedico, idPaciente, idObraSocial, fecha, hora } = data;
 
-  const medico = await medicosModel.findById(idMedico);
-  if (!medico) {
-    throw new AppError(ERROR_CODES.NOT_FOUND, 'El médico solicitado no existe');
-  }
-  if (!medico.activo) {
-    throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'El médico solicitado no se encuentra activo');
-  }
+  const medico = await findActiveOrThrow(medicosModel.findById, idMedico, {
+    notFoundMessage: 'El médico solicitado no existe',
+    inactiveMessage: 'El médico solicitado no se encuentra activo',
+  });
 
-  const paciente = await pacientesModel.findById(idPaciente);
-  if (!paciente) {
-    throw new AppError(ERROR_CODES.NOT_FOUND, 'El paciente solicitado no existe');
-  }
-  if (!paciente.activo) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_ERROR,
-      'El paciente solicitado no se encuentra activo',
-    );
-  }
+  const paciente = await findActiveOrThrow(pacientesModel.findById, idPaciente, {
+    notFoundMessage: 'El paciente solicitado no existe',
+    inactiveMessage: 'El paciente solicitado no se encuentra activo',
+  });
 
   if (paciente.idObraSocial !== idObraSocial) {
     throw new AppError(
@@ -68,16 +79,14 @@ export const registrarTurno = async (data) => {
     );
   }
 
-  const obraSocial = await obrasSocialesModel.findById(idObraSocial, false);
-  if (!obraSocial) {
-    throw new AppError(ERROR_CODES.NOT_FOUND, 'La obra social solicitada no existe');
-  }
-  if (!obraSocial.activo) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_ERROR,
-      'La obra social solicitada no se encuentra activa',
-    );
-  }
+  const obraSocial = await findActiveOrThrow(
+    (id) => obrasSocialesModel.findById(id, false),
+    idObraSocial,
+    {
+      notFoundMessage: 'La obra social solicitada no existe',
+      inactiveMessage: 'La obra social solicitada no se encuentra activa',
+    },
+  );
 
   if (!obraSocial.esParticular) {
     const aceptaObraSocial = await medicosModel.acceptsObraSocial(idMedico, idObraSocial);
