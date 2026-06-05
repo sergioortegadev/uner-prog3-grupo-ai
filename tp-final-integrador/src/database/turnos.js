@@ -105,3 +105,34 @@ export const existsByMedicoAndFechaHora = async (idMedico, fechaHora) => {
   const [rows] = await pool.execute(query, [idMedico, fechaHora, DB_STATUS.ACTIVE]);
   return rows.length > 0;
 };
+
+/**
+ * Busca un turno por su ID.
+ * @param {number} id
+ * @returns {Promise<Object|null>}
+ */
+export const findById = async (id) => {
+  const query = `
+    SELECT * FROM turnos_reservas
+    WHERE id_turno_reserva = ?
+  `;
+  const [rows] = await pool.execute(query, [id]);
+
+  if (rows.length === 0) return null;
+  return turnosMapper.toDTO(rows[0]);
+};
+
+/**
+ * Actualiza el estado de atención de un turno.
+ * @param {number} id
+ * @param {number} atendido - 1 para atendido, 0 para no atendido.
+ * @returns {Promise<void>}
+ */
+export const updateAtendido = async (id, atendido) => {
+  const query = `
+    UPDATE turnos_reservas
+    SET atendido = ?
+    WHERE id_turno_reserva = ?
+  `;
+  await pool.execute(query, [atendido, id]);
+};

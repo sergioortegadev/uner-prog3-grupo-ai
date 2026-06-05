@@ -142,3 +142,40 @@ export const registrarTurno = async (data) => {
     activo: DB_STATUS.ACTIVE,
   };
 };
+
+/**
+ * Marca un turno como atendido.
+ * @param {number} idTurno
+ * @param {number} idUsuario - ID del usuario médico que realiza la acción.
+ * @returns {Promise<Object>} Datos del turno actualizado.
+ */
+export const marcarComoAtendido = async (idTurno, idUsuario) => {
+  const medico = await findActiveOrThrow(medicosModel.findByUserId, idUsuario, {
+    notFoundMessage: 'Perfil de médico no encontrado',
+    inactiveMessage: 'El médico solicitado no se encuentra activo',
+  });
+
+  const turno = await turnosModel.findById(idTurno);
+
+  if (!turno) {
+    throw new AppError(ERROR_CODES.NOT_FOUND, 'El turno solicitado no existe');
+  }
+
+  if (turno.medico.id !== medico.idMedico) {
+    throw new AppError(
+      ERROR_CODES.FORBIDDEN,
+      'No tiene permisos para marcar este turno como atendido',
+    );
+  }
+
+  if (turno.atendido) {
+    throw new AppError(ERROR_CODES.DUPLICATE_ENTRY, 'El turno ya ha sido marcado como atendido');
+  }
+
+  await turnosModel.updateAtendido(idTurno, 1);
+
+  return {
+    ...turno,
+    atendido: 1,
+  };
+};
