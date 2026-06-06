@@ -5,7 +5,7 @@ import { ERROR_CODES } from '../helpers/errors.helper.js';
 /**
  * Middleware para capturar errores de express-validator
  * Si hay errores, corta la petición y devuelve un 422 estandarizado.
- * Si no, pasa al siguiente middleware o controlador.
+ * Sino, pasa al siguiente middleware o controlador.
  */
 export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
