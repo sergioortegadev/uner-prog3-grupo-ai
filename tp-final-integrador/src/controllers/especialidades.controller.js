@@ -1,12 +1,16 @@
-import EspecialidadesService from '../services/especialidades.service.js';
 import { matchedData } from 'express-validator';
 import { successResponse, errorResponse, paginatedResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
 import * as especialidadesService from '../services/especialidades.service.js';
+import { DB_STATUS } from '../constants/common.constants.js';
+import { ROLES } from '../constants/roles.constants.js';
 
 
 export const getAll = async (req, res) => {
     const queryParams = matchedData(req, { locations: ['query'] });
+    if (req.user.rol !== ROLES.ADMIN) {
+        queryParams.activo = DB_STATUS.ACTIVE;
+    }
     const { data, total } = await especialidadesService.getAll(queryParams);
     return successResponse(res, data, 200);
 };
