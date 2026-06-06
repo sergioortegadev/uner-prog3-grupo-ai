@@ -1,5 +1,5 @@
 import { pool } from '../config/db.js';
-import { DB_STATUS } from '../constants/common.constants.js';
+import { ATTENDED_STATUS, DB_STATUS } from '../constants/common.constants.js';
 import * as turnosMapper from './turnos.mapper.js';
 
 /**
@@ -12,7 +12,7 @@ export const create = async (data) => {
 
   const query = `
     INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo)
-    SELECT ?, ?, ?, ?, ?, 0, ?
+    SELECT ?, ?, ?, ?, ?, ?, ?
     FROM (SELECT 1) AS tmp
     WHERE NOT EXISTS (
       SELECT 1 FROM turnos_reservas
@@ -29,6 +29,7 @@ export const create = async (data) => {
     idObraSocial,
     fechaHora,
     valorTotal,
+    ATTENDED_STATUS.PENDING,
     DB_STATUS.ACTIVE,
     idMedico,
     fechaHora,
@@ -69,11 +70,11 @@ export const findByDoctorId = async (idMedico, params = {}) => {
 
   const direction = asc ? 'ASC' : 'DESC';
   let query = `
-    SELECT 
-      tr.*, 
-      u.apellido AS paciente_apellido, 
-      u.nombres AS paciente_nombres, 
-      u.email AS paciente_email, 
+    SELECT
+      tr.*,
+      u.apellido AS paciente_apellido,
+      u.nombres AS paciente_nombres,
+      u.email AS paciente_email,
       os.nombre AS obra_social_nombre
     FROM turnos_reservas tr
     JOIN pacientes p ON tr.id_paciente = p.id_paciente
@@ -119,11 +120,11 @@ export const findByPatientId = async (idPaciente, params = {}) => {
 
   const direction = asc ? 'ASC' : 'DESC';
   let query = `
-    SELECT 
-      tr.*, 
-      u.apellido AS medico_apellido, 
-      u.nombres AS medico_nombres, 
-      e.nombre AS especialidad, 
+    SELECT
+      tr.*,
+      u.apellido AS medico_apellido,
+      u.nombres AS medico_nombres,
+      e.nombre AS especialidad,
       os.nombre AS obra_social_nombre
     FROM turnos_reservas tr
     JOIN medicos m ON tr.id_medico = m.id_medico

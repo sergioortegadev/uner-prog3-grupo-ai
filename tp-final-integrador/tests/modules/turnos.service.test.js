@@ -4,6 +4,7 @@ import * as turnosModel from '../../src/database/turnos.js';
 import * as medicosModel from '../../src/database/medicos.js';
 import * as pacientesModel from '../../src/database/pacientes.js';
 import * as obrasSocialesModel from '../../src/database/obras_sociales.js';
+import { ATTENDED_STATUS } from '../../src/constants/common.constants.js';
 import { ROLES } from '../../src/constants/roles.constants.js';
 
 vi.mock('../../src/database/turnos.js', () => ({
@@ -497,7 +498,7 @@ describe('Turnos Service - Unit Tests', () => {
 
       expect(medicosModel.findByUserId).toHaveBeenCalledWith(1);
       expect(turnosModel.findById).toHaveBeenCalledWith(5);
-      expect(turnosModel.updateAttended).toHaveBeenCalledWith(5, 1);
+      expect(turnosModel.updateAttended).toHaveBeenCalledWith(5, ATTENDED_STATUS.ATTENDED);
       expect(result).toEqual({
         id: 5,
         atendido: true,
