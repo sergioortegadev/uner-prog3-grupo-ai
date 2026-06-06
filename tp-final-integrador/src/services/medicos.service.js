@@ -7,7 +7,7 @@ import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
  * @param {number} idMedico
  * @param {number[]} idsObrasSociales
  */
-export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
+export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
   // 1. Validar que el médico exista
   const medico = await medicosModel.findById(idMedico);
   if (!medico) {

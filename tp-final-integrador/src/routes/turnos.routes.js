@@ -4,6 +4,7 @@ import * as turnosValidator from '../validators/turnos.validator.js';
 import { ROLES } from '../constants/roles.constants.js';
 import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
+import { validateListQuery } from '../middlewares/query.validator.js';
 import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middleware.js';
 
 const turnosRouter = Router();
@@ -16,12 +17,17 @@ turnosRouter.use(authenticateJwt);
 
 turnosRouter
   .route('/')
-  .get(requireRole([ROLES.MEDICO, ROLES.PACIENTE]), turnosController.listarTurnosPropios)
+  .get(
+    requireRole([ROLES.MEDICO, ROLES.PACIENTE]),
+    validateListQuery(['fecha_hora'], ['atendido']),
+    validateRequest,
+    turnosController.getMyAppointments,
+  )
   .post(
     requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
-    turnosValidator.validateRegistrarTurno,
+    turnosValidator.validateCreateAppointment,
     validateRequest,
-    turnosController.registrarTurno,
+    turnosController.createAppointment,
   )
   .all(methodNotAllowedHandler(['GET', 'POST']));
 
@@ -29,9 +35,9 @@ turnosRouter
   .route('/:id/atendido')
   .patch(
     requireRole([ROLES.MEDICO]),
-    turnosValidator.validateMarcarAtendido,
+    turnosValidator.validateMarkAsAttended,
     validateRequest,
-    turnosController.marcarComoAtendido,
+    turnosController.markAsAttended,
   )
   .all(methodNotAllowedHandler(['PATCH']));
 

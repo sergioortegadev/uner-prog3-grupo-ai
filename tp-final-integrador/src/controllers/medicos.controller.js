@@ -6,10 +6,10 @@ import { successResponse } from '../helpers/response.helper.js';
  * Controlador para el módulo de Médicos
  */
 
-export const asociarObrasSociales = async (req, res) => {
+export const assignObrasSociales = async (req, res) => {
   const { id_medico, obrasSociales } = matchedData(req);
 
-  const result = await medicosService.asociarObrasSociales(id_medico, obrasSociales);
+  const result = await medicosService.assignObrasSociales(id_medico, obrasSociales);
   const status = result.asociadas.length > 0 ? 201 : 200;
 
   return successResponse(res, result, status);

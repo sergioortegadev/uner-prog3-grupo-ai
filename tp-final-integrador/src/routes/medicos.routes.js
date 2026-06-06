@@ -17,9 +17,9 @@ router
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
-    medicosValidator.validateAsociarObrasSociales,
+    medicosValidator.validateAssignObrasSociales,
     validateRequest,
-    medicosController.asociarObrasSociales,
+    medicosController.assignObrasSociales,
   )
   .all(methodNotAllowedHandler(['POST']));
 
