@@ -221,6 +221,29 @@ describe('Turnos - Integration Tests', () => {
       expect(response.body.success).toBe(false);
     });
 
+    it('Scenario: Validation error - Date in the past (422)', async () => {
+      const payload = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 1,
+        fecha: '2020-01-01',
+        hora: '14:30',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ msg: 'La fecha no puede ser en el pasado' }),
+        ]),
+      );
+    });
+
     it('Scenario validation error: Invalid hour format (422)', async () => {
       const payload = {
         idMedico: 1,

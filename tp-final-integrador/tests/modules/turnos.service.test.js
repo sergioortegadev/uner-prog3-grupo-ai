@@ -403,6 +403,33 @@ describe('Turnos Service - Unit Tests', () => {
       expect(result.idTurno).toBe(100);
     });
 
+    it('debería construir correctamente la cadena fechaHora combinando fecha y hora', async () => {
+      const data = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 2,
+        fecha: '2026-07-15',
+        hora: '14:30',
+      };
+      medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
+      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      obrasSocialesModel.findById.mockResolvedValue({
+        id: 2,
+        porcentajeDescuento: 0,
+        esParticular: true,
+        activo: true,
+      });
+      turnosModel.create.mockResolvedValue(100);
+
+      await turnosService.createAppointment(data, { id: 1, role: ROLES.ADMIN });
+
+      expect(turnosModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fechaHora: '2026-07-15 14:30',
+        }),
+      );
+    });
+
     it('debería lanzar error si el médico ya tiene un turno reservado para la misma fecha y hora', async () => {
       const data = {
         idMedico: 1,
