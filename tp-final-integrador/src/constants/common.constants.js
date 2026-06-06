@@ -23,6 +23,11 @@ export const DB_STATUS = {
   DISCONNECTED: 'desconectado',
 };
 
+export const ATTENDED_STATUS = {
+  ATTENDED: 1,
+  PENDING: 0,
+};
+
 export const HEALTH_STATUS = {
   SUCCESS: 'success',
   ERROR: 'error',

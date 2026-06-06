@@ -128,7 +128,8 @@ INSERT INTO `obras_sociales` (`id_obra_social`, `nombre`, `descripcion`, `porcen
 (1, 'Jerárquicos', 'jer', 0.10, 0, 1),
 (2, 'OSUNER', 'osu', 0.10, 0, 1),
 (3, 'OSECAC', 'ose', 0.11, 0, 1),
-(4, 'OSUNER 3', 'OSU', 0.13, 0, 1);
+(4, 'OSUNER 3', 'OSU', 0.13, 0, 1),
+(5, 'Particular', 'Atención sin obra social', 0.00, 1, 1);
 
 -- --------------------------------------------------------
 

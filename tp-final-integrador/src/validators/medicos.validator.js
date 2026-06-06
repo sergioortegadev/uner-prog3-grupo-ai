@@ -4,7 +4,7 @@ import { body, param } from 'express-validator';
  * Validaciones para el módulo de Médicos
  */
 
-export const validateAsociarObrasSociales = [
+export const validateAssignObrasSociales = [
   param('id_medico')
     .isInt({ min: 1 })
     .withMessage('El ID del médico debe ser un número entero positivo')

@@ -221,6 +221,29 @@ describe('Turnos - Integration Tests', () => {
       expect(response.body.success).toBe(false);
     });
 
+    it('Scenario: Validation error - Date in the past (422)', async () => {
+      const payload = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 1,
+        fecha: '2020-01-01',
+        hora: '14:30',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ msg: 'La fecha no puede ser en el pasado' }),
+        ]),
+      );
+    });
+
     it('Scenario validation error: Invalid hour format (422)', async () => {
       const payload = {
         idMedico: 1,
@@ -397,12 +420,17 @@ describe('Turnos - Integration Tests', () => {
       );
     });
 
-    it('Scenario Y: Health insurance mismatch with patient (422)', async () => {
-      // Paciente 1 tiene idObraSocial = 1 (OSDE); enviamos idObraSocial = 2 (Particular)
+    it('Scenario Y: Health insurance mismatch with patient (not particular) (422)', async () => {
+      // Paciente 1 tiene idObraSocial = 1 (OSDE); creamos otra obra social no particular (id 3)
+      await pool.execute(
+        'INSERT INTO obras_sociales (id_obra_social, nombre, descripcion, porcentaje_descuento, es_particular, activo) VALUES (?, ?, ?, ?, ?, ?)',
+        [3, 'OSECAC', 'Osecac plan', 0.15, 0, 1],
+      );
+
       const payload = {
         idMedico: 1,
         idPaciente: 1,
-        idObraSocial: 2,
+        idObraSocial: 3,
         fecha: '2026-07-15',
         hora: '14:30',
       };
@@ -414,6 +442,30 @@ describe('Turnos - Integration Tests', () => {
 
       expect(response.status).toBe(422);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.message).toBe(
+        'La obra social del turno no coincide con la del paciente',
+      );
+    });
+
+    it('Scenario Z: Patient with insurance books as Particular (201)', async () => {
+      // Paciente 1 tiene idObraSocial = 1 (OSDE); idObraSocial = 2 es Particular
+      const payload = {
+        idMedico: 1,
+        idPaciente: 1,
+        idObraSocial: 2,
+        fecha: '2026-07-25',
+        hora: '15:00',
+      };
+
+      const response = await request(app)
+        .post('/api/v1/turnos')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(payload);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.idObraSocial).toBe(2);
+      expect(response.body.data.valorTotal).toBe(5000.0); // No discount for Particular
     });
 
     it('Scenario 10: Inactive patient (422)', async () => {
@@ -442,10 +494,10 @@ describe('Turnos - Integration Tests', () => {
     let turnoId;
 
     beforeEach(async () => {
-      // Crear un turno para las pruebas
+      // Crear un turno pasado para las pruebas exitosas
       const [result] = await pool.execute(
         'INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [1, 1, 1, '2026-07-15 14:30:00', 4500.0, 0, 1],
+        [1, 1, 1, '2020-07-15 14:30:00', 4500.0, 0, 1],
       );
       turnoId = result.insertId;
     });
@@ -457,7 +509,41 @@ describe('Turnos - Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.atendido).toBe(1);
+      expect(response.body.data.atendido).toBe(true);
+    });
+
+    it('Scenario: Cannot mark as attended an inactive appointment (422)', async () => {
+      // Desactivar el turno
+      await pool.execute('UPDATE turnos_reservas SET activo = 0 WHERE id_turno_reserva = ?', [
+        turnoId,
+      ]);
+
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${turnoId}/atendido`)
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.error.message).toBe(
+        'No se puede marcar como atendido un turno inactivo o cancelado',
+      );
+    });
+
+    it('Scenario: Cannot mark as attended a future appointment (422)', async () => {
+      // Crear un turno futuro
+      const [result] = await pool.execute(
+        'INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [1, 1, 1, '2099-07-15 14:30:00', 4500.0, 0, 1],
+      );
+      const futureTurnoId = result.insertId;
+
+      const response = await request(app)
+        .patch(`/api/v1/turnos/${futureTurnoId}/atendido`)
+        .set('Authorization', `Bearer ${medicoToken}`);
+
+      expect(response.status).toBe(422);
+      expect(response.body.error.message).toBe(
+        'No se puede marcar como atendido un turno que aún no ha ocurrido',
+      );
     });
 
     it('Scenario 2: Unauthorized role (Patient) (403)', async () => {

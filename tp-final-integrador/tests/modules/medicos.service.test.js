@@ -20,11 +20,11 @@ describe('Médicos - Unit Tests (Service)', () => {
     vi.clearAllMocks();
   });
 
-  describe('asociarObrasSociales()', () => {
+  describe('assignObrasSociales()', () => {
     it('debería lanzar NOT_FOUND si el médico no existe', async () => {
       medicosModel.findById.mockResolvedValue(null);
 
-      await expect(medicosService.asociarObrasSociales(999, [1])).rejects.toMatchObject({
+      await expect(medicosService.assignObrasSociales(999, [1])).rejects.toMatchObject({
         code: 'NOT_FOUND',
         status: 404,
       });
@@ -39,7 +39,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       // Solo devuelve la OS con id=1; la id=99 no existe
       obrasSocialesModel.findByIds.mockResolvedValue([{ id: 1, nombre: 'OSDE' }]);
 
-      await expect(medicosService.asociarObrasSociales(1, [1, 99])).rejects.toMatchObject({
+      await expect(medicosService.assignObrasSociales(1, [1, 99])).rejects.toMatchObject({
         code: 'VALIDATION_ERROR',
         status: 422,
       });
@@ -51,7 +51,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       medicosModel.findById.mockResolvedValue(MOCK_MEDICO);
       obrasSocialesModel.findByIds.mockResolvedValue([]);
 
-      await expect(medicosService.asociarObrasSociales(1, [7, 8])).rejects.toMatchObject({
+      await expect(medicosService.assignObrasSociales(1, [7, 8])).rejects.toMatchObject({
         code: 'VALIDATION_ERROR',
         status: 422,
         message: expect.stringMatching(/7.*8|8.*7/),
@@ -64,7 +64,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       medicosModel.getObrasSocialesIds.mockResolvedValue([]);
       medicosModel.assignObrasSociales.mockResolvedValue(true);
 
-      const result = await medicosService.asociarObrasSociales(1, [1, 2]);
+      const result = await medicosService.assignObrasSociales(1, [1, 2]);
 
       expect(medicosModel.assignObrasSociales).toHaveBeenCalledWith(1, [1, 2]);
       expect(result.asociadas).toEqual([1, 2]);
@@ -77,7 +77,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       medicosModel.getObrasSocialesIds.mockResolvedValue([1]); // OS 1 ya estaba
       medicosModel.assignObrasSociales.mockResolvedValue(true);
 
-      const result = await medicosService.asociarObrasSociales(1, [1, 2, 3]);
+      const result = await medicosService.assignObrasSociales(1, [1, 2, 3]);
 
       expect(medicosModel.assignObrasSociales).toHaveBeenCalledWith(1, [2, 3]);
       expect(result.asociadas).toEqual([2, 3]);
@@ -89,7 +89,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       obrasSocialesModel.findByIds.mockResolvedValue([{ id: 1 }, { id: 2 }]);
       medicosModel.getObrasSocialesIds.mockResolvedValue([1, 2]);
 
-      const result = await medicosService.asociarObrasSociales(1, [1, 2]);
+      const result = await medicosService.assignObrasSociales(1, [1, 2]);
 
       expect(medicosModel.assignObrasSociales).not.toHaveBeenCalled();
       expect(result.asociadas).toEqual([]);
@@ -104,7 +104,7 @@ describe('Médicos - Unit Tests (Service)', () => {
       medicosModel.getObrasSocialesIds.mockResolvedValue([]);
       medicosModel.assignObrasSociales.mockResolvedValue(true);
 
-      const result = await medicosService.asociarObrasSociales(1, [1, 1, 1]);
+      const result = await medicosService.assignObrasSociales(1, [1, 1, 1]);
 
       expect(obrasSocialesModel.findByIds).toHaveBeenCalledWith([1]);
       expect(medicosModel.assignObrasSociales).toHaveBeenCalledWith(1, [1]);

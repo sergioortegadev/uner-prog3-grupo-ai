@@ -5,7 +5,7 @@ import { ROLES } from '../constants/roles.constants.js';
  * Validaciones para el módulo de Turnos
  */
 
-export const validateRegistrarTurno = [
+export const validateCreateAppointment = [
   body('idMedico')
     .notEmpty()
     .withMessage('El ID del médico es requerido')
@@ -51,7 +51,7 @@ export const validateRegistrarTurno = [
     .withMessage('La hora debe tener un formato válido (HH:mm)'),
 ];
 
-export const validateMarcarAtendido = [
+export const validateMarkAsAttended = [
   param('id')
     .notEmpty()
     .withMessage('El ID del turno es requerido')
