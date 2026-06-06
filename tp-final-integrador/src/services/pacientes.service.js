@@ -1,0 +1,63 @@
+// import * as medicosModel from '../database/.js';
+import * as pacientesModel from '../database/pacientes.js';
+// import * as obrasSocialesModel from '../database/obras_sociales.js';
+// import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
+
+/**
+ * Lógica de negocio para Pacientes.
+ */
+
+/**
+ * Trae todos los pacientes.
+ */
+export const getAll = async () => {
+  return await pacientesModel.findAll();
+};
+
+/**
+ * Asocia un paciente con una obras social.
+ * @param {number} idMedico
+ * @param {number[]} idsObrasSociales
+ */
+// export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
+//   // 1. Validar que el médico exista
+//   const medico = await medicosModel.findById(idMedico);
+//   if (!medico) {
+//     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
+//   }
+
+//   // 2. Validar que todas las obras sociales existan y estén activas
+//   const uniqueIds = [...new Set(idsObrasSociales)];
+//   const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
+
+//   if (encontradas.length !== uniqueIds.length) {
+//     const encontradasIds = encontradas.map((os) => os.id);
+//     const faltantes = uniqueIds.filter((id) => !encontradasIds.includes(id));
+//     throw new AppError(
+//       ERROR_CODES.VALIDATION_ERROR,
+//       `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
+//     );
+//   }
+
+//   // 3. Filtrar las que ya están asociadas
+//   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
+//   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
+//   const yaExistentes = uniqueIds.filter((id) => actuales.includes(id));
+
+//   if (nuevas.length === 0) {
+//     return {
+//       message: 'El médico ya tiene todas las obras sociales indicadas asociadas',
+//       asociadas: [],
+//       yaExistentes,
+//     };
+//   }
+
+//   // 4. Ejecutar la asociación
+//   await medicosModel.assignObrasSociales(idMedico, nuevas);
+
+//   return {
+//     message: 'Obras sociales asociadas correctamente',
+//     asociadas: nuevas,
+//     yaExistentes,
+//   };
+// };
