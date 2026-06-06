@@ -18,7 +18,6 @@ EspecialidadesRouter
     requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
     cacheMiddleware(CACHE_DURATIONS.SHORT, 'especialidades'),
     validateListQuery(['id', 'nombre'], ['nombre']),
-    validateRequest,
     especialidadesController.getAll,
   )
   .post(
