@@ -212,5 +212,75 @@ describe('Turnos List - Integration Tests', () => {
       const response = await request(app).get('/api/v1/turnos');
       expect(response.status).toBe(401);
     });
+
+    it('Should support pagination via limit and offset query params', async () => {
+      const response = await request(app)
+        .get('/api/v1/turnos?limit=1&offset=0')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(1);
+      expect(response.body.meta).toBeDefined();
+      expect(response.body.meta.total).toBe(1);
+      expect(response.body.meta.limit).toBe(1);
+      expect(response.body.meta.offset).toBe(0);
+    });
+
+    it('Should filter by "atendido" status', async () => {
+      // 1. Create an attended turno (atendido = 1)
+      await pool.execute(
+        'INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [1, 1, 1, '2026-06-01 10:00:00', 4500.0, 1, 1],
+      );
+
+      // 2. Fetch only attended turnos
+      const attendedResponse = await request(app)
+        .get('/api/v1/turnos?atendido=1')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(attendedResponse.status).toBe(200);
+      expect(attendedResponse.body.data.length).toBe(1);
+      expect(attendedResponse.body.data[0].atendido).toBe(true);
+      expect(attendedResponse.body.data[0].fechaHora).toContain('2026-06-01');
+
+      // 3. Fetch only pending (not attended) turnos
+      const pendingResponse = await request(app)
+        .get('/api/v1/turnos?atendido=0')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(pendingResponse.status).toBe(200);
+      expect(pendingResponse.body.data.length).toBe(1);
+      expect(pendingResponse.body.data[0].atendido).toBe(false);
+      expect(pendingResponse.body.data[0].fechaHora).toContain('2026-07-15'); // From beforeEach
+    });
+
+    it('Should support custom sorting via "order" and "asc" params', async () => {
+      // Current turno from beforeEach: 2026-07-15 14:30:00
+      // 1. Add an earlier turno: 2026-01-01 08:00:00
+      await pool.execute(
+        'INSERT INTO turnos_reservas (id_medico, id_paciente, id_obra_social, fecha_hora, valor_total, atendido, activo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [1, 1, 1, '2026-01-01 08:00:00', 4500.0, 0, 1],
+      );
+
+      // 2. Sort ASC (Earliest first)
+      const ascResponse = await request(app)
+        .get('/api/v1/turnos?order=fecha_hora&asc=true')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(ascResponse.status).toBe(200);
+      expect(ascResponse.body.data[0].fechaHora).toContain('2026-01-01');
+      expect(ascResponse.body.data[1].fechaHora).toContain('2026-07-15');
+
+      // 3. Sort DESC (Latest first - Default)
+      const descResponse = await request(app)
+        .get('/api/v1/turnos?order=fecha_hora&asc=false')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(descResponse.status).toBe(200);
+      expect(descResponse.body.data[0].fechaHora).toContain('2026-07-15');
+      expect(descResponse.body.data[1].fechaHora).toContain('2026-01-01');
+    });
   });
 });
