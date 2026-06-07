@@ -6,7 +6,6 @@ import authRoutes from '../auth.routes.js';
 import obrasSocialesRouter from '../obras_sociales.routes.js';
 import turnosRouter from '../turnos.routes.js';
 import medicosRouter from '../medicos.routes.js';
-import pacientesRouter from '../pacientes.routes.js';
 import EspecialidadesRouter from '../especialidades.routes.js';
 
 const v1Router = Router();
@@ -20,7 +19,6 @@ v1Router.use(ROUTES.AUTH, authRoutes);
 v1Router.use(ROUTES.OBRAS_SOCIALES, obrasSocialesRouter);
 v1Router.use(ROUTES.TURNOS, turnosRouter);
 v1Router.use(ROUTES.MEDICOS, medicosRouter);
-v1Router.use(ROUTES.PACIENTES, pacientesRouter);
 v1Router.use(ROUTES.ESPECIALIDADES, EspecialidadesRouter);
 
 export default v1Router;
