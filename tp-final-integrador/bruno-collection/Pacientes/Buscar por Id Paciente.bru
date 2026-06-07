@@ -1,0 +1,24 @@
+meta {
+  name: Buscar por Id Paciente
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/pacientes/:id_paciente
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id_paciente: 3
+}
+
+auth:bearer {
+  token: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

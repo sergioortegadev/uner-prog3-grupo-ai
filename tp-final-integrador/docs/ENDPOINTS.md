@@ -63,6 +63,14 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 👨👩‍🦰 Pacientes (`/pacientes`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/pacientes/` | Trae todos los pacientes | Admin |
+
+---
+
 ## 📅 Turnos (`/turnos`)
 
 | Método | Endpoint | Descripción | Acceso |
