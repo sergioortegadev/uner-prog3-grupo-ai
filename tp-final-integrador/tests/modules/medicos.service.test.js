@@ -2,15 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as medicosService from '../../src/services/medicos.service.js';
 import * as medicosModel from '../../src/database/medicos.js';
 import * as obrasSocialesModel from '../../src/database/obras_sociales.js';
+import * as especialidadesModel from '../../src/database/especialidades.js';
 
 vi.mock('../../src/database/medicos.js', () => ({
   findById: vi.fn(),
   getObrasSocialesIds: vi.fn(),
   assignObrasSociales: vi.fn(),
+  updateEspecialidad: vi.fn(),
 }));
 
 vi.mock('../../src/database/obras_sociales.js', () => ({
   findByIds: vi.fn(),
+}));
+
+vi.mock('../../src/database/especialidades.js', () => ({
+  findById: vi.fn(),
 }));
 
 const MOCK_MEDICO = { id: 1, matricula: 1000, apellido: 'Gomez', nombres: 'Juan' };
@@ -109,6 +115,83 @@ describe('Médicos - Unit Tests (Service)', () => {
       expect(obrasSocialesModel.findByIds).toHaveBeenCalledWith([1]);
       expect(medicosModel.assignObrasSociales).toHaveBeenCalledWith(1, [1]);
       expect(result.asociadas).toHaveLength(1);
+    });
+  });
+
+  describe('updateEspecialidad()', () => {
+    const MOCK_MEDICO_ACTIVO = { id_medico: 1, activo: 1 };
+    const MOCK_MEDICO_INACTIVO = { id_medico: 1, activo: 0 };
+    const MOCK_ESPECIALIDAD_ACTIVA = { id_especialidad: 2, activo: 1 };
+    const MOCK_ESPECIALIDAD_INACTIVA = { id_especialidad: 2, activo: 0 };
+
+    it('debería lanzar NOT_FOUND si el médico no existe', async () => {
+      medicosModel.findById.mockResolvedValue(null);
+
+      await expect(medicosService.updateEspecialidad(1, 2)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        status: 404,
+        message: 'Médico con ID 1 no encontrado',
+      });
+    });
+
+    it('debería lanzar VALIDATION_ERROR si el médico está inactivo', async () => {
+      medicosModel.findById.mockResolvedValue(MOCK_MEDICO_INACTIVO);
+
+      await expect(medicosService.updateEspecialidad(1, 2)).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+        status: 422,
+        message: 'El médico con ID 1 está inactivo',
+      });
+    });
+
+    it('debería lanzar NOT_FOUND si la especialidad no existe', async () => {
+      medicosModel.findById.mockResolvedValue(MOCK_MEDICO_ACTIVO);
+      especialidadesModel.findById.mockResolvedValue(null);
+
+      await expect(medicosService.updateEspecialidad(1, 2)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        status: 404,
+        message: 'Especialidad con ID 2 no encontrada',
+      });
+    });
+
+    it('debería lanzar VALIDATION_ERROR si la especialidad está inactiva', async () => {
+      medicosModel.findById.mockResolvedValue(MOCK_MEDICO_ACTIVO);
+      especialidadesModel.findById.mockResolvedValue(MOCK_ESPECIALIDAD_INACTIVA);
+
+      await expect(medicosService.updateEspecialidad(1, 2)).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+        status: 422,
+        message: 'La especialidad con ID 2 está inactiva',
+      });
+    });
+
+    it('debería actualizar la especialidad correctamente', async () => {
+      medicosModel.findById.mockResolvedValue(MOCK_MEDICO_ACTIVO);
+      especialidadesModel.findById.mockResolvedValue(MOCK_ESPECIALIDAD_ACTIVA);
+      medicosModel.updateEspecialidad.mockResolvedValue(true);
+
+      const result = await medicosService.updateEspecialidad(1, 2);
+
+      expect(medicosModel.updateEspecialidad).toHaveBeenCalledWith(1, 2);
+      expect(result).toEqual({
+        idMedico: 1,
+        idEspecialidad: 2,
+      });
+    });
+
+    it('no debería llamar a updateEspecialidad si el médico ya tiene esa especialidad asignada', async () => {
+      const MOCK_MEDICO_CON_MISMA_ESP = { id_medico: 1, activo: 1, idEspecialidad: 2 };
+      medicosModel.findById.mockResolvedValue(MOCK_MEDICO_CON_MISMA_ESP);
+      especialidadesModel.findById.mockResolvedValue(MOCK_ESPECIALIDAD_ACTIVA);
+
+      const result = await medicosService.updateEspecialidad(1, 2);
+
+      expect(medicosModel.updateEspecialidad).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        idMedico: 1,
+        idEspecialidad: 2,
+      });
     });
   });
 });

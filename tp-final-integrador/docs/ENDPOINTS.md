@@ -60,6 +60,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/medicos/:id/obras-sociales` | Asociar múltiples obras sociales | Admin |
+| `PATCH` | `/api/v1/medicos/:id_medico/especialidad` | Actualizar especialidad del médico | Admin |
 
 ---
 

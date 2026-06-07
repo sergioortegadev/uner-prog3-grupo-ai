@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/medicos/:id_medico/obras-sociales
+  url: {{baseUrl}}/medicos/:idMedico/obras-sociales
   body: json
   auth: inherit
 }
 
 params:path {
-  id_medico: 1
+  idMedico: 1
 }
 
 body:json {
@@ -27,7 +27,7 @@ docs {
   Asocia una o más obras sociales a un médico.
 
   **Parámetros de Path:**
-  - id_medico: ID del médico al que se desea asociar las obras sociales.
+  - idMedico: ID del médico al que se desea asociar las obras sociales.
 
   **Cuerpo de la Petición:**
   - obrasSociales: Array de IDs de obras sociales a asociar.

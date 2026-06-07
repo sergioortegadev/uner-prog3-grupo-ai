@@ -1,5 +1,7 @@
 import * as medicosModel from '../database/medicos.js';
 import * as obrasSocialesModel from '../database/obras_sociales.js';
+import * as especialidadesModel from '../database/especialidades.js';
+import { findActiveOrThrow } from '../helpers/entity.helper.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
@@ -47,5 +49,35 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
     message: 'Obras sociales asociadas correctamente',
     asociadas: nuevas,
     yaExistentes,
+  };
+};
+
+/**
+ * Actualiza la especialidad de un médico.
+ * @param {number} idMedico
+ * @param {number} idEspecialidad
+ * @returns {Promise<Object>}
+ */
+export const updateEspecialidad = async (idMedico, idEspecialidad) => {
+  // 1. Validar que el médico exista y esté activo
+  const medico = await findActiveOrThrow(medicosModel.findById, idMedico, {
+    notFoundMessage: `Médico con ID ${idMedico} no encontrado`,
+    inactiveMessage: `El médico con ID ${idMedico} está inactivo`,
+  });
+
+  // 2. Validar que la especialidad exista y esté activa
+  await findActiveOrThrow(especialidadesModel.findById, idEspecialidad, {
+    notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
+    inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
+  });
+
+  // 3. Actualizar solo si es una especialidad diferente
+  if (medico.idEspecialidad !== idEspecialidad) {
+    await medicosModel.updateEspecialidad(idMedico, idEspecialidad);
+  }
+
+  return {
+    idMedico,
+    idEspecialidad,
   };
 };

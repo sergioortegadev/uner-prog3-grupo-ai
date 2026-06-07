@@ -7,10 +7,21 @@ import { successResponse } from '../helpers/response.helper.js';
  */
 
 export const assignObrasSociales = async (req, res) => {
-  const { id_medico, obrasSociales } = matchedData(req);
+  const { idMedico, obrasSociales } = matchedData(req);
 
-  const result = await medicosService.assignObrasSociales(id_medico, obrasSociales);
+  const result = await medicosService.assignObrasSociales(idMedico, obrasSociales);
   const status = result.asociadas.length > 0 ? 201 : 200;
 
   return successResponse(res, result, status);
+};
+
+export const updateEspecialidad = async (req, res) => {
+  const { idMedico, idEspecialidad } = matchedData(req);
+
+  const result = await medicosService.updateEspecialidad(idMedico, idEspecialidad);
+
+  return successResponse(res, {
+    message: 'Especialidad actualizada correctamente',
+    ...result,
+  });
 };

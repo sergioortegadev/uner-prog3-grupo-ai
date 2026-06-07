@@ -13,7 +13,7 @@ const router = Router();
  */
 
 router
-  .route('/:id_medico/obras-sociales')
+  .route('/:idMedico/obras-sociales')
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
@@ -22,5 +22,16 @@ router
     medicosController.assignObrasSociales,
   )
   .all(methodNotAllowedHandler(['POST']));
+
+router
+  .route('/:idMedico/especialidad')
+  .patch(
+    authenticateJwt,
+    requireRole([ROLES.ADMIN]),
+    medicosValidator.validateUpdateEspecialidad,
+    validateRequest,
+    medicosController.updateEspecialidad,
+  )
+  .all(methodNotAllowedHandler(['PATCH']));
 
 export default router;
