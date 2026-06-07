@@ -17,6 +17,7 @@ export const toDTOFull = (row) => {
     idObraSocial: row.id_obra_social,
     apellido: row.apellido,
     nombre: row.nombres,
+    documento: row.documento,
     activo: !!row.activo,
   };
 };

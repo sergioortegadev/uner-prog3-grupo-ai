@@ -1,7 +1,6 @@
-// import * as medicosModel from '../database/.js';
 import * as pacientesModel from '../database/pacientes.js';
-// import * as obrasSocialesModel from '../database/obras_sociales.js';
-// import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
+import * as obrasSocialesModel from '../database/obras_sociales.js';
+import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
  * Lógica de negocio para Pacientes.
@@ -15,49 +14,51 @@ export const getAll = async () => {
 };
 
 /**
- * Asocia un paciente con una obras social.
- * @param {number} idMedico
- * @param {number[]} idsObrasSociales
+ * Busca paciente por id_paciente.
+ * @param {number} idPaciente
  */
-// export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
-//   // 1. Validar que el médico exista
-//   const medico = await medicosModel.findById(idMedico);
-//   if (!medico) {
-//     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
-//   }
+export const getById = async (idPaciente) => {
+  return await pacientesModel.findById(idPaciente);
+};
 
-//   // 2. Validar que todas las obras sociales existan y estén activas
-//   const uniqueIds = [...new Set(idsObrasSociales)];
-//   const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
+/**
+ * Asocia un paciente con una obra social.
+ * @param {number} idPaciente
+ * @param {number} idObraSocial
+ */
+export const assignObraSocial = async (idPaciente, idObraSocial) => {
+  // 1. Validar que el paciente exista
+  const paciente = await pacientesModel.findById(idPaciente);
+  if (!paciente) {
+    throw new AppError(ERROR_CODES.NOT_FOUND, `Paciente con ID: ${idPaciente} no encontrado`);
+  }
 
-//   if (encontradas.length !== uniqueIds.length) {
-//     const encontradasIds = encontradas.map((os) => os.id);
-//     const faltantes = uniqueIds.filter((id) => !encontradasIds.includes(id));
-//     throw new AppError(
-//       ERROR_CODES.VALIDATION_ERROR,
-//       `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
-//     );
-//   }
+  // 2. Validar que la obra social exista y esté activa
+  const obraSocialEncontrada = await obrasSocialesModel.findById(idObraSocial);
 
-//   // 3. Filtrar las que ya están asociadas
-//   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
-//   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
-//   const yaExistentes = uniqueIds.filter((id) => actuales.includes(id));
+  if (!obraSocialEncontrada) {
+    throw new AppError(
+      ERROR_CODES.VALIDATION_ERROR,
+      `Las Obra Social no existe o está inactiva. ID: ${idObraSocial}`,
+    );
+  }
 
-//   if (nuevas.length === 0) {
-//     return {
-//       message: 'El médico ya tiene todas las obras sociales indicadas asociadas',
-//       asociadas: [],
-//       yaExistentes,
-//     };
-//   }
+  // 3. Verifica si el paciente ya está asociado a esa obra social
+  if (paciente.idObraSocial === idObraSocial) {
+    return {
+      message: `El paciente ya estaba asociado a la obra social con ID: ${idObraSocial}`,
+    };
+  }
 
-//   // 4. Ejecutar la asociación
-//   await medicosModel.assignObrasSociales(idMedico, nuevas);
+  // 4. Ejecutar la asociación
+  const pacienteActualizado = await pacientesModel.assignObrasSociales(idPaciente, idObraSocial);
 
-//   return {
-//     message: 'Obras sociales asociadas correctamente',
-//     asociadas: nuevas,
-//     yaExistentes,
-//   };
-// };
+  // 5. Responde si está ok
+  if (pacienteActualizado)
+    return {
+      message: 'Obra social asociada correctamente al paciente',
+      id_obra_social_asociada: idObraSocial,
+      paciente_actualizado: pacienteActualizado,
+    };
+  throw new AppError(ERROR_CODES.INTERNAL_ERROR, ` - Error procesando el cambio en la DB - `);
+};
