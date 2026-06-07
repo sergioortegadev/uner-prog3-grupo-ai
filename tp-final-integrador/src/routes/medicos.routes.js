@@ -23,4 +23,15 @@ router
   )
   .all(methodNotAllowedHandler(['POST']));
 
+router
+  .route('/:id_medico/especialidad')
+  .patch(
+    authenticateJwt,
+    requireRole([ROLES.ADMIN]),
+    medicosValidator.validateUpdateEspecialidad,
+    validateRequest,
+    medicosController.updateEspecialidad,
+  )
+  .all(methodNotAllowedHandler(['PATCH']));
+
 export default router;

@@ -19,3 +19,16 @@ export const validateAssignObrasSociales = [
       return true;
     }),
 ];
+
+export const validateUpdateEspecialidad = [
+  param('id_medico')
+    .isInt({ min: 1 })
+    .withMessage('El ID del médico debe ser un número entero positivo')
+    .toInt(),
+  body('id_especialidad')
+    .notEmpty()
+    .withMessage('El ID de la especialidad es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la especialidad debe ser un número entero positivo')
+    .toInt(),
+];

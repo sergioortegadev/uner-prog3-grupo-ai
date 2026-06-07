@@ -14,3 +14,14 @@ export const assignObrasSociales = async (req, res) => {
 
   return successResponse(res, result, status);
 };
+
+export const updateEspecialidad = async (req, res) => {
+  const { id_medico, id_especialidad } = matchedData(req);
+
+  const result = await medicosService.updateEspecialidad(id_medico, id_especialidad);
+
+  return successResponse(res, {
+    message: 'Especialidad actualizada correctamente',
+    ...result,
+  });
+};

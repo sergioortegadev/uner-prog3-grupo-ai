@@ -1,0 +1,41 @@
+meta {
+  name: Actualizar Especialidad
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/medicos/:id_medico/especialidad
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id_medico: 1
+}
+
+body:json {
+  {
+    "id_especialidad": 2
+  }
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Actualiza la especialidad de un médico.
+
+  **Parámetros de Path:**
+  - id_medico: ID del médico al que se le desea actualizar la especialidad.
+
+  **Cuerpo de la Petición:**
+  - id_especialidad: ID de la nueva especialidad.
+
+  **Respuestas:**
+  - 200 OK: Especialidad actualizada correctamente.
+  - 400 Bad Request: La especialidad está inactiva.
+  - 404 Not Found: El médico o la especialidad no existen.
+  - 422 Unprocessable Entity: Error de validación en los datos enviados.
+}
