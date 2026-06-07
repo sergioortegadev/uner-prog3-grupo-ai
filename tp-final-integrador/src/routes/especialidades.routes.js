@@ -5,14 +5,16 @@ import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middl
 import * as especialidadesValidator from '../validators/especialidades.validator.js';
 import * as especialidadesController from '../controllers/especialidades.controller.js';
 import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
-import { cacheMiddleware, clearCacheMiddleware, CACHE_DURATIONS } from '../middlewares/cache.middleware.js';
-import { DB_STATUS } from '../constants/common.constants.js';
+import {
+  cacheMiddleware,
+  clearCacheMiddleware,
+  CACHE_DURATIONS,
+} from '../middlewares/cache.middleware.js';
 import { ROLES } from '../constants/roles.constants.js';
 
 const EspecialidadesRouter = Router();
 
-EspecialidadesRouter
-  .route('/')
+EspecialidadesRouter.route('/')
   .get(
     authenticateJwt,
     requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
@@ -30,8 +32,7 @@ EspecialidadesRouter
   )
   .all(methodNotAllowedHandler(['GET', 'POST']));
 
-EspecialidadesRouter
-  .route('/:id')
+EspecialidadesRouter.route('/:id')
   .get(
     authenticateJwt,
     requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
@@ -40,6 +41,7 @@ EspecialidadesRouter
     especialidadesController.getById,
   )
   .put(
+    clearCacheMiddleware('especialidades'),
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
     especialidadesValidator.validateUpdate,
@@ -47,6 +49,7 @@ EspecialidadesRouter
     especialidadesController.updateEspecialidad,
   )
   .delete(
+    clearCacheMiddleware('especialidades'),
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
     especialidadesValidator.validateId,
