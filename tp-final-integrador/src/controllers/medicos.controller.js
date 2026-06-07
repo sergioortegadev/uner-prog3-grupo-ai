@@ -14,3 +14,12 @@ export const asociarObrasSociales = async (req, res) => {
 
   return successResponse(res, result, status);
 };
+/**
+ * Obtiene el listado de todos los médicos.
+ */
+export const obtenerTodos = async (req, res) => {
+  const result = await medicosService.obtenerTodos();
+  
+  // Usamos el helper de tu equipo para enviar un código HTTP 200 (OK)
+  return successResponse(res, result, 200);
+};

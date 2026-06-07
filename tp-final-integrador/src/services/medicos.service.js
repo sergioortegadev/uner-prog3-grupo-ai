@@ -49,3 +49,15 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     yaExistentes,
   };
 };
+/**
+ * Obtiene el listado de todos los médicos activos.
+ * @returns {Promise<Object>}
+ */
+export const obtenerTodos = async () => {
+  const medicos = await medicosModel.findAll();
+
+  return {
+    message: 'Listado de médicos obtenido correctamente',
+    medicos,
+  };
+};
