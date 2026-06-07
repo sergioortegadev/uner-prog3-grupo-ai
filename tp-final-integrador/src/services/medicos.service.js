@@ -8,13 +8,11 @@ import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
  * @param {number[]} idsObrasSociales
  */
 export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
-  // 1. Validar que el médico exista
   const medico = await medicosModel.findById(idMedico);
   if (!medico) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
   }
 
-  // 2. Validar que todas las obras sociales existan y estén activas
   const uniqueIds = [...new Set(idsObrasSociales)];
   const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
 
@@ -27,7 +25,6 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     );
   }
 
-  // 3. Filtrar las que ya están asociadas
   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
   const yaExistentes = uniqueIds.filter((id) => actuales.includes(id));
@@ -40,7 +37,6 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     };
   }
 
-  // 4. Ejecutar la asociación
   await medicosModel.assignObrasSociales(idMedico, nuevas);
 
   return {
@@ -49,6 +45,7 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
     yaExistentes,
   };
 };
+
 /**
  * Obtiene el listado de todos los médicos activos.
  * @returns {Promise<Object>}

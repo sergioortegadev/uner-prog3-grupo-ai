@@ -19,7 +19,6 @@ export const asociarObrasSociales = async (req, res) => {
  */
 export const obtenerTodos = async (req, res) => {
   const result = await medicosService.obtenerTodos();
-  
-  // Usamos el helper de tu equipo para enviar un código HTTP 200 (OK)
+
   return successResponse(res, result, 200);
 };

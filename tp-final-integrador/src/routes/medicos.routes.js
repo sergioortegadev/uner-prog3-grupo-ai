@@ -13,13 +13,9 @@ const router = Router();
  */
 router
   .route('/')
-  .get(
-    authenticateJwt,
-    requireRole([ROLES.PACIENTE]), // Asumiendo que la constante se llama PACIENTE
-    medicosController.obtenerTodos
-  )
+  .get(authenticateJwt, requireRole([ROLES.PACIENTE]), medicosController.obtenerTodos)
   .all(methodNotAllowedHandler(['GET']));
-  
+
 router
   .route('/:id_medico/obras-sociales')
   .post(
