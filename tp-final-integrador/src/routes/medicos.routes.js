@@ -13,7 +13,7 @@ const router = Router();
  */
 
 router
-  .route('/:id_medico/obras-sociales')
+  .route('/:idMedico/obras-sociales')
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
@@ -24,7 +24,7 @@ router
   .all(methodNotAllowedHandler(['POST']));
 
 router
-  .route('/:id_medico/especialidad')
+  .route('/:idMedico/especialidad')
   .patch(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),

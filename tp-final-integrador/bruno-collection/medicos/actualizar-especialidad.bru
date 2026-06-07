@@ -5,18 +5,18 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/medicos/:id_medico/especialidad
+  url: {{baseUrl}}/medicos/:idMedico/especialidad
   body: json
   auth: inherit
 }
 
 params:path {
-  id_medico: 1
+  idMedico: 1
 }
 
 body:json {
   {
-    "id_especialidad": 2
+    "idEspecialidad": 2
   }
 }
 
@@ -28,10 +28,10 @@ docs {
   Actualiza la especialidad de un médico.
 
   **Parámetros de Path:**
-  - id_medico: ID del médico al que se le desea actualizar la especialidad.
+  - idMedico: ID del médico al que se le desea actualizar la especialidad.
 
   **Cuerpo de la Petición:**
-  - id_especialidad: ID de la nueva especialidad.
+  - idEspecialidad: ID de la nueva especialidad.
 
   **Respuestas:**
   - 200 OK: Especialidad actualizada correctamente.

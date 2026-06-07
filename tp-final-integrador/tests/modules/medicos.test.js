@@ -86,7 +86,7 @@ describe('Médicos - Integration Tests', () => {
     osInactivaId = os3.insertId;
   });
 
-  describe('POST /api/v1/medicos/:id_medico/obras-sociales', () => {
+  describe('POST /api/v1/medicos/:idMedico/obras-sociales', () => {
     it('debería asociar múltiples obras sociales exitosamente (201)', async () => {
       const response = await request(app)
         .post(`/api/v1/medicos/${medicoId}/obras-sociales`)
@@ -247,12 +247,12 @@ describe('Médicos - Integration Tests', () => {
     });
   });
 
-  describe('PATCH /api/v1/medicos/:id_medico/especialidad', () => {
+  describe('PATCH /api/v1/medicos/:idMedico/especialidad', () => {
     it('debería permitir a un Admin actualizar la especialidad correctamente (200)', async () => {
       const response = await request(app)
         .patch(`/api/v1/medicos/${medicoId}/especialidad`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ id_especialidad: espActivaId });
+        .send({ idEspecialidad: espActivaId });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -270,7 +270,7 @@ describe('Médicos - Integration Tests', () => {
       const response = await request(app)
         .patch(`/api/v1/medicos/${medicoId}/especialidad`)
         .set('Authorization', `Bearer ${patientToken}`)
-        .send({ id_especialidad: espActivaId });
+        .send({ idEspecialidad: espActivaId });
 
       expect(response.status).toBe(403);
       expect(response.body.success).toBe(false);
@@ -280,7 +280,7 @@ describe('Médicos - Integration Tests', () => {
       const response = await request(app)
         .patch('/api/v1/medicos/9999/especialidad')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ id_especialidad: espActivaId });
+        .send({ idEspecialidad: espActivaId });
 
       expect(response.status).toBe(404);
       expect(response.body.error.message).toMatch(/Médico con ID 9999 no encontrado/);
@@ -290,7 +290,7 @@ describe('Médicos - Integration Tests', () => {
       const response = await request(app)
         .patch(`/api/v1/medicos/${medicoId}/especialidad`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ id_especialidad: 9999 });
+        .send({ idEspecialidad: 9999 });
 
       expect(response.status).toBe(404);
       expect(response.body.error.message).toMatch(/Especialidad con ID 9999 no encontrada/);
@@ -300,7 +300,7 @@ describe('Médicos - Integration Tests', () => {
       const response = await request(app)
         .patch(`/api/v1/medicos/${medicoId}/especialidad`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ id_especialidad: espInactivaId });
+        .send({ idEspecialidad: espInactivaId });
 
       expect(response.status).toBe(422);
       expect(response.body.error.message).toMatch(/La especialidad con ID \d+ está inactiva/);
@@ -319,14 +319,14 @@ describe('Médicos - Integration Tests', () => {
       const response = await request(app)
         .patch(`/api/v1/medicos/${medicoId}/especialidad`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ id_especialidad: -5 });
+        .send({ idEspecialidad: -5 });
 
       expect(response.status).toBe(422);
     });
   });
 
   describe('Métodos No Permitidos (405)', () => {
-    it('debería retornar 405 para métodos no soportados en /:id_medico/obras-sociales', async () => {
+    it('debería retornar 405 para métodos no soportados en /:idMedico/obras-sociales', async () => {
       const response = await request(app).get(`/api/v1/medicos/${medicoId}/obras-sociales`);
 
       expect(response.status).toBe(405);
@@ -334,7 +334,7 @@ describe('Médicos - Integration Tests', () => {
       expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
     });
 
-    it('debería retornar 405 para métodos no soportados en /:id_medico/especialidad', async () => {
+    it('debería retornar 405 para métodos no soportados en /:idMedico/especialidad', async () => {
       const response = await request(app).get(`/api/v1/medicos/${medicoId}/especialidad`);
 
       expect(response.status).toBe(405);
