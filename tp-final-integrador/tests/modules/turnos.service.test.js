@@ -114,7 +114,7 @@ describe('Turnos Service - Unit Tests', () => {
       };
 
       const mockMedico = { idMedico: 1, valorConsulta: 5000, activo: true };
-      const mockPaciente = { idPaciente: 1, idObraSocial: 1, activo: true };
+      const mockPaciente = { idPaciente: 1, obraSocial: { id: 1 }, activo: true };
       const mockObraSocial = { id: 1, porcentajeDescuento: 0.1, esParticular: false, activo: true };
 
       medicosModel.findById.mockResolvedValue(mockMedico);
@@ -147,7 +147,7 @@ describe('Turnos Service - Unit Tests', () => {
       };
 
       const mockMedico = { idMedico: 1, valorConsulta: 5000, activo: true };
-      const mockPaciente = { idPaciente: 1, idObraSocial: 2, activo: true };
+      const mockPaciente = { idPaciente: 1, obraSocial: { id: 2 }, activo: true };
       const mockObraSocial = { id: 2, porcentajeDescuento: 0.1, esParticular: true, activo: true };
 
       medicosModel.findById.mockResolvedValue(mockMedico);
@@ -181,7 +181,7 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
 
-      const mockPacientePerfil = { idPaciente: 5, idObraSocial: 2, activo: true };
+      const mockPacientePerfil = { idPaciente: 5, obraSocial: { id: 2 }, activo: true };
       const mockMedico = { idMedico: 1, valorConsulta: 5000, activo: true };
       const mockObraSocial = { id: 2, porcentajeDescuento: 0, esParticular: true, activo: true };
 
@@ -267,7 +267,11 @@ describe('Turnos Service - Unit Tests', () => {
 
     it('debería lanzar error si la obra social del turno no coincide con la del paciente y no es particular', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({ id: 2, activo: true, esParticular: false });
 
       await expect(
@@ -291,7 +295,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({
         id: 2,
         porcentajeDescuento: 0,
@@ -308,7 +316,11 @@ describe('Turnos Service - Unit Tests', () => {
 
     it('debería lanzar error si la obra social no existe', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 999, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 999 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue(null);
 
       await expect(
@@ -321,7 +333,11 @@ describe('Turnos Service - Unit Tests', () => {
 
     it('debería lanzar error si la obra social no está activa', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: false });
 
       await expect(
@@ -338,7 +354,11 @@ describe('Turnos Service - Unit Tests', () => {
 
     it('debería lanzar error si el médico no trabaja con la obra social especificada', async () => {
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
       medicosModel.acceptsObraSocial.mockResolvedValue(false);
 
@@ -363,7 +383,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({
         id: 1,
         porcentajeDescuento: 0.1,
@@ -388,7 +412,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({
         id: 1,
         porcentajeDescuento: 0,
@@ -412,7 +440,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({
         id: 2,
         porcentajeDescuento: 0,
@@ -439,7 +471,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
       turnosModel.existsByDoctorAndDateTime.mockResolvedValue(true);
 
@@ -461,7 +497,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({ id: 1, activo: true, esParticular: false });
       turnosModel.checkPatientOverlap.mockResolvedValue(true);
 
@@ -482,7 +522,11 @@ describe('Turnos Service - Unit Tests', () => {
         hora: '14:30',
       };
       medicosModel.findById.mockResolvedValue({ idMedico: 1, valorConsulta: 5000, activo: true });
-      pacientesModel.findById.mockResolvedValue({ idPaciente: 1, idObraSocial: 1, activo: true });
+      pacientesModel.findById.mockResolvedValue({
+        idPaciente: 1,
+        obraSocial: { id: 1 },
+        activo: true,
+      });
       obrasSocialesModel.findById.mockResolvedValue({
         id: 1,
         porcentajeDescuento: 0.1,

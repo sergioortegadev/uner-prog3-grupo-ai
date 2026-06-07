@@ -1,0 +1,20 @@
+meta {
+  name: Buscar por Id Paciente
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/pacientes/:id_paciente
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id_paciente: 3
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

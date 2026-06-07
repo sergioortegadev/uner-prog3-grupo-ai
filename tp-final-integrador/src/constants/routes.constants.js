@@ -14,4 +14,5 @@ export const ROUTES = {
   TURNOS: '/turnos',
   MEDICOS: '/medicos',
   ESPECIALIDADES: '/especialidades',
+  PACIENTES: '/pacientes',
 };
