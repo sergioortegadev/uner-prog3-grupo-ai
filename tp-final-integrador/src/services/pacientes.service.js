@@ -47,13 +47,13 @@ export const assignObraSocial = async (idPaciente, idObraSocial) => {
     };
   }
 
-  const pacienteActualizado = await pacientesModel.assignObrasSociales(idPaciente, idObraSocial);
+  const pacienteActualizado = await pacientesModel.assignObraSocial(idPaciente, idObraSocial);
 
-  if (pacienteActualizado)
+  if (pacienteActualizado) {
+    const paciente = await pacientesModel.findById(idPaciente);
     return {
       message: 'Obra social asociada correctamente al paciente',
-      id_obra_social_asociada: idObraSocial,
-      paciente_actualizado: pacienteActualizado,
+      paciente,
     };
-  throw new AppError(ERROR_CODES.INTERNAL_ERROR, ` - Error procesando el cambio en la DB - `);
+  }
 };
