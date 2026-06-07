@@ -113,3 +113,19 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
     connection.release();
   }
 };
+
+/**
+ * Actualiza la especialidad de un médico.
+ * @param {number} idMedico
+ * @param {number} idEspecialidad
+ * @returns {Promise<boolean>}
+ */
+export const updateEspecialidad = async (idMedico, idEspecialidad) => {
+  const query = `
+    UPDATE medicos
+    SET id_especialidad = ?
+    WHERE id_medico = ?
+  `;
+  const [result] = await pool.execute(query, [idEspecialidad, idMedico]);
+  return result.affectedRows > 0;
+};
