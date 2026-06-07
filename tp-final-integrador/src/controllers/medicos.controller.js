@@ -15,6 +15,18 @@ export const assignObrasSociales = async (req, res) => {
   return successResponse(res, result, status);
 };
 
+/**
+ * Obtiene el listado de todos los médicos.
+ */
+export const obtenerTodos = async (req, res) => {
+  const result = await medicosService.obtenerTodos();
+
+  return successResponse(res, result, 200);
+};
+
+/**
+ * Modifica especialidad de médicos.
+ */
 export const updateEspecialidad = async (req, res) => {
   const { idMedico, idEspecialidad } = matchedData(req);
 

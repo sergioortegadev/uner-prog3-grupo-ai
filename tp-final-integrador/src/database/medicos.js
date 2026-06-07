@@ -9,7 +9,7 @@ import { DB_STATUS } from '../constants/common.constants.js';
  */
 export const findById = async (id) => {
   const query = `
-    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo
+    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo, u.apellido, u.nombres
     FROM medicos m
     JOIN usuarios u ON m.id_usuario = u.id_usuario
     WHERE m.id_medico = ?
@@ -113,6 +113,29 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
     connection.release();
   }
 };
+/**
+ * Obtiene la lista de todos los médicos activos.
+ * @returns {Promise<Object[]>}
+ */
+export const findAll = async () => {
+  const query = `
+    SELECT 
+      m.id_medico, 
+      m.id_usuario, 
+      m.id_especialidad, 
+      m.matricula, 
+      m.valor_consulta,
+      u.nombres,
+      u.apellido,
+      u.activo
+    FROM medicos m
+    JOIN usuarios u ON m.id_usuario = u.id_usuario
+    WHERE u.activo = ?
+  `;
+
+  const [rows] = await pool.execute(query, [DB_STATUS.ACTIVE]);
+
+  return rows.map((row) => medicosMapper.toDTO(row));
 
 /**
  * Actualiza la especialidad de un médico.

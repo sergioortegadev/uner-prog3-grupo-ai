@@ -9,14 +9,12 @@ import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
  * @param {number} idMedico
  * @param {number[]} idsObrasSociales
  */
-export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
-  // 1. Validar que el médico exista
+export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
   const medico = await medicosModel.findById(idMedico);
   if (!medico) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
-  }
+  };
 
-  // 2. Validar que todas las obras sociales existan y estén activas
   const uniqueIds = [...new Set(idsObrasSociales)];
   const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
 
@@ -27,9 +25,8 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
       ERROR_CODES.VALIDATION_ERROR,
       `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
     );
-  }
+  };
 
-  // 3. Filtrar las que ya están asociadas
   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
   const yaExistentes = uniqueIds.filter((id) => actuales.includes(id));
@@ -42,7 +39,6 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
     };
   }
 
-  // 4. Ejecutar la asociación
   await medicosModel.assignObrasSociales(idMedico, nuevas);
 
   return {
@@ -53,25 +49,37 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
 };
 
 /**
- * Actualiza la especialidad de un médico.
+ * Obtiene el listado de todos los médicos activos.
+ * @returns {Promise<Object>}
+ */
+export const obtenerTodos = async () => {
+  const medicos = await medicosModel.findAll();
+
+  return {
+    message: 'Listado de médicos obtenido correctamente',
+    medicos,
+  };
+};
+
+/* Actualiza la especialidad de un médico.
  * @param {number} idMedico
  * @param {number} idEspecialidad
  * @returns {Promise<Object>}
  */
 export const updateEspecialidad = async (idMedico, idEspecialidad) => {
-  // 1. Validar que el médico exista y esté activo
+  
   const medico = await findActiveOrThrow(medicosModel.findById, idMedico, {
     notFoundMessage: `Médico con ID ${idMedico} no encontrado`,
     inactiveMessage: `El médico con ID ${idMedico} está inactivo`,
   });
 
-  // 2. Validar que la especialidad exista y esté activa
+  
   await findActiveOrThrow(especialidadesModel.findById, idEspecialidad, {
     notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
     inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
   });
 
-  // 3. Actualizar solo si es una especialidad diferente
+  
   if (medico.idEspecialidad !== idEspecialidad) {
     await medicosModel.updateEspecialidad(idMedico, idEspecialidad);
   }

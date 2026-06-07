@@ -4,7 +4,7 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || '3306',
   user: process.env.DB_USER || 'clinica_user',
-  password: process.env.DB_PASS || 'clinica1234',
+  password: process.env.DB_PASS ?? 'clinica1234',
   database: process.env.DB_NAME || 'prog3_turnos',
   waitForConnections: true,
   connectionLimit: 10,

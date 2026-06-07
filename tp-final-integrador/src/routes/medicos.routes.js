@@ -11,6 +11,10 @@ const router = Router();
 /**
  * Rutas para el módulo de Médicos.
  */
+router
+  .route('/')
+  .get(authenticateJwt, requireRole([ROLES.PACIENTE]), medicosController.obtenerTodos)
+  .all(methodNotAllowedHandler(['GET']));
 
 router
   .route('/:idMedico/obras-sociales')
