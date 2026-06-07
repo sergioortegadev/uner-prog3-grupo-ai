@@ -25,11 +25,17 @@ export const createEspecialidad = async (data) => {
 };
 
 export const updateEspecialidad = async (id, data) => {
-  // 1. Validar que la especialidad exista (independientemente de si está activa o no, para permitir reactivación)
+  // 1. Validar que la especialidad exista
   const current = await especialidadesModel.findById(id, false);
   if (!current) return false;
-  // 2. Si se cambia el nombre, validar que no exista con ese nombre (excluyendo el actual)
-  if (data.nombre && data.nombre.toLowerCase() !== current.nombre.toLowerCase()) {
+
+  // 2. Si el nombre es exactamente el mismo, no hacemos nada y retornamos éxito (Idempotencia)
+  if (data.nombre && data.nombre.trim().toLowerCase() === current.nombre.toLowerCase()) {
+    return true;
+  }
+
+  // 3. Si se cambia el nombre, validar que no exista con ese nombre
+  if (data.nombre) {
     const existing = await especialidadesModel.findByName(data.nombre);
     if (existing) {
       const message =
