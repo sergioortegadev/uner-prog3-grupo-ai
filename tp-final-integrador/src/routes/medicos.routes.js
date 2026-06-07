@@ -6,17 +6,17 @@ import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middl
 import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
 import { ROLES } from '../constants/roles.constants.js';
 
-const router = Router();
+const medicosRouter = Router();
 
 /**
  * Rutas para el módulo de Médicos.
  */
-router
+medicosRouter
   .route('/')
   .get(authenticateJwt, requireRole([ROLES.PACIENTE]), medicosController.obtenerTodos)
   .all(methodNotAllowedHandler(['GET']));
 
-router
+medicosRouter
   .route('/:idMedico/obras-sociales')
   .post(
     authenticateJwt,
@@ -27,7 +27,7 @@ router
   )
   .all(methodNotAllowedHandler(['POST']));
 
-router
+medicosRouter
   .route('/:idMedico/especialidad')
   .patch(
     authenticateJwt,
@@ -38,4 +38,4 @@ router
   )
   .all(methodNotAllowedHandler(['PATCH']));
 
-export default router;
+export default medicosRouter;

@@ -136,7 +136,7 @@ export const findAll = async () => {
   const [rows] = await pool.execute(query, [DB_STATUS.ACTIVE]);
 
   return rows.map((row) => medicosMapper.toDTO(row));
-
+};
 /**
  * Actualiza la especialidad de un médico.
  * @param {number} idMedico
