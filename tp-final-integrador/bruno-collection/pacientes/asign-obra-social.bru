@@ -4,7 +4,7 @@ meta {
   seq: 1
 }
 
-post {
+patch {
   url: {{baseUrl}}/pacientes/:id_paciente/:id_obra_social
   body: json
   auth: inherit
@@ -14,7 +14,6 @@ params:path {
   id_obra_social: 1
   id_paciente: 3
 }
-
 
 settings {
   encodeUrl: true
