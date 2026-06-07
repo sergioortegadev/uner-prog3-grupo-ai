@@ -4,8 +4,8 @@ import { body, param } from 'express-validator';
  * Validaciones para el módulo de Médicos
  */
 
-export const validateAsociarObrasSociales = [
-  param('id_medico')
+export const validateAssignObrasSociales = [
+  param('idMedico')
     .isInt({ min: 1 })
     .withMessage('El ID del médico debe ser un número entero positivo')
     .toInt(),
@@ -18,4 +18,19 @@ export const validateAsociarObrasSociales = [
       }
       return true;
     }),
+];
+
+export const validateUpdateEspecialidad = [
+  param('idMedico')
+    .notEmpty()
+    .withMessage('El ID del médico es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID del médico debe ser un número entero positivo')
+    .toInt(),
+  body('idEspecialidad')
+    .notEmpty()
+    .withMessage('El ID de la especialidad es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la especialidad debe ser un número entero positivo')
+    .toInt(),
 ];

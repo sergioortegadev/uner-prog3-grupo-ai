@@ -1,5 +1,7 @@
 import * as medicosModel from '../database/medicos.js';
 import * as obrasSocialesModel from '../database/obras_sociales.js';
+import * as especialidadesModel from '../database/especialidades.js';
+import { findActiveOrThrow } from '../helpers/entity.helper.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 /**
@@ -11,7 +13,7 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
   const medico = await medicosModel.findById(idMedico);
   if (!medico) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
-  }
+  };
 
   const uniqueIds = [...new Set(idsObrasSociales)];
   const encontradas = await obrasSocialesModel.findByIds(uniqueIds);
@@ -23,7 +25,7 @@ export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
       ERROR_CODES.VALIDATION_ERROR,
       `Las siguientes Obras Sociales no existen o están inactivas: ${faltantes.join(', ')}`,
     );
-  }
+  };
 
   const actuales = await medicosModel.getObrasSocialesIds(idMedico);
   const nuevas = uniqueIds.filter((id) => !actuales.includes(id));
@@ -56,5 +58,34 @@ export const obtenerTodos = async () => {
   return {
     message: 'Listado de médicos obtenido correctamente',
     medicos,
+  };
+};
+
+/* Actualiza la especialidad de un médico.
+ * @param {number} idMedico
+ * @param {number} idEspecialidad
+ * @returns {Promise<Object>}
+ */
+export const updateEspecialidad = async (idMedico, idEspecialidad) => {
+  
+  const medico = await findActiveOrThrow(medicosModel.findById, idMedico, {
+    notFoundMessage: `Médico con ID ${idMedico} no encontrado`,
+    inactiveMessage: `El médico con ID ${idMedico} está inactivo`,
+  });
+
+  
+  await findActiveOrThrow(especialidadesModel.findById, idEspecialidad, {
+    notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
+    inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
+  });
+
+  
+  if (medico.idEspecialidad !== idEspecialidad) {
+    await medicosModel.updateEspecialidad(idMedico, idEspecialidad);
+  }
+
+  return {
+    idMedico,
+    idEspecialidad,
   };
 };

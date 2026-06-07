@@ -21,6 +21,24 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 🩺 Especialidades (`/especialidades`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/especialidades` | Listar especialidades (soporta filtros y orden) | Admin / Paciente |
+| `POST` | `/api/v1/especialidades` | Registrar nueva especialidad | Admin |
+| `GET` | `/api/v1/especialidades/:id` | Obtener detalle por ID | Admin / Paciente |
+| `PUT` | `/api/v1/especialidades/:id` | Actualizar nombre por ID | Admin |
+| `DELETE` | `/api/v1/especialidades/:id` | Baja lógica (Soft Delete) | Admin |
+
+### Parámetros de consulta (GET)
+- `order`: Campo por el cual ordenar (`id` o `nombre`).
+- `asc`: Dirección del orden (`true` o `false`).
+- `limit`: Cantidad de resultados.
+- Filtros directos: `activo=1`, `nombre=PEDIATRÍA`.
+
+---
+
 ## ⚙️ Sistema (`/health`)
 
 | Método | Endpoint | Descripción | Acceso |
@@ -42,6 +60,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/medicos/:id/obras-sociales` | Asociar múltiples obras sociales | Admin |
+| `PATCH` | `/api/v1/medicos/:id_medico/especialidad` | Actualizar especialidad del médico | Admin |
 
 ---
 
@@ -53,14 +72,60 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | `POST` | `/api/v1/turnos` | Registrar un nuevo turno | Admin / Paciente |
 | `PATCH` | `/api/v1/turnos/:id/atendido` | Marcar turno como atendido | Médico |
 
-### Detalles de Turnos
-- El listado de turnos (`GET`) devuelve los turnos del usuario autenticado según su rol.
-  - Si el usuario es **Médico**, el listado incluye datos del paciente y la obra social.
-  - Si el usuario es **Paciente**, el listado incluye datos del médico, su especialidad y la obra social.
-- El registro de turnos (`POST`) funciona de la siguiente manera según el rol:
-  - **Administrador**: Debe pasar `idPaciente` e `idObraSocial` en el body para agendar el turno en nombre de cualquier paciente.
-  - **Paciente**: No debe enviar `idPaciente` ni `idObraSocial` en el body; el sistema los resuelve automáticamente de forma segura a partir de su perfil asociado.
-  - En ambos casos, se calcula automáticamente el `valor_total` basándose en el valor de consulta del médico y el descuento de la obra social aplicable.
+### Parámetros de consulta (GET /turnos)
+
+| Parámetro | Tipo | Default | Descripción |
+| :--- | :--- | :--- | :--- |
+| `order` | string | `fecha_hora` | Campo de orden (`fecha_hora` solamente). |
+| `asc` | boolean | `false` | `true` para ascendente, `false` para descendente. |
+| `limit` | integer | `10` | Cantidad máxima de resultados (1–100). |
+| `offset` | integer | `0` | Desplazamiento para paginación. |
+| `atendido` | integer | — | Filtrar por estado de atención (`0` o `1`). |
+
+### Respuestas
+
+#### GET /turnos
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "fechaHora": "2026-07-15 14:30:00",
+      "valorTotal": 4500,
+      "atendido": false,
+      "activo": 1,
+      "medico": { "id": 1, "apellido": "Medico", "nombres": "Doc", "especialidad": "PEDIATRÍA" },
+      "paciente": { "id": 1, "apellido": "Paciente", "nombres": "User" },
+      "obraSocial": { "id": 1, "nombre": "OSDE" }
+    }
+  ],
+  "meta": { "total": 1, "limit": 10, "offset": 0, "order": "fecha_hora", "asc": false }
+}
+```
+
+> **Nota:** La estructura del objeto turno varía según el rol:
+> - **Médico**: incluye `paciente` (con email) y `obraSocial`, omite `medico`.
+> - **Paciente**: incluye `medico` (con especialidad) y `obraSocial`, omite `paciente` (y su email).
+
+#### PATCH /turnos/:id/atendido
+```json
+{
+  "success": true,
+  "data": {
+    "id": 5,
+    "atendido": true,
+    "fechaHora": "2026-07-15 14:30:00"
+  }
+}
+```
+
+> **Nota:** El PATCH devuelve un DTO acotado , sin exponer datos personales del paciente.
+
+#### POST /turnos (registro)
+- **Administrador**: Debe pasar `idPaciente` e `idObraSocial` en el body para agendar el turno en nombre de cualquier paciente.
+- **Paciente**: No debe enviar `idPaciente` ni `idObraSocial` en el body; el sistema los resuelve automáticamente de forma segura a partir de su perfil asociado.
+- En ambos casos, se calcula automáticamente el `valor_total` basándose en el valor de consulta del médico y el descuento de la obra social aplicable.
 
 ---
 

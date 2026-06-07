@@ -136,4 +136,19 @@ export const findAll = async () => {
   const [rows] = await pool.execute(query, [DB_STATUS.ACTIVE]);
 
   return rows.map((row) => medicosMapper.toDTO(row));
+
+/**
+ * Actualiza la especialidad de un médico.
+ * @param {number} idMedico
+ * @param {number} idEspecialidad
+ * @returns {Promise<boolean>}
+ */
+export const updateEspecialidad = async (idMedico, idEspecialidad) => {
+  const query = `
+    UPDATE medicos
+    SET id_especialidad = ?
+    WHERE id_medico = ?
+  `;
+  const [result] = await pool.execute(query, [idEspecialidad, idMedico]);
+  return result.affectedRows > 0;
 };

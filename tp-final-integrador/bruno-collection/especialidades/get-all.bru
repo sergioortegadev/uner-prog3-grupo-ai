@@ -1,0 +1,33 @@
+meta {
+  name: Obtener todas las Especialidades
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/especialidades
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~nombre: PEDIATRÍA
+  ~limit: 2
+  ~offset: 0
+  ~order: nombre
+  ~asc: true
+  ~activo: 0
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Obtiene la lista de especialidades.
+  
+  - **Administrador**: Puede ver todas (activas e inactivas).
+  - **Paciente**: Solo puede ver especialidades activas.
+  
+  Soporta filtros por nombre y paginación.
+}

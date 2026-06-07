@@ -1,0 +1,23 @@
+meta {
+  name: Obtener Especialidad por ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/especialidades/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Obtiene el detalle de una especialidad específica por su ID.
+}
