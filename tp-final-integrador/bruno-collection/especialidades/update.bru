@@ -1,0 +1,32 @@
+meta {
+  name: Actualizar Especialidad
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/especialidades/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nombre": "CARDIOLOGÍA INFANTIL"
+  }
+}
+
+docs {
+  Actualiza el nombre de una especialidad existente.
+
+  - **Acceso**: Solo Administradores.
+}

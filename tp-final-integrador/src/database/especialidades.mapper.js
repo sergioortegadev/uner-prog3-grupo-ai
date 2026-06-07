@@ -14,7 +14,7 @@ export const toDTO = (row) => {
   return {
     id: row.id_especialidad,
     nombre: row.nombre,
-    activo: row.activo,
+    activo: !!row.activo,
   };
 };
 

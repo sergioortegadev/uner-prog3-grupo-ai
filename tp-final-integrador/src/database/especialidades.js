@@ -1,6 +1,6 @@
-import { pool } from "../config/db.js";
+import { pool } from '../config/db.js';
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js'; // Ajusta la ruta
-import * as especialidadesMapper from './especialidades.mapper.js'
+import * as especialidadesMapper from './especialidades.mapper.js';
 
 const ORDER_MAP = {
   id: 'id_especialidad',
@@ -26,7 +26,6 @@ export const findAll = async (params = {}) => {
   const whereClauses = [];
   const queryValues = [];
 
-  
   if (activo !== DB_STATUS.ALL) {
     whereClauses.push(`activo = ?`);
     queryValues.push(activo);
@@ -39,16 +38,15 @@ export const findAll = async (params = {}) => {
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
-
   const countQuery = `SELECT COUNT(*) as total FROM especialidades ${whereSql}`;
   const [countRows] = await pool.execute(countQuery, queryValues);
   const total = countRows[0].total;
-  
+
   // datos paginados
   const query = `
     SELECT id_especialidad, nombre, activo
     FROM especialidades
-    ${whereSql} 
+    ${whereSql}
     ORDER BY ${dbOrder} ${direction}
     LIMIT ? OFFSET ?
   `;
@@ -61,42 +59,45 @@ export const findAll = async (params = {}) => {
   };
 };
 
-export const findById = async (id) => {
-  const [rows] = await pool.execute(
-    'SELECT id_especialidad, nombre, activo FROM especialidades WHERE id_especialidad = ?', 
-    [id]
-  );
-  return especialidadesMapper.toDTO(rows[0])
+export const findById = async (id, onlyActive = true) => {
+  let query =
+    'SELECT id_especialidad, nombre, activo FROM especialidades WHERE id_especialidad = ?';
+  if (onlyActive) {
+    query += ` AND activo = ${DB_STATUS.ACTIVE}`;
+  }
+  const [rows] = await pool.execute(query, [id]);
+  if (rows.length === 0) return null;
+  return especialidadesMapper.toDTO(rows[0]);
 };
 
 export const findByName = async (nombre) => {
   const [rows] = await pool.execute(
-    'SELECT id_especialidad, nombre, activo FROM especialidades WHERE LOWER(nombre) = LOWER(?)', 
-    [nombre]
+    'SELECT id_especialidad, nombre, activo FROM especialidades WHERE LOWER(nombre) = LOWER(?)',
+    [nombre],
   );
-  return especialidadesMapper.toDTO(rows[0])
+  return especialidadesMapper.toDTO(rows[0]);
 };
 
 export const create = async (data) => {
-  const [result] = await pool.execute(
-    'INSERT INTO especialidades (nombre, activo) VALUES (?, ?)', 
-    [data.nombre, DB_STATUS.ACTIVE]
-  );
+  const [result] = await pool.execute('INSERT INTO especialidades (nombre, activo) VALUES (?, ?)', [
+    data.nombre,
+    DB_STATUS.ACTIVE,
+  ]);
   return result.insertId;
 };
 
 export const update = async (id, data) => {
   const [result] = await pool.execute(
-    'UPDATE especialidades SET nombre = ? WHERE id_especialidad = ?', 
-    [data.nombre, id]
+    'UPDATE especialidades SET nombre = ? WHERE id_especialidad = ?',
+    [data.nombre, id],
   );
   return result.affectedRows > 0;
 };
 
 export const softDelete = async (id) => {
   const [result] = await pool.execute(
-    'UPDATE especialidades SET activo = ? WHERE id_especialidad = ?', 
-    [DB_STATUS.INACTIVE, id]
+    'UPDATE especialidades SET activo = ? WHERE id_especialidad = ?',
+    [DB_STATUS.INACTIVE, id],
   );
   return result.affectedRows > 0;
 };

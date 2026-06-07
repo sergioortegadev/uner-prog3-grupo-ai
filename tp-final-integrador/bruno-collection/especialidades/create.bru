@@ -1,0 +1,28 @@
+meta {
+  name: Crear Especialidad
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/especialidades
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nombre": "CARDIOLOGÍA"
+  }
+}
+
+docs {
+  Crea una nueva especialidad.
+
+  - **Acceso**: Solo Administradores.
+}

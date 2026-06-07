@@ -5,68 +5,59 @@ import * as especialidadesService from '../services/especialidades.service.js';
 import { DB_STATUS } from '../constants/common.constants.js';
 import { ROLES } from '../constants/roles.constants.js';
 
-
 export const getAll = async (req, res) => {
-    const queryParams = matchedData(req, { locations: ['query'] });
-    if (req.user.rol !== ROLES.ADMIN) {
-        queryParams.activo = DB_STATUS.ACTIVE;
-    }
-    const { data, total } = await especialidadesService.getAll(queryParams);
-    return successResponse(res, data, 200);
+  const queryParams = matchedData(req, { locations: ['query'] });
+  if (req.user.rol !== ROLES.ADMIN) {
+    queryParams.activo = DB_STATUS.ACTIVE;
+  }
+  const { data, total } = await especialidadesService.getAll(queryParams);
+  return paginatedResponse(res, data, total, queryParams, 200);
 };
 
 export const getById = async (req, res) => {
-    const { id } = matchedData(req);
-    const especialidad = await especialidadesService.getById(id);
+  const { id } = matchedData(req);
+  const especialidad = await especialidadesService.getById(id);
 
-    if (!especialidad) {
-        return errorResponse({ res, errorType: ERROR_CODES.NOT_FOUND });
-    }
+  if (!especialidad) {
+    return errorResponse({ res, errorType: ERROR_CODES.NOT_FOUND });
+  }
 
-    return successResponse(res, especialidad);
+  return successResponse(res, especialidad);
 };
 
 export const createEspecialidad = async (req, res) => {
-    const data = matchedData(req);
-    const nuevaEspecialidad = await especialidadesService.createEspecialidad(data); 
-
-    if (!nuevaEspecialidad) {
-        return errorResponse({
-            res,
-            errorType: ERROR_CODES.INTERNAL_SERVER_ERROR, 
-            message: 'No se pudo crear la especialidad'
-        });
-    }
-
-    return successResponse(res, nuevaEspecialidad, 201);
+  const data = matchedData(req);
+  const id = await especialidadesService.createEspecialidad(data);
+  const nuevaEspecialidad = await especialidadesService.getById(id);
+  return successResponse(res, nuevaEspecialidad, 201);
 };
 
 export const updateEspecialidad = async (req, res) => {
-    const { id, ...data } = matchedData(req);
-    const success = await especialidadesService.updateEspecialidad(id, data);
+  const { id, ...data } = matchedData(req);
+  const success = await especialidadesService.updateEspecialidad(id, data);
 
-    if (!success) {
-        return errorResponse({
-            res,
-            errorType: ERROR_CODES.NOT_FOUND, 
-            message: 'Especialidad no encontrada'
-        });
-    }
+  if (!success) {
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.NOT_FOUND,
+      message: 'Especialidad no encontrada',
+    });
+  }
 
-    return successResponse(res, { message: 'Especialidad actualizada correctamente' });
+  return successResponse(res, { message: 'Especialidad actualizada correctamente' });
 };
 
 export const deleteEspecialidad = async (req, res) => {
-    const { id } = matchedData(req);
-    const success = await especialidadesService.deleteEspecialidad(id); 
+  const { id } = matchedData(req);
+  const success = await especialidadesService.deleteEspecialidad(id);
 
-    if (!success) {
-        return errorResponse({
-            res,
-            errorType: ERROR_CODES.NOT_FOUND, 
-            message: 'Especialidad no encontrada o ya eliminada'
-        });
-    }
+  if (!success) {
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.NOT_FOUND,
+      message: 'Especialidad no encontrada o ya eliminada',
+    });
+  }
 
-    return successResponse(res, { message: 'Especialidad eliminada correctamente' });
+  return successResponse(res, { message: 'Especialidad eliminada correctamente' });
 };
