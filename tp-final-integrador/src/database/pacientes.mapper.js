@@ -14,7 +14,12 @@ export const toDTOFull = (row) => {
   return {
     idPaciente: row.id_paciente,
     idUsuario: row.id_usuario,
-    idObraSocial: row.id_obra_social,
+    obraSocial: row.id_obra_social
+      ? {
+          id: row.id_obra_social,
+          nombre: row.nombre_obra_social,
+        }
+      : null,
     apellido: row.apellido,
     nombre: row.nombres,
     documento: row.documento,

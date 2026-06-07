@@ -27,13 +27,11 @@ export const getById = async (idPaciente) => {
  * @param {number} idObraSocial
  */
 export const assignObraSocial = async (idPaciente, idObraSocial) => {
-  // 1. Validar que el paciente exista
   const paciente = await pacientesModel.findById(idPaciente);
   if (!paciente) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Paciente con ID: ${idPaciente} no encontrado`);
   }
 
-  // 2. Validar que la obra social exista y esté activa
   const obraSocialEncontrada = await obrasSocialesModel.findById(idObraSocial);
 
   if (!obraSocialEncontrada) {
@@ -43,17 +41,14 @@ export const assignObraSocial = async (idPaciente, idObraSocial) => {
     );
   }
 
-  // 3. Verifica si el paciente ya está asociado a esa obra social
-  if (paciente.idObraSocial === idObraSocial) {
+  if (paciente.obraSocial.id === idObraSocial) {
     return {
       message: `El paciente ya estaba asociado a la obra social con ID: ${idObraSocial}`,
     };
   }
 
-  // 4. Ejecutar la asociación
   const pacienteActualizado = await pacientesModel.assignObrasSociales(idPaciente, idObraSocial);
 
-  // 5. Responde si está ok
   if (pacienteActualizado)
     return {
       message: 'Obra social asociada correctamente al paciente',

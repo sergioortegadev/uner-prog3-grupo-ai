@@ -7,7 +7,7 @@ meta {
 post {
   url: {{baseUrl}}/pacientes/:id_paciente/:id_obra_social
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 params:path {
@@ -23,3 +23,4 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+​

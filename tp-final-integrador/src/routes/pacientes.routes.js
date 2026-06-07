@@ -23,7 +23,6 @@ pacientesRouter
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
     cacheMiddleware(CACHE_DURATIONS.SHORT, 'pacientes'),
-    validateRequest,
     pacientesController.getAll,
   )
   .all(methodNotAllowedHandler(['GET']));
@@ -41,7 +40,7 @@ pacientesRouter
 
 pacientesRouter
   .route('/:id_paciente/:id_obra_social')
-  .post(
+  .patch(
     clearCacheMiddleware('pacientes'),
     pacienteValidator.validateId,
     authenticateJwt,
