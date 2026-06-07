@@ -6,7 +6,8 @@ import * as especialidadesValidator from '../validators/especialidades.validator
 import * as especialidadesController from '../controllers/especialidades.controller.js';
 import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
 import { cacheMiddleware, clearCacheMiddleware, CACHE_DURATIONS } from '../middlewares/cache.middleware.js';
-
+import { DB_STATUS } from '../constants/common.constants.js';
+import { ROLES } from '../constants/roles.constants.js';
 
 const EspecialidadesRouter = Router();
 
@@ -17,7 +18,6 @@ EspecialidadesRouter
     requireRole([ROLES.ADMIN, ROLES.PACIENTE]),
     cacheMiddleware(CACHE_DURATIONS.SHORT, 'especialidades'),
     validateListQuery(['id', 'nombre'], ['nombre']),
-    validateRequest,
     especialidadesController.getAll,
   )
   .post(

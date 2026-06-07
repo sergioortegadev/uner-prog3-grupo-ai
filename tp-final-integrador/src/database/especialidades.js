@@ -1,4 +1,4 @@
-import { pool } from "./conexion.js";
+import { pool } from "../config/db.js";
 import { QUERY_PARAMS, DB_STATUS } from '../constants/common.constants.js'; // Ajusta la ruta
 import * as especialidadesMapper from './especialidades.mapper.js'
 
