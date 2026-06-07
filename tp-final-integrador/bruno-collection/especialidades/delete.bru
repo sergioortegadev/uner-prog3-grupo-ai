@@ -1,0 +1,25 @@
+meta {
+  name: Eliminar Especialidad
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/especialidades/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Realiza un borrado lógico (soft delete) de una especialidad.
+
+  - **Acceso**: Solo Administradores.
+}
