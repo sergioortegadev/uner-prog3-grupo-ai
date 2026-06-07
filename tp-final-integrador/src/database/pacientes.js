@@ -49,7 +49,7 @@ export const findById = async (id) => {
   const [rows] = await pool.execute(query, [id]);
 
   if (rows.length === 0) return null;
-  return pacientesMapper.toDTOFull(rows[0]);
+  return pacientesMapper.toDTO(rows[0]);
 };
 
 /**
@@ -68,25 +68,4 @@ export const findByUserId = async (idUsuario) => {
 
   if (rows.length === 0) return null;
   return pacientesMapper.toDTO(rows[0]);
-};
-
-/**
- * Asocia un paciente a una obra social, por ID de paciente y Id de obra social.
- * @param {number} idPaciente
- * @param {number} idObraSocial
- * @returns {Promise<Object|null>}
- */
-export const assignObrasSociales = async (idPaciente, idObraSocial) => {
-  const query = `
-  UPDATE pacientes
-  SET id_obra_social = ?
-  WHERE id_paciente = ?
-  `;
-  const [rows] = await pool.execute(query, [idObraSocial, idPaciente]);
-
-  if (rows.affectedRows === 1) {
-    const pacienteActualizado = await findById(idPaciente);
-    return pacienteActualizado;
-  }
-  return null;
 };

@@ -21,6 +21,24 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 🩺 Especialidades (`/especialidades`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/especialidades` | Listar especialidades (soporta filtros y orden) | Admin / Paciente |
+| `POST` | `/api/v1/especialidades` | Registrar nueva especialidad | Admin |
+| `GET` | `/api/v1/especialidades/:id` | Obtener detalle por ID | Admin / Paciente |
+| `PUT` | `/api/v1/especialidades/:id` | Actualizar nombre por ID | Admin |
+| `DELETE` | `/api/v1/especialidades/:id` | Baja lógica (Soft Delete) | Admin |
+
+### Parámetros de consulta (GET)
+- `order`: Campo por el cual ordenar (`id` o `nombre`).
+- `asc`: Dirección del orden (`true` o `false`).
+- `limit`: Cantidad de resultados.
+- Filtros directos: `activo=1`, `nombre=PEDIATRÍA`.
+
+---
+
 ## ⚙️ Sistema (`/health`)
 
 | Método | Endpoint | Descripción | Acceso |
@@ -42,14 +60,6 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/medicos/:id/obras-sociales` | Asociar múltiples obras sociales | Admin |
-
----
-
-## 👨👩‍🦰 Pacientes (`/pacientes`)
-
-| Método | Endpoint | Descripción | Acceso |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/pacientes/` | Trae todos los pacientes | Admin |
 
 ---
 
