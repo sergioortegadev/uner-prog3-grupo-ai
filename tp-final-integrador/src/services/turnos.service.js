@@ -34,7 +34,7 @@ export const createAppointment = async (data, { id, role }) => {
   if (role === ROLES.PACIENTE) {
     const pacientePerfil = await ensurePatientExistsAndIsActive(id, true);
     data.idPaciente = pacientePerfil.idPaciente;
-    data.idObraSocial = pacientePerfil.idObraSocial;
+    data.idObraSocial = pacientePerfil.idObraSocial ?? pacientePerfil.obraSocial?.id;
   }
 
   const { idMedico, idPaciente, idObraSocial, fecha, hora } = data;
@@ -127,7 +127,8 @@ const ensureObraSocialExistsAndIsActive = async (id) => {
 };
 
 const ensurePatientMatchesObraSocial = (paciente, obraSocial) => {
-  if (!obraSocial.esParticular && paciente.idObraSocial !== obraSocial.id) {
+  const idObraSocialPaciente = paciente.obraSocial?.id || null;
+  if (!obraSocial.esParticular && idObraSocialPaciente !== obraSocial.id) {
     throw new AppError(
       ERROR_CODES.VALIDATION_ERROR,
       'La obra social del turno no coincide con la del paciente',
