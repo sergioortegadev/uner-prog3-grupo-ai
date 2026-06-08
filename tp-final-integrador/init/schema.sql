@@ -32,6 +32,60 @@ inner join especialidades as e on e.id_especialidad = m.id_especialidad
 GROUP by e.nombre
 HAVING cant_esp > 1$$
 
+CREATE PROCEDURE `turnos_por_medico` ()
+SELECT
+  m.id_medico,
+  CONCAT(u.apellido, ', ', u.nombres) AS medico,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN usuarios u ON u.id_usuario = m.id_usuario
+WHERE tr.activo = 1
+GROUP BY m.id_medico, u.apellido, u.nombres
+ORDER BY cantidad_turnos DESC, u.apellido, u.nombres$$
+
+CREATE PROCEDURE `turnos_por_fecha` ()
+SELECT
+  DATE(tr.fecha_hora) AS fecha,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+WHERE tr.activo = 1
+GROUP BY DATE(tr.fecha_hora)
+ORDER BY fecha DESC$$
+
+CREATE PROCEDURE `turnos_por_especialidad` ()
+SELECT
+  e.id_especialidad,
+  e.nombre AS especialidad,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+WHERE tr.activo = 1
+GROUP BY e.id_especialidad, e.nombre
+ORDER BY cantidad_turnos DESC, e.nombre$$
+
+CREATE PROCEDURE `turnos_paciente_ultimo_anio` (IN p_id_paciente INT)
+SELECT
+  tr.id_turno_reserva,
+  tr.id_paciente,
+  CONCAT(up.apellido, ', ', up.nombres) AS paciente,
+  tr.fecha_hora,
+  tr.id_medico,
+  CONCAT(um.apellido, ', ', um.nombres) AS medico,
+  e.nombre AS especialidad,
+  tr.atendido
+FROM turnos_reservas tr
+INNER JOIN pacientes p ON p.id_paciente = tr.id_paciente
+INNER JOIN usuarios up ON up.id_usuario = p.id_usuario
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN usuarios um ON um.id_usuario = m.id_usuario
+INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+WHERE tr.activo = 1
+  AND tr.fecha_hora >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+  AND (p_id_paciente IS NULL OR tr.id_paciente = p_id_paciente)
+ORDER BY tr.fecha_hora DESC$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------

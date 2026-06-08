@@ -27,6 +27,10 @@ export const getMyAppointments = async (usuario, queryParams = {}) => {
   );
 };
 
+export const getStatistics = async (idPaciente) => {
+  return await turnosModel.getStatistics(idPaciente);
+};
+
 /**
  * Registra un nuevo turno con cálculo de valor_total.
  */
@@ -96,15 +100,6 @@ export const markAsAttended = async (idTurno, idUsuario) => {
     id: idTurno,
     atendido: true,
     fechaHora: turno.fechaHora,
-  };
-};
-
-export const getStatistics = async (idPaciente = null) => {
-  const statistics = await turnosModel.getStatistics(idPaciente);
-
-  return {
-    message: 'Estadísticas de turnos obtenidas correctamente',
-    ...statistics,
   };
 };
 

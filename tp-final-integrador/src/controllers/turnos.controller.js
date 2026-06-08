@@ -26,6 +26,13 @@ export const getMyAppointments = async (req, res) => {
   return paginatedResponse(res, data, total, queryParams);
 };
 
+export const getStatistics = async (req, res) => {
+  const { idPaciente } = matchedData(req, { locations: ['query'] });
+  const statistics = await turnosService.getStatistics(idPaciente);
+
+  return successResponse(res, statistics);
+};
+
 export const markAsAttended = async (req, res) => {
   const { id } = matchedData(req);
   const turnoActualizado = await turnosService.markAsAttended(id, req.user.id);
