@@ -9,6 +9,7 @@ vi.mock('../../src/database/medicos.js', () => ({
   getObrasSocialesIds: vi.fn(),
   assignObrasSociales: vi.fn(),
   updateEspecialidad: vi.fn(),
+  findAll: vi.fn(),
 }));
 
 vi.mock('../../src/database/obras_sociales.js', () => ({
@@ -24,6 +25,19 @@ const MOCK_MEDICO = { id: 1, matricula: 1000, apellido: 'Gomez', nombres: 'Juan'
 describe('Médicos - Unit Tests (Service)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('obtenerTodos()', () => {
+    it('debería retornar el listado de médicos', async () => {
+      const mockList = [{ id: 1 }, { id: 2 }];
+      medicosModel.findAll.mockResolvedValue(mockList);
+
+      const result = await medicosService.obtenerTodos();
+
+      expect(result.message).toBe('Listado de médicos obtenido correctamente');
+      expect(result.medicos).toEqual(mockList);
+      expect(medicosModel.findAll).toHaveBeenCalled();
+    });
   });
 
   describe('assignObrasSociales()', () => {
