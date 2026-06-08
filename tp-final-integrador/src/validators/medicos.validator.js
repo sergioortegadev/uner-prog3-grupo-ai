@@ -34,3 +34,12 @@ export const validateUpdateEspecialidad = [
     .withMessage('El ID de la especialidad debe ser un número entero positivo')
     .toInt(),
 ];
+
+export const validateEspecialidadId = [
+  param('id_especialidad')
+    .notEmpty()
+    .withMessage('El ID de la especialidad es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la especialidad debe ser un número entero positivo')
+    .toInt(),
+];

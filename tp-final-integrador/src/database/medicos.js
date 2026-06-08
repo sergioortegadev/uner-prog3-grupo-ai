@@ -137,6 +137,28 @@ export const findAll = async () => {
 
   return rows.map((row) => medicosMapper.toDTO(row));
 };
+
+export const findByEspecialidad = async (idEspecialidad) => {
+  const query = `
+    SELECT
+      m.id_medico,
+      m.id_usuario,
+      m.id_especialidad,
+      m.matricula,
+      m.valor_consulta,
+      u.nombres,
+      u.apellido,
+      u.activo
+    FROM medicos m
+    JOIN usuarios u ON m.id_usuario = u.id_usuario
+    WHERE m.id_especialidad = ? AND u.activo = ?
+  `;
+
+  const [rows] = await pool.execute(query, [idEspecialidad, DB_STATUS.ACTIVE]);
+
+  return rows.map((row) => medicosMapper.toDTO(row));
+};
+
 /**
  * Actualiza la especialidad de un médico.
  * @param {number} idMedico

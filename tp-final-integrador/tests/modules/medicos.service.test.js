@@ -9,6 +9,7 @@ vi.mock('../../src/database/medicos.js', () => ({
   getObrasSocialesIds: vi.fn(),
   assignObrasSociales: vi.fn(),
   updateEspecialidad: vi.fn(),
+  findByEspecialidad: vi.fn(),
 }));
 
 vi.mock('../../src/database/obras_sociales.js', () => ({
@@ -192,6 +193,32 @@ describe('Médicos - Unit Tests (Service)', () => {
         idMedico: 1,
         idEspecialidad: 2,
       });
+    });
+  });
+
+  describe('obtenerPorEspecialidad()', () => {
+    it('debería retornar los médicos de la especialidad indicada', async () => {
+      const medicos = [
+        { idMedico: 1, idEspecialidad: 2 },
+        { idMedico: 3, idEspecialidad: 2 },
+      ];
+      medicosModel.findByEspecialidad.mockResolvedValue(medicos);
+
+      const result = await medicosService.obtenerPorEspecialidad(2);
+
+      expect(medicosModel.findByEspecialidad).toHaveBeenCalledWith(2);
+      expect(result).toEqual({
+        message: 'Listado de médicos obtenido correctamente',
+        medicos,
+      });
+    });
+
+    it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
+      medicosModel.findByEspecialidad.mockResolvedValue([]);
+
+      const result = await medicosService.obtenerPorEspecialidad(2);
+
+      expect(result.medicos).toEqual([]);
     });
   });
 });

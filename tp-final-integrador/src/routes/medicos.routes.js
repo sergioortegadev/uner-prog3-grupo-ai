@@ -17,6 +17,17 @@ medicosRouter
   .all(methodNotAllowedHandler(['GET']));
 
 medicosRouter
+  .route('/especialidad/:id_especialidad')
+  .get(
+    authenticateJwt,
+    requireRole([ROLES.PACIENTE, ROLES.ADMIN]),
+    medicosValidator.validateEspecialidadId,
+    validateRequest,
+    medicosController.obtenerPorEspecialidad,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+medicosRouter
   .route('/:idMedico/obras-sociales')
   .post(
     authenticateJwt,
