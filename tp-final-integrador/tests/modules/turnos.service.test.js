@@ -105,24 +105,23 @@ describe('Turnos Service - Unit Tests', () => {
   });
 
   describe('getStatistics()', () => {
-  it('debería retornar las estadísticas obtenidas desde el modelo', async () => {
-    const statistics = {
-      turnosPorMedico: [],
-      turnosPorFecha: [],
-      turnosPorEspecialidad: [],
-      turnosPacienteUltimoAnio: [],
-    };
-    turnosModel.getStatistics.mockResolvedValue(statistics);
+    it('debería retornar las estadísticas obtenidas desde el modelo', async () => {
+      const statistics = {
+        turnosPorMedico: [],
+        turnosPorFecha: [],
+        turnosPorEspecialidad: [],
+        turnosPacienteUltimoAnio: [],
+      };
+      turnosModel.getStatistics.mockResolvedValue(statistics);
 
-    const result = await turnosService.getStatistics(4);
+      const result = await turnosService.getStatistics(4);
 
-    expect(turnosModel.getStatistics).toHaveBeenCalledWith(4);
-    expect(result).toEqual({
-      message: 'Estadísticas de turnos obtenidas correctamente',
-      ...statistics,
+      expect(turnosModel.getStatistics).toHaveBeenCalledWith(4);
+      expect(result).toEqual({
+        ...statistics,
+      });
     });
   });
-});
 
   describe('createAppointment() - Calculation Logic', () => {
     it('debería calcular el valorTotal correctamente para una obra social con descuento (esParticular = false)', async () => {

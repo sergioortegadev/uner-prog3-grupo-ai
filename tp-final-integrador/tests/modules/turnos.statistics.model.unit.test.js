@@ -27,7 +27,7 @@ describe('Turnos Statistics - Model Unit Tests', () => {
               id_turno_reserva: 5,
               id_paciente: 4,
               paciente: 'Gomez, Luis',
-              fecha_hora: '2026-06-08 10:00:00',
+              fecha_hora: '08/06/2026 10:00',
               id_medico: 1,
               medico: 'Perez, Ana',
               especialidad: 'Clínica',
