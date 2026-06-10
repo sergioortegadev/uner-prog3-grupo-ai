@@ -17,7 +17,7 @@ medicosRouter
   .all(methodNotAllowedHandler(['GET']));
 
 medicosRouter
-  .route('/especialidad/:id_especialidad')
+  .route('/especialidad/:idEspecialidad')
   .get(
     authenticateJwt,
     requireRole([ROLES.PACIENTE, ROLES.ADMIN]),

@@ -36,7 +36,7 @@ export const validateUpdateEspecialidad = [
 ];
 
 export const validateEspecialidadId = [
-  param('id_especialidad')
+  param('idEspecialidad')
     .notEmpty()
     .withMessage('El ID de la especialidad es requerido')
     .isInt({ min: 1 })

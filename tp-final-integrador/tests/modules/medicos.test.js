@@ -16,6 +16,7 @@ describe('Médicos - Integration Tests', () => {
   let adminToken;
   let patientToken;
   let espActivaId;
+  let espSinMedicosId;
   let espInactivaId;
 
   beforeEach(async () => {
@@ -45,6 +46,12 @@ describe('Médicos - Integration Tests', () => {
       ['PEDIATRÍA'],
     );
     espActivaId = espResult.insertId;
+
+    const [espSinMedicosResult] = await pool.execute(
+      'INSERT INTO especialidades (nombre, activo) VALUES (?, 1)',
+      ['CLÍNICA MÉDICA'],
+    );
+    espSinMedicosId = espSinMedicosResult.insertId;
 
     const [espInactivaResult] = await pool.execute(
       'INSERT INTO especialidades (nombre, activo) VALUES (?, 0)',
@@ -325,7 +332,7 @@ describe('Médicos - Integration Tests', () => {
     });
   });
 
-  describe('GET /api/v1/medicos/especialidad/:id_especialidad', () => {
+  describe('GET /api/v1/medicos/especialidad/:idEspecialidad', () => {
     it('debería permitir a un paciente listar médicos por especialidad', async () => {
       const response = await request(app)
         .get(`/api/v1/medicos/especialidad/${espActivaId}`)
@@ -350,11 +357,19 @@ describe('Médicos - Integration Tests', () => {
 
     it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
       const response = await request(app)
-        .get(`/api/v1/medicos/especialidad/${espInactivaId}`)
+        .get(`/api/v1/medicos/especialidad/${espSinMedicosId}`)
         .set('Authorization', `Bearer ${patientToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.data.medicos).toEqual([]);
+    });
+
+    it('debería retornar 422 si la especialidad está inactiva', async () => {
+      const response = await request(app)
+        .get(`/api/v1/medicos/especialidad/${espInactivaId}`)
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(422);
     });
 
     it('debería retornar 401 si no se envía un token', async () => {
@@ -389,7 +404,7 @@ describe('Médicos - Integration Tests', () => {
       expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
     });
 
-    it('debería retornar 405 para métodos no soportados en /especialidad/:id_especialidad', async () => {
+    it('debería retornar 405 para métodos no soportados en /especialidad/:idEspecialidad', async () => {
       const response = await request(app).post(`/api/v1/medicos/especialidad/${espActivaId}`);
 
       expect(response.status).toBe(405);

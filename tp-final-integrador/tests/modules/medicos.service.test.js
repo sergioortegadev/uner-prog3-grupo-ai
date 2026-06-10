@@ -10,6 +10,7 @@ vi.mock('../../src/database/medicos.js', () => ({
   assignObrasSociales: vi.fn(),
   updateEspecialidad: vi.fn(),
   findByEspecialidad: vi.fn(),
+  findAll: vi.fn(),
 }));
 
 vi.mock('../../src/database/obras_sociales.js', () => ({
@@ -25,6 +26,19 @@ const MOCK_MEDICO = { id: 1, matricula: 1000, apellido: 'Gomez', nombres: 'Juan'
 describe('Médicos - Unit Tests (Service)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('obtenerTodos()', () => {
+    it('debería retornar el listado de médicos', async () => {
+      const mockList = [{ id: 1 }, { id: 2 }];
+      medicosModel.findAll.mockResolvedValue(mockList);
+
+      const result = await medicosService.obtenerTodos();
+
+      expect(result.message).toBe('Listado de médicos obtenido correctamente');
+      expect(result.medicos).toEqual(mockList);
+      expect(medicosModel.findAll).toHaveBeenCalled();
+    });
   });
 
   describe('assignObrasSociales()', () => {
@@ -202,10 +216,12 @@ describe('Médicos - Unit Tests (Service)', () => {
         { idMedico: 1, idEspecialidad: 2 },
         { idMedico: 3, idEspecialidad: 2 },
       ];
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: true });
       medicosModel.findByEspecialidad.mockResolvedValue(medicos);
 
       const result = await medicosService.obtenerPorEspecialidad(2);
 
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(2, false);
       expect(medicosModel.findByEspecialidad).toHaveBeenCalledWith(2);
       expect(result).toEqual({
         message: 'Listado de médicos obtenido correctamente',
@@ -214,11 +230,36 @@ describe('Médicos - Unit Tests (Service)', () => {
     });
 
     it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: true });
       medicosModel.findByEspecialidad.mockResolvedValue([]);
 
       const result = await medicosService.obtenerPorEspecialidad(2);
 
       expect(result.medicos).toEqual([]);
+    });
+
+    it('debería lanzar NOT_FOUND si la especialidad no existe', async () => {
+      especialidadesModel.findById.mockResolvedValue(null);
+
+      await expect(medicosService.obtenerPorEspecialidad(2)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        status: 404,
+        message: 'Especialidad con ID 2 no encontrada',
+      });
+
+      expect(medicosModel.findByEspecialidad).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar VALIDATION_ERROR si la especialidad está inactiva', async () => {
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: false });
+
+      await expect(medicosService.obtenerPorEspecialidad(2)).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+        status: 422,
+        message: 'La especialidad con ID 2 está inactiva',
+      });
+
+      expect(medicosModel.findByEspecialidad).not.toHaveBeenCalled();
     });
   });
 });

@@ -9,7 +9,7 @@ import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
  * @param {number} idMedico
  * @param {number[]} idsObrasSociales
  */
-export const asociarObrasSociales = async (idMedico, idsObrasSociales) => {
+export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
   const medico = await medicosModel.findById(idMedico);
   if (!medico) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Médico con ID ${idMedico} no encontrado`);
@@ -62,6 +62,11 @@ export const obtenerTodos = async () => {
 };
 
 export const obtenerPorEspecialidad = async (idEspecialidad) => {
+  await findActiveOrThrow((id) => especialidadesModel.findById(id, false), idEspecialidad, {
+    notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
+    inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
+  });
+
   const medicos = await medicosModel.findByEspecialidad(idEspecialidad);
 
   return {
@@ -81,7 +86,7 @@ export const updateEspecialidad = async (idMedico, idEspecialidad) => {
     inactiveMessage: `El médico con ID ${idMedico} está inactivo`,
   });
 
-  await findActiveOrThrow(especialidadesModel.findById, idEspecialidad, {
+  await findActiveOrThrow((id) => especialidadesModel.findById(id, false), idEspecialidad, {
     notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
     inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
   });
