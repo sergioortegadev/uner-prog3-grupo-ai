@@ -136,7 +136,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | `GET` | `/api/v1/turnos/estadisticas` | Obtener estadísticas operativas | Admin |
 
 ### Parámetros de consulta
-- `idPaciente` (opcional): ID de un paciente para filtrar su historial en el último año.
+- `idPaciente` (opcional): ID de un paciente para filtrar su historial en el último año. Si no se provee, devuelve el historial de **todos** los pacientes.
 
 ### Respuesta (GET /estadisticas)
 ```json
