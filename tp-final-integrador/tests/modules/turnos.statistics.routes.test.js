@@ -7,7 +7,8 @@ import turnosRouter from '../../src/routes/turnos.routes.js';
 import { globalErrorHandler } from '../../src/middlewares/error.middleware.js';
 import * as turnosService from '../../src/services/turnos.service.js';
 
-vi.mock('../../src/services/turnos.service.js', () => ({
+vi.mock('../../src/services/turnos.service.js', async (importOriginal) => ({
+  ...(await importOriginal()),
   getStatistics: vi.fn(),
 }));
 
@@ -79,6 +80,24 @@ describe('GET /api/v1/turnos/estadisticas', () => {
     const response = await request(app).get('/api/v1/turnos/estadisticas');
 
     expect(response.status).toBe(401);
+  });
+
+  it('debería devolver estadísticas de todos los pacientes sin idPaciente', async () => {
+    const token = jwt.sign({ id: 1, rol: 3 }, JWT_SECRET);
+
+    const response = await request(app)
+      .get('/api/v1/turnos/estadisticas')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(turnosService.getStatistics).toHaveBeenCalledTimes(1);
+    expect(response.body.data).toEqual({
+      turnosPorMedico: [],
+      turnosPorFecha: [],
+      turnosPorEspecialidad: [],
+      turnosPacienteUltimoAnio: [],
+    });
   });
 
   it('debería validar el ID opcional del paciente', async () => {
