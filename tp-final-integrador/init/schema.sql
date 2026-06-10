@@ -46,11 +46,11 @@ ORDER BY cantidad_turnos DESC, u.apellido, u.nombres$$
 
 CREATE PROCEDURE `turnos_por_fecha` ()
 SELECT
-  DATE(tr.fecha_hora) AS fecha,
+  DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d') AS fecha,
   COUNT(tr.id_turno_reserva) AS cantidad_turnos
 FROM turnos_reservas tr
 WHERE tr.activo = 1
-GROUP BY DATE(tr.fecha_hora)
+GROUP BY DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d')
 ORDER BY fecha DESC$$
 
 CREATE PROCEDURE `turnos_por_especialidad` ()
@@ -70,7 +70,7 @@ SELECT
   tr.id_turno_reserva,
   tr.id_paciente,
   CONCAT(up.apellido, ', ', up.nombres) AS paciente,
-  tr.fecha_hora,
+  DATE_FORMAT(tr.fecha_hora, '%d/%m/%Y %H:%i') AS fecha_hora,
   tr.id_medico,
   CONCAT(um.apellido, ', ', um.nombres) AS medico,
   e.nombre AS especialidad,
