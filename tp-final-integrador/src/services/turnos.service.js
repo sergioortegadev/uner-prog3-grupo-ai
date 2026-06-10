@@ -100,11 +100,7 @@ export const markAsAttended = async (idTurno, idUsuario) => {
 };
 
 export const getStatistics = async (idPaciente = null) => {
-  const statistics = await turnosModel.getStatistics(idPaciente);
-
-  return {
-    ...statistics,
-  };
+  return await turnosModel.getStatistics(idPaciente);
 };
 
 // --- Helpers de validación y lógica interna ---

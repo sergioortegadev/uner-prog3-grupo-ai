@@ -5,12 +5,22 @@ import * as turnosModel from '../../src/database/turnos.js';
 vi.mock('../../src/config/db.js', () => ({
   pool: {
     query: vi.fn(),
+    execute: vi.fn(),
   },
+  closePool: vi.fn(),
 }));
 
 describe('Turnos Statistics - Model Unit Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('debería pasar null al SP cuando no se provee idPaciente', async () => {
+    pool.query.mockResolvedValue([[[[]]]]);
+
+    await turnosModel.getStatistics(null);
+
+    expect(pool.query).toHaveBeenNthCalledWith(4, 'CALL turnos_paciente_ultimo_anio(?)', [null]);
   });
 
   it('debería obtener todas las estadísticas mediante procedimientos almacenados', async () => {
