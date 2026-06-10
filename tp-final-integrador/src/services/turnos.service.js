@@ -103,7 +103,6 @@ export const getStatistics = async (idPaciente = null) => {
   const statistics = await turnosModel.getStatistics(idPaciente);
 
   return {
-    message: 'Estadísticas de turnos obtenidas correctamente',
     ...statistics,
   };
 };
