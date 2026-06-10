@@ -25,13 +25,6 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE PROCEDURE `especialidades_x_turnos` ()   select count(e.id_especialidad) as cant_esp, e.nombre
-from turnos_reservas as tr
-inner join medicos as m on m.id_medico = tr.id_medico
-inner join especialidades as e on e.id_especialidad = m.id_especialidad
-GROUP by e.nombre
-HAVING cant_esp > 1$$
-
 CREATE PROCEDURE `turnos_por_medico` ()
 SELECT
   m.id_medico,
@@ -299,7 +292,7 @@ CREATE TABLE `v_pacientes` (
 ,`nombres` varchar(100)
 ,`email` varchar(255)
 ,`id_obra_social` int(10) unsigned
-,`descripcion_obra_social` varchar(255)
+,`nombre_obra_social` varchar(255)
 ,`foto_path` varchar(255)
 );
 
@@ -432,13 +425,13 @@ ALTER TABLE `medicos_obras_sociales`
 -- AUTO_INCREMENT de la tabla `obras_sociales`
 --
 ALTER TABLE `obras_sociales`
-  MODIFY `id_obra_social` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_obra_social` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `pacientes`
 --
 ALTER TABLE `pacientes`
-  MODIFY `id_paciente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_paciente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `turnos_reservas`
