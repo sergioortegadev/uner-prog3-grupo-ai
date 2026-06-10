@@ -158,6 +158,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
         "idPaciente": 4,
         "paciente": "Gomez, Luis",
         "fechaHora": "08/06/2026 10:00",
+        "idMedico": 1,
         "medico": "Perez, Juan",
         "especialidad": "Clínica",
         "atendido": true

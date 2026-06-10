@@ -16,7 +16,7 @@ describe('Turnos Statistics - Model Unit Tests', () => {
   });
 
   it('debería pasar null al SP cuando no se provee idPaciente', async () => {
-    pool.query.mockResolvedValue([[[[]]]]);
+    pool.query.mockResolvedValue([[[]]]);
 
     await turnosModel.getStatistics(null);
 
