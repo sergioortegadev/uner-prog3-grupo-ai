@@ -2,6 +2,7 @@ import { matchedData } from 'express-validator';
 import { successResponse, errorResponse, paginatedResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
 import * as especialidadesService from '../services/especialidades.service.js';
+import * as medicosService from '../services/medicos.service.js';
 import { DB_STATUS } from '../constants/common.constants.js';
 import { ROLES } from '../constants/roles.constants.js';
 
@@ -60,4 +61,11 @@ export const deleteEspecialidad = async (req, res) => {
   }
 
   return successResponse(res, { message: 'Especialidad eliminada correctamente' });
+};
+
+export const getMedicosByEspecialidad = async (req, res) => {
+  const { id } = matchedData(req);
+  const result = await medicosService.obtenerPorEspecialidad(id);
+
+  return successResponse(res, result, 200);
 };

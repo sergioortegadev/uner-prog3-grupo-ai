@@ -24,13 +24,6 @@ export const obtenerTodos = async (req, res) => {
   return successResponse(res, result, 200);
 };
 
-export const obtenerPorEspecialidad = async (req, res) => {
-  const { idEspecialidad } = matchedData(req);
-  const result = await medicosService.obtenerPorEspecialidad(idEspecialidad);
-
-  return successResponse(res, result, 200);
-};
-
 /**
  * Modifica especialidad de médicos.
  */
