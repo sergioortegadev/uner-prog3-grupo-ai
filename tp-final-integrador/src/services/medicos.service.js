@@ -67,15 +67,10 @@ export const obtenerPorEspecialidad = async (idEspecialidad) => {
     inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
   });
 
-  const medicos = await medicosModel.findByEspecialidad(idEspecialidad);
-
-  return {
-    message: 'Listado de médicos obtenido correctamente',
-    medicos,
-  };
+  return await medicosModel.findByEspecialidad(idEspecialidad);
 };
 
-/* Actualiza la especialidad de un médico.
+/**  Actualiza la especialidad de un médico.
  * @param {number} idMedico
  * @param {number} idEspecialidad
  * @returns {Promise<Object>}

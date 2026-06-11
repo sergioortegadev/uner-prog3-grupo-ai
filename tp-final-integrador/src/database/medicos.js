@@ -119,11 +119,11 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
  */
 export const findAll = async () => {
   const query = `
-    SELECT 
-      m.id_medico, 
-      m.id_usuario, 
-      m.id_especialidad, 
-      m.matricula, 
+    SELECT
+      m.id_medico,
+      m.id_usuario,
+      m.id_especialidad,
+      m.matricula,
       m.valor_consulta,
       u.nombres,
       u.apellido,
@@ -142,7 +142,6 @@ export const findByEspecialidad = async (idEspecialidad) => {
   const query = `
     SELECT
       m.id_medico,
-      m.id_usuario,
       m.id_especialidad,
       m.matricula,
       m.valor_consulta,

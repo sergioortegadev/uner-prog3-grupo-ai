@@ -223,10 +223,7 @@ describe('Médicos - Unit Tests (Service)', () => {
 
       expect(especialidadesModel.findById).toHaveBeenCalledWith(2, false);
       expect(medicosModel.findByEspecialidad).toHaveBeenCalledWith(2);
-      expect(result).toEqual({
-        message: 'Listado de médicos obtenido correctamente',
-        medicos,
-      });
+      expect(result).toEqual(medicos);
     });
 
     it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
@@ -235,7 +232,7 @@ describe('Médicos - Unit Tests (Service)', () => {
 
       const result = await medicosService.obtenerPorEspecialidad(2);
 
-      expect(result.medicos).toEqual([]);
+      expect(result).toEqual([]);
     });
 
     it('debería lanzar NOT_FOUND si la especialidad no existe', async () => {

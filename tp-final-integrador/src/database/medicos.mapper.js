@@ -13,7 +13,6 @@ export const toDTO = (row) => {
 
   return {
     idMedico: row.id_medico,
-    idUsuario: row.id_usuario,
     nombres: row.nombres,
     apellido: row.apellido,
     idEspecialidad: row.id_especialidad,
