@@ -25,12 +25,59 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE PROCEDURE `especialidades_x_turnos` ()   select count(e.id_especialidad) as cant_esp, e.nombre
-from turnos_reservas as tr
-inner join medicos as m on m.id_medico = tr.id_medico
-inner join especialidades as e on e.id_especialidad = m.id_especialidad
-GROUP by e.nombre
-HAVING cant_esp > 1$$
+CREATE PROCEDURE `turnos_por_medico` ()
+SELECT
+  m.id_medico,
+  CONCAT(u.apellido, ', ', u.nombres) AS medico,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN usuarios u ON u.id_usuario = m.id_usuario
+WHERE tr.activo = 1
+GROUP BY m.id_medico, u.apellido, u.nombres
+ORDER BY cantidad_turnos DESC, u.apellido, u.nombres$$
+
+CREATE PROCEDURE `turnos_por_fecha` ()
+SELECT
+  DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d') AS fecha,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+WHERE tr.activo = 1
+GROUP BY DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d')
+ORDER BY fecha DESC$$
+
+CREATE PROCEDURE `turnos_por_especialidad` ()
+SELECT
+  e.id_especialidad,
+  e.nombre AS especialidad,
+  COUNT(tr.id_turno_reserva) AS cantidad_turnos
+FROM turnos_reservas tr
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+WHERE tr.activo = 1
+GROUP BY e.id_especialidad, e.nombre
+ORDER BY cantidad_turnos DESC, e.nombre$$
+
+CREATE PROCEDURE `turnos_paciente_ultimo_anio` (IN p_id_paciente INT)
+SELECT
+  tr.id_turno_reserva,
+  tr.id_paciente,
+  CONCAT(up.apellido, ', ', up.nombres) AS paciente,
+  DATE_FORMAT(tr.fecha_hora, '%d/%m/%Y %H:%i') AS fecha_hora,
+  tr.id_medico,
+  CONCAT(um.apellido, ', ', um.nombres) AS medico,
+  e.nombre AS especialidad,
+  tr.atendido
+FROM turnos_reservas tr
+INNER JOIN pacientes p ON p.id_paciente = tr.id_paciente
+INNER JOIN usuarios up ON up.id_usuario = p.id_usuario
+INNER JOIN medicos m ON m.id_medico = tr.id_medico
+INNER JOIN usuarios um ON um.id_usuario = m.id_usuario
+INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+WHERE tr.activo = 1
+  AND tr.fecha_hora >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+  AND (p_id_paciente IS NULL OR tr.id_paciente = p_id_paciente)
+ORDER BY tr.fecha_hora DESC$$
 
 DELIMITER ;
 
@@ -245,7 +292,7 @@ CREATE TABLE `v_pacientes` (
 ,`nombres` varchar(100)
 ,`email` varchar(255)
 ,`id_obra_social` int(10) unsigned
-,`descripcion_obra_social` varchar(255)
+,`nombre_obra_social` varchar(255)
 ,`foto_path` varchar(255)
 );
 
@@ -378,13 +425,13 @@ ALTER TABLE `medicos_obras_sociales`
 -- AUTO_INCREMENT de la tabla `obras_sociales`
 --
 ALTER TABLE `obras_sociales`
-  MODIFY `id_obra_social` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_obra_social` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `pacientes`
 --
 ALTER TABLE `pacientes`
-  MODIFY `id_paciente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_paciente` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `turnos_reservas`

@@ -32,6 +32,16 @@ turnosRouter
   .all(methodNotAllowedHandler(['GET', 'POST']));
 
 turnosRouter
+  .route('/estadisticas')
+  .get(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateStatistics,
+    validateRequest,
+    turnosController.getStatistics,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+turnosRouter
   .route('/:id/atendido')
   .patch(
     requireRole([ROLES.MEDICO]),

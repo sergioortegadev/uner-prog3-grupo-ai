@@ -129,7 +129,44 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 ---
 
+## 📊 Estadísticas (`/turnos/estadisticas`)
 
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/turnos/estadisticas` | Obtener estadísticas operativas | Admin |
+
+### Parámetros de consulta
+- `idPaciente` (opcional): ID de un paciente para filtrar su historial en el último año. Si no se provee, devuelve el historial de **todos** los pacientes.
+
+### Respuesta (GET /estadisticas)
+```json
+{
+  "success": true,
+  "data": {
+    "turnosPorMedico": [
+      { "idMedico": 1, "medico": "Perez, Juan", "cantidadTurnos": 15 }
+    ],
+    "turnosPorFecha": [
+      { "fecha": "2026-06-08", "cantidadTurnos": 8 }
+    ],
+    "turnosPorEspecialidad": [
+      { "idEspecialidad": 2, "especialidad": "Clínica", "cantidadTurnos": 12 }
+    ],
+    "turnosPacienteUltimoAnio": [
+      {
+        "idTurno": 5,
+        "idPaciente": 4,
+        "paciente": "Gomez, Luis",
+        "fechaHora": "08/06/2026 10:00",
+        "idMedico": 1,
+        "medico": "Perez, Juan",
+        "especialidad": "Clínica",
+        "atendido": true
+      }
+    ]
+  }
+}
+```
 
 ---
 

@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { ROLES } from '../constants/roles.constants.js';
 
 /**
@@ -57,5 +57,13 @@ export const validateMarkAsAttended = [
     .withMessage('El ID del turno es requerido')
     .isInt({ min: 1 })
     .withMessage('El ID del turno debe ser un número entero positivo')
+    .toInt(),
+];
+
+export const validateStatistics = [
+  query('idPaciente')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('El ID del paciente debe ser un número entero positivo')
     .toInt(),
 ];

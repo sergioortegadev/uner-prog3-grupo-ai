@@ -60,3 +60,39 @@ export const toDTOList = (rows, options = {}) => {
   if (!rows || !Array.isArray(rows)) return [];
   return rows.map((row) => toDTO(row, options));
 };
+
+export const toDoctorStatistics = (rows = []) => {
+  return rows.map((row) => ({
+    idMedico: row.id_medico,
+    medico: row.medico,
+    cantidadTurnos: Number(row.cantidad_turnos),
+  }));
+};
+
+export const toDateStatistics = (rows = []) => {
+  return rows.map((row) => ({
+    fecha: row.fecha,
+    cantidadTurnos: Number(row.cantidad_turnos),
+  }));
+};
+
+export const toSpecialtyStatistics = (rows = []) => {
+  return rows.map((row) => ({
+    idEspecialidad: row.id_especialidad,
+    especialidad: row.especialidad,
+    cantidadTurnos: Number(row.cantidad_turnos),
+  }));
+};
+
+export const toPatientYearStatistics = (rows = []) => {
+  return rows.map((row) => ({
+    idTurno: row.id_turno_reserva,
+    idPaciente: row.id_paciente,
+    paciente: row.paciente,
+    fechaHora: row.fecha_hora,
+    idMedico: row.id_medico,
+    medico: row.medico,
+    especialidad: row.especialidad,
+    atendido: Boolean(row.atendido),
+  }));
+};
