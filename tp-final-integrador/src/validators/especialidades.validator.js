@@ -1,7 +1,13 @@
 import { param, check } from 'express-validator';
 
-export const validateId = [param('id', 'El parámetro debe ser un entero').isInt()];
-
+export const validateId = [
+  param('id')
+    .notEmpty()
+    .withMessage('El ID de la especialidad es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la especialidad debe ser un número entero positivo')
+    .toInt(),
+];
 export const validateCreate = [
   check('nombre')
     .notEmpty()
