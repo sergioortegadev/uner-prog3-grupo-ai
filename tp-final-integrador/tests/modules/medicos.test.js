@@ -16,6 +16,7 @@ describe('Médicos - Integration Tests', () => {
   let adminToken;
   let patientToken;
   let espActivaId;
+  let espSinMedicosId;
   let espInactivaId;
 
   beforeEach(async () => {
@@ -45,6 +46,12 @@ describe('Médicos - Integration Tests', () => {
       ['PEDIATRÍA'],
     );
     espActivaId = espResult.insertId;
+
+    const [espSinMedicosResult] = await pool.execute(
+      'INSERT INTO especialidades (nombre, activo) VALUES (?, 1)',
+      ['CLÍNICA MÉDICA'],
+    );
+    espSinMedicosId = espSinMedicosResult.insertId;
 
     const [espInactivaResult] = await pool.execute(
       'INSERT INTO especialidades (nombre, activo) VALUES (?, 0)',
@@ -325,6 +332,67 @@ describe('Médicos - Integration Tests', () => {
     });
   });
 
+  describe('GET /api/v1/especialidades/:id/medicos', () => {
+    it('debería permitir a un paciente listar médicos por especialidad', async () => {
+      const response = await request(app)
+        .get(`/api/v1/especialidades/${espActivaId}/medicos`)
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].idMedico).toBe(medicoId);
+      expect(response.body.data[0].idEspecialidad).toBe(espActivaId);
+    });
+
+    it('debería retornar 403 si un administrador intenta listar médicos por especialidad', async () => {
+      const response = await request(app)
+        .get(`/api/v1/especialidades/${espActivaId}/medicos`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it('debería retornar 404 si la especialidad no existe', async () => {
+      const response = await request(app)
+        .get('/api/v1/especialidades/9999/medicos')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
+      const response = await request(app)
+        .get(`/api/v1/especialidades/${espSinMedicosId}/medicos`)
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toEqual([]);
+    });
+
+    it('debería retornar 422 si la especialidad está inactiva', async () => {
+      const response = await request(app)
+        .get(`/api/v1/especialidades/${espInactivaId}/medicos`)
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(422);
+    });
+
+    it('debería retornar 401 si no se envía un token', async () => {
+      const response = await request(app).get(`/api/v1/especialidades/${espActivaId}/medicos`);
+
+      expect(response.status).toBe(401);
+    });
+
+    it('debería retornar 422 si el ID de especialidad es inválido', async () => {
+      const response = await request(app)
+        .get('/api/v1/especialidades/0/medicos')
+        .set('Authorization', `Bearer ${patientToken}`);
+
+      expect(response.status).toBe(422);
+    });
+  });
+
   describe('Métodos No Permitidos (405)', () => {
     it('debería retornar 405 para métodos no soportados en /:idMedico/obras-sociales', async () => {
       const response = await request(app).get(`/api/v1/medicos/${medicoId}/obras-sociales`);
@@ -339,6 +407,14 @@ describe('Médicos - Integration Tests', () => {
 
       expect(response.status).toBe(405);
       expect(response.header).toHaveProperty('allow', 'PATCH');
+      expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
+    });
+
+    it('debería retornar 405 para métodos no soportados en /:id/medicos', async () => {
+      const response = await request(app).post(`/api/v1/especialidades/${espActivaId}/medicos`);
+
+      expect(response.status).toBe(405);
+      expect(response.header).toHaveProperty('allow', 'GET');
       expect(response.body.error.code).toBe('METHOD_NOT_ALLOWED');
     });
   });

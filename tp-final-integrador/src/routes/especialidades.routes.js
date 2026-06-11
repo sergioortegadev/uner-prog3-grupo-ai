@@ -58,4 +58,14 @@ EspecialidadesRouter.route('/:id')
   )
   .all(methodNotAllowedHandler(['GET', 'PUT', 'DELETE']));
 
+EspecialidadesRouter.route('/:id/medicos')
+  .get(
+    authenticateJwt,
+    requireRole([ROLES.PACIENTE]),
+    especialidadesValidator.validateId,
+    validateRequest,
+    especialidadesController.getMedicosByEspecialidad,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
 export default EspecialidadesRouter;

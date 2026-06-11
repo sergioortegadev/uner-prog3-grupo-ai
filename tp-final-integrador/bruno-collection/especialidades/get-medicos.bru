@@ -1,0 +1,20 @@
+meta {
+  name: Obtener medicos por especialidad (solo pacientes)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/especialidades/:id/medicos
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 3
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

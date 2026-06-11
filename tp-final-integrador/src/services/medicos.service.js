@@ -61,7 +61,16 @@ export const obtenerTodos = async () => {
   };
 };
 
-/* Actualiza la especialidad de un médico.
+export const obtenerPorEspecialidad = async (idEspecialidad) => {
+  await findActiveOrThrow((id) => especialidadesModel.findById(id, false), idEspecialidad, {
+    notFoundMessage: `Especialidad con ID ${idEspecialidad} no encontrada`,
+    inactiveMessage: `La especialidad con ID ${idEspecialidad} está inactiva`,
+  });
+
+  return await medicosModel.findByEspecialidad(idEspecialidad);
+};
+
+/**  Actualiza la especialidad de un médico.
  * @param {number} idMedico
  * @param {number} idEspecialidad
  * @returns {Promise<Object>}

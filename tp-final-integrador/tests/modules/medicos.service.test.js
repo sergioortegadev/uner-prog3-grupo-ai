@@ -9,6 +9,7 @@ vi.mock('../../src/database/medicos.js', () => ({
   getObrasSocialesIds: vi.fn(),
   assignObrasSociales: vi.fn(),
   updateEspecialidad: vi.fn(),
+  findByEspecialidad: vi.fn(),
   findAll: vi.fn(),
 }));
 
@@ -206,6 +207,56 @@ describe('Médicos - Unit Tests (Service)', () => {
         idMedico: 1,
         idEspecialidad: 2,
       });
+    });
+  });
+
+  describe('obtenerPorEspecialidad()', () => {
+    it('debería retornar los médicos de la especialidad indicada', async () => {
+      const medicos = [
+        { idMedico: 1, idEspecialidad: 2 },
+        { idMedico: 3, idEspecialidad: 2 },
+      ];
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: true });
+      medicosModel.findByEspecialidad.mockResolvedValue(medicos);
+
+      const result = await medicosService.obtenerPorEspecialidad(2);
+
+      expect(especialidadesModel.findById).toHaveBeenCalledWith(2, false);
+      expect(medicosModel.findByEspecialidad).toHaveBeenCalledWith(2);
+      expect(result).toEqual(medicos);
+    });
+
+    it('debería retornar una lista vacía si la especialidad no tiene médicos', async () => {
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: true });
+      medicosModel.findByEspecialidad.mockResolvedValue([]);
+
+      const result = await medicosService.obtenerPorEspecialidad(2);
+
+      expect(result).toEqual([]);
+    });
+
+    it('debería lanzar NOT_FOUND si la especialidad no existe', async () => {
+      especialidadesModel.findById.mockResolvedValue(null);
+
+      await expect(medicosService.obtenerPorEspecialidad(2)).rejects.toMatchObject({
+        code: 'NOT_FOUND',
+        status: 404,
+        message: 'Especialidad con ID 2 no encontrada',
+      });
+
+      expect(medicosModel.findByEspecialidad).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar VALIDATION_ERROR si la especialidad está inactiva', async () => {
+      especialidadesModel.findById.mockResolvedValue({ id: 2, activo: false });
+
+      await expect(medicosService.obtenerPorEspecialidad(2)).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+        status: 422,
+        message: 'La especialidad con ID 2 está inactiva',
+      });
+
+      expect(medicosModel.findByEspecialidad).not.toHaveBeenCalled();
     });
   });
 });

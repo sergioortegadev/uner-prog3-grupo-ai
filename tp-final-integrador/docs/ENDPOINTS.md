@@ -30,6 +30,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 | `GET` | `/api/v1/especialidades/:id` | Obtener detalle por ID | Admin / Paciente |
 | `PUT` | `/api/v1/especialidades/:id` | Actualizar nombre por ID | Admin |
 | `DELETE` | `/api/v1/especialidades/:id` | Baja lógica (Soft Delete) | Admin |
+n| `GET` | `/api/v1/especialidades/:id/medicos` | Listar médicos por especialidad | Paciente |
 
 ### Parámetros de consulta (GET)
 - `order`: Campo por el cual ordenar (`id` o `nombre`).
@@ -59,6 +60,7 @@ Este documento detalla los endpoints disponibles en la API para facilitar las pr
 
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/medicos` | Listar todos los médicos activos | Paciente |
 | `POST` | `/api/v1/medicos/:id/obras-sociales` | Asociar múltiples obras sociales | Admin |
 | `PATCH` | `/api/v1/medicos/:id_medico/especialidad` | Actualizar especialidad del médico | Admin |
 
