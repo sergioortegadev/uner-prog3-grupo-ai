@@ -42,6 +42,46 @@ turnosRouter
   .all(methodNotAllowedHandler(['GET']));
 
 turnosRouter
+  .route('/estadisticas/medicos')
+  .get(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateStatistics,
+    validateRequest,
+    turnosController.getStatisticsPDFMedicos,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+turnosRouter
+  .route('/estadisticas/fecha')
+  .get(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateStatistics,
+    validateRequest,
+    turnosController.getStatisticsPDFFecha,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+turnosRouter
+  .route('/estadisticas/especialidad')
+  .get(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateStatistics,
+    validateRequest,
+    turnosController.getStatisticsPDFEspecialidad,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+turnosRouter
+  .route('/estadisticas/paciente/:id_paciente')
+  .get(
+    requireRole([ROLES.ADMIN]),
+    turnosValidator.validateStatisticsPaciente,
+    validateRequest,
+    turnosController.getStatisticsPDFPaciente,
+  )
+  .all(methodNotAllowedHandler(['GET']));
+
+turnosRouter
   .route('/:id/atendido')
   .patch(
     requireRole([ROLES.MEDICO]),
