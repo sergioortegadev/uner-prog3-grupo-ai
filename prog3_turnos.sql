@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-04-2026 a las 21:18:28
+-- Tiempo de generación: 08-06-2026 a las 11:04:53
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -25,12 +25,75 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `especialidades_x_turnos` ()   select count(e.id_especialidad) as cant_esp, e.nombre
-from turnos_reservas as tr
+DROP PROCEDURE IF EXISTS `especialidades_x_turnos`$$
+CREATE PROCEDURE `especialidades_x_turnos` ()   select count(e.id_especialidad) as cant_esp, e.nombre
+from turnos_reservas as tr 
 inner join medicos as m on m.id_medico = tr.id_medico
 inner join especialidades as e on e.id_especialidad = m.id_especialidad
 GROUP by e.nombre
 HAVING cant_esp > 1$$
+
+DROP PROCEDURE IF EXISTS `turnos_paciente_ultimo_anio`$$
+CREATE PROCEDURE `turnos_paciente_ultimo_anio` (IN `p_id_paciente` INT)   BEGIN
+  SELECT
+    tr.id_turno_reserva,
+    tr.id_paciente,
+    CONCAT(up.apellido, ', ', up.nombres) AS paciente,
+    DATE_FORMAT(tr.fecha_hora, '%d/%m/%Y %H:%i') AS fecha_hora,
+    tr.id_medico,
+    CONCAT(um.apellido, ', ', um.nombres) AS medico,
+    e.nombre AS especialidad,
+    tr.atendido
+  FROM turnos_reservas tr
+  INNER JOIN pacientes p ON p.id_paciente = tr.id_paciente
+  INNER JOIN usuarios up ON up.id_usuario = p.id_usuario
+  INNER JOIN medicos m ON m.id_medico = tr.id_medico
+  INNER JOIN usuarios um ON um.id_usuario = m.id_usuario
+  INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+  WHERE tr.activo = 1
+    AND tr.fecha_hora >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    AND (p_id_paciente IS NULL OR tr.id_paciente = p_id_paciente)
+  ORDER BY tr.fecha_hora DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS `turnos_por_especialidad`$$
+CREATE PROCEDURE `turnos_por_especialidad` ()   BEGIN
+  SELECT
+    e.id_especialidad,
+    e.nombre AS especialidad,
+    COUNT(tr.id_turno_reserva) AS cantidad_turnos
+  FROM turnos_reservas tr
+  INNER JOIN medicos m ON m.id_medico = tr.id_medico
+  INNER JOIN especialidades e ON e.id_especialidad = m.id_especialidad
+  WHERE tr.activo = 1
+  GROUP BY e.id_especialidad, e.nombre
+  ORDER BY cantidad_turnos DESC, e.nombre;
+END$$
+
+DROP PROCEDURE IF EXISTS `turnos_por_fecha`$$
+CREATE PROCEDURE `turnos_por_fecha` ()   BEGIN
+  SELECT
+    DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d') AS fecha,
+    COUNT(tr.id_turno_reserva) AS cantidad_turnos
+  FROM turnos_reservas tr
+  WHERE tr.activo = 1
+  GROUP BY DATE_FORMAT(tr.fecha_hora, '%Y-%m-%d')
+  ORDER BY fecha DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS `turnos_por_medico`$$
+CREATE PROCEDURE `turnos_por_medico` ()   BEGIN
+  SELECT
+    m.id_medico,
+    CONCAT(u.apellido, ', ', u.nombres) AS medico,
+    COUNT(tr.id_turno_reserva) AS cantidad_turnos
+  FROM turnos_reservas tr
+  INNER JOIN medicos m ON m.id_medico = tr.id_medico
+  INNER JOIN usuarios u ON u.id_usuario = m.id_usuario
+  WHERE tr.activo = 1
+  GROUP BY m.id_medico, u.apellido, u.nombres
+  ORDER BY cantidad_turnos DESC, u.apellido, u.nombres;
+END$$
 
 DELIMITER ;
 
@@ -40,6 +103,7 @@ DELIMITER ;
 -- Estructura de tabla para la tabla `especialidades`
 --
 
+DROP TABLE IF EXISTS `especialidades`;
 CREATE TABLE `especialidades` (
   `id_especialidad` int(10) UNSIGNED NOT NULL,
   `nombre` varchar(120) NOT NULL,
@@ -63,6 +127,7 @@ INSERT INTO `especialidades` (`id_especialidad`, `nombre`, `activo`) VALUES
 -- Estructura de tabla para la tabla `medicos`
 --
 
+DROP TABLE IF EXISTS `medicos`;
 CREATE TABLE `medicos` (
   `id_medico` int(10) UNSIGNED NOT NULL,
   `id_usuario` int(10) UNSIGNED NOT NULL,
@@ -88,6 +153,7 @@ INSERT INTO `medicos` (`id_medico`, `id_usuario`, `id_especialidad`, `matricula`
 -- Estructura de tabla para la tabla `medicos_obras_sociales`
 --
 
+DROP TABLE IF EXISTS `medicos_obras_sociales`;
 CREATE TABLE `medicos_obras_sociales` (
   `id_medico_obra_social` int(10) UNSIGNED NOT NULL,
   `id_medico` int(10) UNSIGNED NOT NULL,
@@ -111,12 +177,13 @@ INSERT INTO `medicos_obras_sociales` (`id_medico_obra_social`, `id_medico`, `id_
 -- Estructura de tabla para la tabla `obras_sociales`
 --
 
+DROP TABLE IF EXISTS `obras_sociales`;
 CREATE TABLE `obras_sociales` (
   `id_obra_social` int(10) UNSIGNED NOT NULL,
   `nombre` varchar(120) NOT NULL,
   `descripcion` varchar(255) NOT NULL,
   `porcentaje_descuento` decimal(9,4) NOT NULL,
-  `es_particular` tinyint(1) NOT NULL DEFAULT '0',
+  `es_particular` tinyint(1) NOT NULL DEFAULT 0,
   `activo` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -125,11 +192,10 @@ CREATE TABLE `obras_sociales` (
 --
 
 INSERT INTO `obras_sociales` (`id_obra_social`, `nombre`, `descripcion`, `porcentaje_descuento`, `es_particular`, `activo`) VALUES
-(1, 'Jerárquicos', 'jer', 0.10, 0, 1),
-(2, 'OSUNER', 'osu', 0.10, 0, 1),
-(3, 'OSECAC', 'ose', 0.11, 0, 1),
-(4, 'OSUNER 3', 'OSU', 0.13, 0, 1),
-(5, 'Particular', 'Atención sin obra social', 0.00, 1, 1);
+(1, 'Jerárquicos', 'jer', 0.1000, 0, 1),
+(2, 'OSUNER', 'osu', 0.1000, 0, 1),
+(3, 'OSECAC', 'ose', 0.1100, 0, 1),
+(4, 'OSUNER 3', 'OSU', 0.1300, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -137,6 +203,7 @@ INSERT INTO `obras_sociales` (`id_obra_social`, `nombre`, `descripcion`, `porcen
 -- Estructura de tabla para la tabla `pacientes`
 --
 
+DROP TABLE IF EXISTS `pacientes`;
 CREATE TABLE `pacientes` (
   `id_paciente` int(10) UNSIGNED NOT NULL,
   `id_usuario` int(10) UNSIGNED NOT NULL,
@@ -150,9 +217,7 @@ CREATE TABLE `pacientes` (
 INSERT INTO `pacientes` (`id_paciente`, `id_usuario`, `id_obra_social`) VALUES
 (1, 5, 1),
 (2, 6, 2),
-(3, 7, 3),
-(4, 9, 1);
-
+(3, 7, 3);
 
 -- --------------------------------------------------------
 
@@ -160,6 +225,7 @@ INSERT INTO `pacientes` (`id_paciente`, `id_usuario`, `id_obra_social`) VALUES
 -- Estructura de tabla para la tabla `turnos_reservas`
 --
 
+DROP TABLE IF EXISTS `turnos_reservas`;
 CREATE TABLE `turnos_reservas` (
   `id_turno_reserva` int(10) UNSIGNED NOT NULL,
   `id_medico` int(10) UNSIGNED NOT NULL,
@@ -167,7 +233,7 @@ CREATE TABLE `turnos_reservas` (
   `id_obra_social` int(10) UNSIGNED NOT NULL,
   `fecha_hora` datetime NOT NULL,
   `valor_total` decimal(10,2) NOT NULL,
-  `atentido` tinyint(3) UNSIGNED NOT NULL,
+  `atendido` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
   `activo` tinyint(3) UNSIGNED NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -175,7 +241,7 @@ CREATE TABLE `turnos_reservas` (
 -- Volcado de datos para la tabla `turnos_reservas`
 --
 
-INSERT INTO `turnos_reservas` (`id_turno_reserva`, `id_medico`, `id_paciente`, `id_obra_social`, `fecha_hora`, `valor_total`, `atentido`, `activo`) VALUES
+INSERT INTO `turnos_reservas` (`id_turno_reserva`, `id_medico`, `id_paciente`, `id_obra_social`, `fecha_hora`, `valor_total`, `atendido`, `activo`) VALUES
 (1, 1, 1, 1, '2026-04-01 17:00:00', 4500.00, 0, 1),
 (2, 3, 2, 2, '2026-04-01 18:00:00', 9000.00, 0, 1),
 (4, 4, 3, 3, '2026-04-01 19:00:00', 13500.00, 0, 1),
@@ -189,6 +255,7 @@ INSERT INTO `turnos_reservas` (`id_turno_reserva`, `id_medico`, `id_paciente`, `
 -- Estructura de tabla para la tabla `usuarios`
 --
 
+DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id_usuario` int(10) UNSIGNED NOT NULL,
   `documento` varchar(20) NOT NULL,
@@ -214,9 +281,7 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 (6, '41000112', 'Hunk', 'Lorena', 'hunlor@correo.com', '464db19217fabdaabc5add321054f39216d03edfef2efaf8c6769485415b7f25', '', 2, 1),
 (7, '41000113', 'Aguirre', 'Brian', 'agubri@correo.com', '2dfa174ae2688ec55d00f57c5a0a7783ba1f0e2981ab7df9f1cf933686c15274', '', 2, 1),
 (8, '51000111', 'Fernandez', 'Benito', 'ferben@correo.com', 'f127f4e9e4248f77eaa446ea9bff721e3e79eedf114ba6e1cfc633853ef07b4c', '', 3, 1),
-(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '76a8c23df7d396e6ff724af4263a4f1cb3f9858e1c29c449ac1153b34020bd26', '', 3, 1),
-(9, '41000114', 'Perez', 'Carlos', 'carlosperez@correo.com', 'bbe8be0ee37e9f1ce1cd25893151b35b6537ff607beca72e7b19814d2c7196c2', '', 2, 1);
-
+(10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', '601de117008d80e65ffad05dce97462d8f1b1e9aad6d68cf2b289703b8366b52', '', 3, 1);
 
 -- --------------------------------------------------------
 
@@ -224,6 +289,7 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 -- Estructura Stand-in para la vista `v_medicos`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `v_medicos`;
 CREATE TABLE `v_medicos` (
 `id_paciente` int(10) unsigned
 ,`id_usuario` int(10) unsigned
@@ -241,6 +307,7 @@ CREATE TABLE `v_medicos` (
 -- Estructura Stand-in para la vista `v_pacientes`
 -- (Véase abajo para la vista actual)
 --
+DROP VIEW IF EXISTS `v_pacientes`;
 CREATE TABLE `v_pacientes` (
 `id_paciente` int(10) unsigned
 ,`id_usuario` int(10) unsigned
@@ -259,7 +326,8 @@ CREATE TABLE `v_pacientes` (
 --
 DROP TABLE IF EXISTS `v_medicos`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_medicos`  AS SELECT `p`.`id_paciente` AS `id_paciente`, `p`.`id_usuario` AS `id_usuario`, `u`.`apellido` AS `apellido`, `u`.`nombres` AS `nombres`, `u`.`email` AS `email`, `os`.`id_obra_social` AS `id_obra_social`, `os`.`descripcion` AS `descripcion_obra_social`, `u`.`foto_path` AS `foto_path` FROM ((`pacientes` `p` join `usuarios` `u` on(`p`.`id_usuario` = `u`.`id_usuario`)) join `obras_sociales` `os` on(`p`.`id_obra_social` = `os`.`id_obra_social`)) WHERE `u`.`activo` = 1 ;
+DROP VIEW IF EXISTS `v_medicos`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `v_medicos`  AS SELECT `p`.`id_paciente` AS `id_paciente`, `p`.`id_usuario` AS `id_usuario`, `u`.`apellido` AS `apellido`, `u`.`nombres` AS `nombres`, `u`.`email` AS `email`, `os`.`id_obra_social` AS `id_obra_social`, `os`.`descripcion` AS `descripcion_obra_social`, `u`.`foto_path` AS `foto_path` FROM ((`pacientes` `p` join `usuarios` `u` on(`p`.`id_usuario` = `u`.`id_usuario`)) join `obras_sociales` `os` on(`p`.`id_obra_social` = `os`.`id_obra_social`)) WHERE `u`.`activo` = 1 ;
 
 -- --------------------------------------------------------
 
@@ -268,7 +336,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_pacientes`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pacientes`  AS SELECT `p`.`id_paciente` AS `id_paciente`, `p`.`id_usuario` AS `id_usuario`, `u`.`apellido` AS `apellido`, `u`.`nombres` AS `nombres`, `u`.`email` AS `email`, `os`.`id_obra_social` AS `id_obra_social`, `os`.`descripcion` AS `descripcion_obra_social`, `u`.`foto_path` AS `foto_path` FROM ((`pacientes` `p` join `usuarios` `u` on(`p`.`id_usuario` = `u`.`id_usuario`)) join `obras_sociales` `os` on(`p`.`id_obra_social` = `os`.`id_obra_social`)) WHERE `u`.`activo` = 1 ;
+DROP VIEW IF EXISTS `v_pacientes`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `v_pacientes`  AS SELECT `p`.`id_paciente` AS `id_paciente`, `p`.`id_usuario` AS `id_usuario`, `u`.`apellido` AS `apellido`, `u`.`nombres` AS `nombres`, `u`.`email` AS `email`, `os`.`id_obra_social` AS `id_obra_social`, `os`.`descripcion` AS `descripcion_obra_social`, `u`.`foto_path` AS `foto_path` FROM ((`pacientes` `p` join `usuarios` `u` on(`p`.`id_usuario` = `u`.`id_usuario`)) join `obras_sociales` `os` on(`p`.`id_obra_social` = `os`.`id_obra_social`)) WHERE `u`.`activo` = 1 ;
 
 --
 -- Índices para tablas volcadas

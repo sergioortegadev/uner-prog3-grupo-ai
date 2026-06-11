@@ -17,6 +17,11 @@ const startServer = async () => {
     server = app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     });
+
+    server.on('error', (error) => {
+      console.error(`❌ Error en servidor HTTP: ${error.message}`);
+      shutdown('SERVER_ERROR');
+    });
   } catch (error) {
     console.error('❌ Error fatal al conectar con la base de datos:');
     console.error(`   > ${error.message}`);
@@ -42,8 +47,10 @@ const shutdown = async (signal) => {
       console.log('🔐 Cerrando servidor HTTP...');
       const serverClose = new Promise((resolve, reject) => {
         server.close((err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err && err.code !== 'ERR_SERVER_NOT_RUNNING') {
+            return reject(err);
+          }
+          resolve();
         });
       });
       await Promise.race([serverClose, timeout]);

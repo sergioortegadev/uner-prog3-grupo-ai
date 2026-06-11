@@ -1,0 +1,32 @@
+meta {
+  name: Obtener Estadísticas
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/turnos/estadisticas
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~idPaciente: 
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Obtiene estadísticas operativas de la clínica (solo para Administradores).
+  
+  Incluye:
+  - Turnos por médico.
+  - Turnos por fecha.
+  - Turnos por especialidad.
+  - Historial de pacientes en el último año (filtrable por idPaciente).
+  
+  Parámetros opcionales:
+  - `idPaciente`: ID del paciente para filtrar el historial anual. Si no se provee, devuelve el historial de **todos** los pacientes.
+}

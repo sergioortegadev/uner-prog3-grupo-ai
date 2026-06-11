@@ -204,6 +204,29 @@ export const findById = async (id) => {
   return turnosMapper.toDTO(rows[0]);
 };
 
+export const getStatistics = async (idPaciente = null) => {
+  const [
+    [turnosPorMedicoResult],
+    [turnosPorFechaResult],
+    [turnosPorEspecialidadResult],
+    [turnosPacienteUltimoAnioResult],
+  ] = await Promise.all([
+    pool.query('CALL turnos_por_medico()'),
+    pool.query('CALL turnos_por_fecha()'),
+    pool.query('CALL turnos_por_especialidad()'),
+    pool.query('CALL turnos_paciente_ultimo_anio(?)', [idPaciente]),
+  ]);
+
+  return {
+    turnosPorMedico: turnosMapper.toDoctorStatistics(turnosPorMedicoResult[0]),
+    turnosPorFecha: turnosMapper.toDateStatistics(turnosPorFechaResult[0]),
+    turnosPorEspecialidad: turnosMapper.toSpecialtyStatistics(turnosPorEspecialidadResult[0]),
+    turnosPacienteUltimoAnio: turnosMapper.toPatientYearStatistics(
+      turnosPacienteUltimoAnioResult[0],
+    ),
+  };
+};
+
 /**
  * Actualiza el estado de atención de un turno.
  * @param {number} id

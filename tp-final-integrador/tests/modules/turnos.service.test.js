@@ -15,6 +15,7 @@ vi.mock('../../src/database/turnos.js', () => ({
   findByPatientId: vi.fn(),
   findById: vi.fn(),
   updateAttended: vi.fn(),
+  getStatistics: vi.fn(),
 }));
 
 vi.mock('../../src/database/medicos.js', () => ({
@@ -99,6 +100,25 @@ describe('Turnos Service - Unit Tests', () => {
       await expect(turnosService.getMyAppointments({ id: 1, rol: 'admin' })).rejects.toMatchObject({
         code: 'FORBIDDEN',
         message: 'El rol del usuario no tiene permisos para esta acción',
+      });
+    });
+  });
+
+  describe('getStatistics()', () => {
+    it('debería retornar las estadísticas obtenidas desde el modelo', async () => {
+      const statistics = {
+        turnosPorMedico: [],
+        turnosPorFecha: [],
+        turnosPorEspecialidad: [],
+        turnosPacienteUltimoAnio: [],
+      };
+      turnosModel.getStatistics.mockResolvedValue(statistics);
+
+      const result = await turnosService.getStatistics(4);
+
+      expect(turnosModel.getStatistics).toHaveBeenCalledWith(4);
+      expect(result).toEqual({
+        ...statistics,
       });
     });
   });

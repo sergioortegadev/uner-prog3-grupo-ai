@@ -99,6 +99,10 @@ export const markAsAttended = async (idTurno, idUsuario) => {
   };
 };
 
+export const getStatistics = async (idPaciente = null) => {
+  return await turnosModel.getStatistics(idPaciente);
+};
+
 // --- Helpers de validación y lógica interna ---
 
 const ensureDoctorExistsAndIsActive = async (id, isUserId = false) => {
