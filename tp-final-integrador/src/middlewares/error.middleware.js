@@ -1,6 +1,7 @@
 import { errorResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES } from '../helpers/errors.helper.js';
 import { AppError } from '../helpers/errors.helper.js';
+import fs from 'fs';
 
 /**
  * Middleware para manejar rutas no encontradas (404)
@@ -16,7 +17,19 @@ export const notFoundHandler = (req, res) => {
 /**
  * Manejador de errores global
  */
-export const globalErrorHandler = (err, req, res, _next) => {
+export const globalErrorHandler = async (err, req, res, _next) => {
+  //Limpieza automática de archivos huérfanos si ocurrió un error
+  if (req.file && req.file.path) {
+    try {
+      await fs.promises.unlink(req.file.path);
+    } catch (unlinkError) {
+      // Si el error es ENOENT, significa que ya fue borrado o no se creó, lo ignoramos
+      if (unlinkError.code !== 'ENOENT') {
+        console.error('Error al eliminar archivo huérfano en globalErrorHandler:', unlinkError);
+      }
+    }
+  }
+
   // 1. Si es un error operacional (AppError o tiene el flag), respondemos con sus datos
   if (err instanceof AppError || err.isOperational) {
     return errorResponse({
@@ -37,6 +50,21 @@ export const globalErrorHandler = (err, req, res, _next) => {
       errorType: ERROR_CODES.BAD_REQUEST,
       message: 'El cuerpo de la petición (JSON) tiene un formato inválido',
       details: process.env.NODE_ENV === 'development' ? [{ error: err.message }] : [],
+    });
+  }
+
+  // 3. Errores de Multer (campos no permitidos, tamaño de archivo excedido, etc.)
+  if (err.name === 'MulterError') {
+    let message = 'Error en la subida de archivos';
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = `El campo '${err.field}' no es válido. Debe enviar el archivo en el campo 'foto'`;
+    } else if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'El archivo es demasiado grande';
+    }
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.BAD_REQUEST,
+      message,
     });
   }
 

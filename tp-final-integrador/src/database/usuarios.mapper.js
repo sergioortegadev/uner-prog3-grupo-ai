@@ -20,6 +20,7 @@ export const toDTO = (row) => {
   if (row.email !== undefined) dto.email = row.email;
   if (row.rol !== undefined) dto.rol = row.rol;
   if (row.nombre_completo !== undefined) dto.nombreCompleto = row.nombre_completo;
+  if (row.foto_path !== undefined) dto.fotoUrl = row.foto_path;
 
   return dto;
 };
