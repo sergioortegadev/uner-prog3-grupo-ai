@@ -36,6 +36,12 @@ export const ERROR_CODES = {
     status: 415,
     message: 'Formato de contenido no soportado',
   },
+  PAYLOAD_TOO_LARGE: {
+    code: 'PAYLOAD_TOO_LARGE',
+    status: 413,
+    message:
+      'Tamaño del archivo, imagen o información que intentas enviar supera el límite permitido por el servidor',
+  },
 };
 
 /**

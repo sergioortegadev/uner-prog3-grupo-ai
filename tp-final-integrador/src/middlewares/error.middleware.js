@@ -70,7 +70,11 @@ export const globalErrorHandler = async (err, req, res, _next) => {
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
       message = `El campo '${err.field}' no es válido. Debe enviar el archivo en el campo 'foto'`;
     } else if (err.code === 'LIMIT_FILE_SIZE') {
-      message = 'El archivo es demasiado grande';
+      return errorResponse({
+        res,
+        errorType: ERROR_CODES.PAYLOAD_TOO_LARGE,
+        message: 'El archivo es demasiado grande',
+      });
     }
     return errorResponse({
       res,
