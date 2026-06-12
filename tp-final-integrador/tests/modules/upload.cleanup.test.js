@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import multer from 'multer';
@@ -29,6 +29,27 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
     testApp = express();
     testApp.use(express.json());
 
+    // --- Success Routes ---
+    testApp.post('/test-single-success', upload.single('foto'), (req, res) => {
+      res.status(200).json({ filename: req.file.filename });
+    });
+
+    testApp.post('/test-array-success', upload.array('fotos', 3), (req, res) => {
+      res.status(200).json({ filenames: req.files.map((f) => f.filename) });
+    });
+
+    testApp.post(
+      '/test-fields-success',
+      upload.fields([{ name: 'avatar' }, { name: 'gallery' }]),
+      (req, res) => {
+        const filenames = [];
+        if (req.files.avatar) filenames.push(req.files.avatar[0].filename);
+        if (req.files.gallery) filenames.push(req.files.gallery[0].filename);
+        res.status(200).json({ filenames });
+      },
+    );
+
+    // --- Error Routes ---
     // Ruta que sube un solo archivo y falla
     testApp.post('/test-single-error', upload.single('foto'), (req, res, next) => {
       next(new Error('Forced Error'));
@@ -51,6 +72,13 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
     testApp.use(globalErrorHandler);
   });
 
+  afterEach(() => {
+    if (fs.existsSync(TEST_UPLOADS_DIR)) {
+      const files = fs.readdirSync(TEST_UPLOADS_DIR);
+      files.forEach((f) => fs.unlinkSync(path.join(TEST_UPLOADS_DIR, f)));
+    }
+  });
+
   afterAll(() => {
     if (fs.existsSync(TEST_UPLOADS_DIR)) {
       fs.rmSync(TEST_UPLOADS_DIR, { recursive: true, force: true });
@@ -59,11 +87,6 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
 
   describe('Success scenarios', () => {
     it('should keep req.file on disk when upload is successful', async () => {
-      // Definimos una ruta de éxito para este test
-      testApp.post('/test-single-success', upload.single('foto'), (req, res) => {
-        res.status(200).json({ filename: req.file.filename });
-      });
-
       const response = await request(testApp)
         .post('/test-single-success')
         .attach('foto', dummyFilePath);
@@ -73,16 +96,9 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
       const files = fs.readdirSync(TEST_UPLOADS_DIR);
       expect(files.length).toBe(1);
       expect(files[0]).toBe(response.body.filename);
-
-      // Limpieza manual para el siguiente test
-      fs.unlinkSync(path.join(TEST_UPLOADS_DIR, files[0]));
     });
 
     it('should keep all req.files (array) on disk when upload is successful', async () => {
-      testApp.post('/test-array-success', upload.array('fotos', 3), (req, res) => {
-        res.status(200).json({ filenames: req.files.map((f) => f.filename) });
-      });
-
       const response = await request(testApp)
         .post('/test-array-success')
         .attach('fotos', dummyFilePath)
@@ -94,23 +110,9 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
       expect(files.length).toBe(2);
       expect(response.body.filenames).toContain(files[0]);
       expect(response.body.filenames).toContain(files[1]);
-
-      // Limpieza manual
-      files.forEach((f) => fs.unlinkSync(path.join(TEST_UPLOADS_DIR, f)));
     });
 
     it('should keep all req.files (fields) on disk when upload is successful', async () => {
-      testApp.post(
-        '/test-fields-success',
-        upload.fields([{ name: 'avatar' }, { name: 'gallery' }]),
-        (req, res) => {
-          const filenames = [];
-          if (req.files.avatar) filenames.push(req.files.avatar[0].filename);
-          if (req.files.gallery) filenames.push(req.files.gallery[0].filename);
-          res.status(200).json({ filenames });
-        },
-      );
-
       const response = await request(testApp)
         .post('/test-fields-success')
         .attach('avatar', dummyFilePath)
@@ -120,9 +122,6 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
 
       const files = fs.readdirSync(TEST_UPLOADS_DIR);
       expect(files.length).toBe(2);
-
-      // Limpieza manual
-      files.forEach((f) => fs.unlinkSync(path.join(TEST_UPLOADS_DIR, f)));
     });
   });
 
