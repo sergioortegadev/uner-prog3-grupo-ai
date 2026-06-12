@@ -1,3 +1,5 @@
+import { toPublicUrl } from '../helpers/url.helper.js';
+
 /**
  * Mapper para el módulo de Usuarios.
  * Convierte registros de la base de datos (snake_case) a objetos de transferencia de datos (DTO) en camelCase.
@@ -20,7 +22,10 @@ export const toDTO = (row) => {
   if (row.email !== undefined) dto.email = row.email;
   if (row.rol !== undefined) dto.rol = row.rol;
   if (row.nombre_completo !== undefined) dto.nombreCompleto = row.nombre_completo;
-  if (row.foto_path !== undefined) dto.fotoUrl = row.foto_path;
+
+  if (row.foto_path !== undefined) {
+    dto.fotoUrl = toPublicUrl(row.foto_path);
+  }
 
   return dto;
 };
