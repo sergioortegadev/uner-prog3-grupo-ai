@@ -15,4 +15,5 @@ export const ROUTES = {
   MEDICOS: '/medicos',
   ESPECIALIDADES: '/especialidades',
   PACIENTES: '/pacientes',
+  USUARIOS: '/usuarios',
 };
