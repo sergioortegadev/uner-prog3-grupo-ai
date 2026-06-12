@@ -1,6 +1,5 @@
 import { errorResponse } from '../helpers/response.helper.js';
-import { ERROR_CODES } from '../helpers/errors.helper.js';
-import { AppError } from '../helpers/errors.helper.js';
+import { ERROR_CODES, AppError } from '../helpers/errors.helper.js';
 import fs from 'fs';
 
 /**
@@ -18,15 +17,27 @@ export const notFoundHandler = (req, res) => {
  * Manejador de errores global
  */
 export const globalErrorHandler = async (err, req, res, _next) => {
-  //Limpieza automática de archivos huérfanos si ocurrió un error
-  if (req.file && req.file.path) {
-    try {
-      await fs.promises.unlink(req.file.path);
-    } catch (unlinkError) {
-      // Si el error es ENOENT, significa que ya fue borrado o no se creó, lo ignoramos
-      if (unlinkError.code !== 'ENOENT') {
-        console.error('Error al eliminar archivo huérfano en globalErrorHandler:', unlinkError);
-      }
+  // Limpieza automática de archivos huérfanos si ocurrió un error
+  try {
+    const filesToDelete = req.file
+      ? [req.file]
+      : req.files
+        ? Array.isArray(req.files)
+          ? req.files
+          : Object.values(req.files).flat()
+        : [];
+
+    if (filesToDelete.length > 0) {
+      await Promise.allSettled(
+        filesToDelete.map((f) => {
+          if (f.path) return fs.promises.unlink(f.path);
+          return Promise.resolve();
+        }),
+      );
+    }
+  } catch (unlinkError) {
+    if (unlinkError.code !== 'ENOENT') {
+      console.error('Error al eliminar archivo huérfano en globalErrorHandler:', unlinkError);
     }
   }
 
@@ -68,7 +79,15 @@ export const globalErrorHandler = async (err, req, res, _next) => {
     });
   }
 
-  // 3. BUG (Programming Error) o error no controlado
+  if (err.message === 'Unexpected end of form') {
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.BAD_REQUEST,
+      message: 'La subida del archivo fue interrumpida abruptamente. Por favor, intente de nuevo.',
+    });
+  }
+
+  // 4. BUG (Programming Error) o error no controlado
   console.error('ERROR NO CONTROLADO:', err);
 
   const status = err.status || 500;
