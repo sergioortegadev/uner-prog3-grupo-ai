@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
 const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'usuarios');
-
+const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 const storage = multer.diskStorage({
@@ -20,13 +20,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (!allowedExts.includes(ext)) {
+  if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
     return cb(
       new AppError(
         ERROR_CODES.UNSUPPORTED_MEDIA_TYPE,
-        `Tipo de archivo no permitido. Solo se permiten: ${allowedExts.join(', ')}`,
+        `Tipo de archivo no permitido. Solo se permiten: ${ALLOWED_MIMETYPES.join(', ')}`,
       ),
       false,
     );
