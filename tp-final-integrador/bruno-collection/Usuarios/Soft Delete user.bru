@@ -1,0 +1,20 @@
+meta {
+  name: Soft Delete user
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/usuarios/:id_usuario
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id_usuario: 11
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

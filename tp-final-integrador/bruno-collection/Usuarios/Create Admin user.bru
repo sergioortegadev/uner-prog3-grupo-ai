@@ -1,0 +1,26 @@
+meta {
+  name: Create Admin user
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/usuarios/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "documento": 123456,
+      "apellido": "Grace",
+      "nombres": "Hoppers",
+      "email": "grahop@correo.com",
+      "contrasenia": "grahop"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

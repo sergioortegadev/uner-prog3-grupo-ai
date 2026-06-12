@@ -1,0 +1,33 @@
+meta {
+  name: Update user - full partial
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/usuarios/:id_usuario
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id_usuario: 11
+}
+
+body:json {
+  {
+      "documento": 28850033,
+      "apellido": "Ortega",
+      "nombres": "Sergio",
+      "email": "sergio@correo.com",
+      "contrasenia": "sergio",
+      "foto_path": "algo",
+      "rol": 3
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
