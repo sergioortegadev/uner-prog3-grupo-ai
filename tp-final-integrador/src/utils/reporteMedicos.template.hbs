@@ -1,0 +1,237 @@
+<html lang='es'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <title>Reporte - BBLOS</title>
+    <style>
+      /* 1. Reset completo de la página A4 */
+      @page {
+        size: A4;
+        margin: 0;
+        /* Dejar en 0 elimina los espacios en blanco fantasmas */
+      }
+
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        background-color: #ffffff;
+      }
+
+      /* 2. El truco del layout: Una tabla contenedora invisible que maneja las páginas */
+      .layout-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      /* Estructuramos el espacio reservado para Header y Footer en cada carilla */
+      .header-spacer {
+        height: 170px;
+      }
+
+      .footer-spacer {
+        height: 140px;
+      }
+
+      /* 3. Encabezado Fijo Real */
+      .header-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 140px;
+        background-color: #2b37fb;
+        border-bottom: 8px solid #2495e6;
+        padding: 0 60px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        z-index: 1000;
+      }
+
+      .logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+      }
+
+      .title {
+        color: #ffffff;
+        font-size: 30px;
+        font-weight: bold;
+        margin: 0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+      }
+
+      /* 4. Área de contenido dinámico */
+      .content {
+        padding: 30px 60px;
+      }
+
+      .subtitle {
+        color: #333333;
+        text-align: right;
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        border-bottom: 4px solid #e0e0e0;
+        padding-bottom: 4px;
+      }
+
+      /* 5. Tabla de Datos de la DB */
+      .data-table {
+        border: 2px solid #aaa;
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      /* Fuerza a repetir los nombres de las columnas en cada salto */
+      .data-table thead {
+        display: table-header-group;
+      }
+
+      .data-table th {
+        background-color: #eee;
+        color: #333333;
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        padding: 12px;
+        border-bottom: 2px solid #aaa;
+      }
+
+      .data-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .col-1 {
+        width: 60px;
+        text-align: left;
+      }
+
+      .col-2 {
+        width: auto;
+      }
+
+      .col-3 {
+        width: 120px;
+        text-align: right;
+      }
+
+      .data-table td {
+        padding: 12px;
+        border: 1px solid #aaa;
+        color: #555555;
+        font-size: 14px;
+        vertical-align: middle;
+      }
+
+      .data-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      /* 6. Footer Fijo Real */
+      .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background-color: #222;
+        border-top: 8px solid #d8ef73;
+        color: #d8ef73;
+        text-align: center;
+        padding: 15px 20px;
+        font-size: 14px;
+        z-index: 1000;
+      }
+
+      .footer h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+      }
+
+      .footer p {
+        margin: 4px 0;
+      }
+
+      .footer a {
+        color: #d8ef73;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <header class='header-container'>
+      <img class='logo' src='{{logo}}' alt='Logo' />
+      <h1 class='title'>REPORTE</h1>
+    </header>
+
+    <table class='layout-table'>
+      <thead>
+        <tr>
+          <td class='header-spacer'></td>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>
+            <main class='content'>
+              <h2 class='subtitle'>Turnos por médico</h2>
+              <table class='data-table'>
+                <thead>
+                  <tr>
+                    <th class='col-1'>ID</th>
+                    <th class='col-2'>Apellido y nombre del médico</th>
+                    <th class='col-3'>Turnos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each items}}
+                    <tr>
+                      <td class='col-1'>{{this.idMedico}}</td>
+                      <td class='col-2'>{{this.medico}}</td>
+                      <td class='col-3'>{{this.cantidadTurnos}}</td>
+                    </tr>
+                  {{else}}
+                    <tr>
+                      <td colspan='3' style='text-align: center; color: #999;'>No hay registros
+                        disponibles</td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </main>
+          </td>
+        </tr>
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <td class='footer-spacer'></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <footer class='footer'>
+      <h3><strong>Centro Médico de Salud Integral - BBLOS</strong></h3>
+      <p>Teléfonos: +54 (321) 555-0199 / +54 (321) 555-0122</p>
+      <p>Email: <a href='mailto:contacto@bblos.com'>contacto@bblos.com</a></p>
+    </footer>
+
+  </body>
+
+</html>

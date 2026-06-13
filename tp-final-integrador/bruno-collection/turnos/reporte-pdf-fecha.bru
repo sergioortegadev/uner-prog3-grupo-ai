@@ -1,0 +1,16 @@
+meta {
+  name: Reporte PDF Fecha
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/turnos/estadisticas/fecha
+  body: none
+  auth: inherit
+}
+
+docs {
+  Genera un reporte PDF con la cantidad de turnos por fecha.
+  Acceso: Administrador.
+}

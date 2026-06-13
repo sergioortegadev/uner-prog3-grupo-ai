@@ -33,6 +33,36 @@ export const getStatistics = async (req, res) => {
   return successResponse(res, statistics);
 };
 
+export const getStatisticsPDFMedicos = async (req, res) => {
+  const { buffer, headers } = await turnosService.getStatisticsPDFMedicos();
+
+  res.set(headers);
+  res.status(200).end(buffer);
+};
+
+export const getStatisticsPDFFecha = async (req, res) => {
+  const { buffer, headers } = await turnosService.getStatisticsPDFFecha();
+
+  res.set(headers);
+  res.status(200).end(buffer);
+};
+
+export const getStatisticsPDFEspecialidad = async (req, res) => {
+  const { buffer, headers } = await turnosService.getStatisticsPDFEspecialidad();
+
+  res.set(headers);
+  res.status(200).end(buffer);
+};
+
+export const getStatisticsPDFPaciente = async (req, res) => {
+  const { id_paciente } = matchedData(req, { locations: ['params'] });
+
+  const { buffer, headers } = await turnosService.getStatisticsPDFPaciente(id_paciente);
+
+  res.set(headers);
+  res.status(200).end(buffer);
+};
+
 export const markAsAttended = async (req, res) => {
   const { id } = matchedData(req);
   const turnoActualizado = await turnosService.markAsAttended(id, req.user.id);

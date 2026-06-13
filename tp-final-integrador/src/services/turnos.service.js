@@ -6,6 +6,7 @@ import { findActiveOrThrow } from '../helpers/entity.helper.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 import { DB_STATUS, ATTENDED_STATUS } from '../constants/common.constants.js';
 import { ROLES } from '../constants/roles.constants.js';
+import { pdfGenerator } from '../helpers/pdfGenerator.helper.js';
 
 /**
  * Obtiene los turnos propios del usuario según su rol.
@@ -101,6 +102,76 @@ export const markAsAttended = async (idTurno, idUsuario) => {
 
 export const getStatistics = async (idPaciente = null) => {
   return await turnosModel.getStatistics(idPaciente);
+};
+
+export const getStatisticsPDFMedicos = async () => {
+  const estadisticas = await turnosModel.getStatisticsMedicos();
+  const pdfBuffer = await pdfGenerator(estadisticas.turnosPorMedico, 'reporteMedicos');
+
+  return {
+    buffer: pdfBuffer,
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-medico.pdf',
+    },
+  };
+};
+
+export const getStatisticsPDFFecha = async () => {
+  const estadisticas = await turnosModel.getStatisticsFecha();
+  const pdfBuffer = await pdfGenerator(estadisticas.turnosPorFecha, 'reporteFecha');
+
+  return {
+    buffer: pdfBuffer,
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-fecha.pdf',
+    },
+  };
+};
+
+export const getStatisticsPDFEspecialidad = async () => {
+  const estadisticas = await turnosModel.getStatisticsEspecialidad();
+  const pdfBuffer = await pdfGenerator(estadisticas.turnosPorEspecialidad, 'reporteEspecialidad');
+
+  return {
+    buffer: pdfBuffer,
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-especialidad.pdf',
+    },
+  };
+};
+
+export const getStatisticsPDFPaciente = async (idPaciente) => {
+  const estadisticas = await turnosModel.getStatisticsPaciente(idPaciente);
+
+  if (
+    !estadisticas.turnosPacienteUltimoAnio ||
+    estadisticas.turnosPacienteUltimoAnio.length === 0
+  ) {
+    throw new AppError(
+      ERROR_CODES.NOT_FOUND,
+      'No se encontraron turnos para el paciente en el último año',
+    );
+  }
+
+  const patientData = estadisticas.turnosPacienteUltimoAnio[0];
+  const patienceSubtitle = `Del paciente: ${patientData.paciente}. Con ID: ${patientData.idPaciente}`;
+
+  const pdfBuffer = await pdfGenerator(
+    estadisticas.turnosPacienteUltimoAnio,
+    'reportePaciente',
+    patienceSubtitle,
+  );
+
+  return {
+    buffer: pdfBuffer,
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename=reporte-turnos-paciente-${idPaciente}.pdf`,
+    },
+  };
 };
 
 // --- Helpers de validación y lógica interna ---

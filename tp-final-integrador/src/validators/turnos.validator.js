@@ -67,3 +67,12 @@ export const validateStatistics = [
     .withMessage('El ID del paciente debe ser un número entero positivo')
     .toInt(),
 ];
+
+export const validateStatisticsPaciente = [
+  param('id_paciente')
+    .notEmpty()
+    .withMessage('El ID del paciente es requerido')
+    .isInt({ min: 1 })
+    .withMessage('El ID del paciente debe ser un número entero positivo')
+    .toInt(),
+];

@@ -204,6 +204,12 @@ export const findById = async (id) => {
   return turnosMapper.toDTO(rows[0]);
 };
 
+/**
+ * Estadísticas All.
+ * Trae estadísticas de Medicos, Fecha, Especialidades, y por Paciente (con ID).
+ * @param {number} idPaciente por defecto null.
+ * @returns {Promise<Object|null>}
+ */
 export const getStatistics = async (idPaciente = null) => {
   const [
     [turnosPorMedicoResult],
@@ -221,6 +227,57 @@ export const getStatistics = async (idPaciente = null) => {
     turnosPorMedico: turnosMapper.toDoctorStatistics(turnosPorMedicoResult[0]),
     turnosPorFecha: turnosMapper.toDateStatistics(turnosPorFechaResult[0]),
     turnosPorEspecialidad: turnosMapper.toSpecialtyStatistics(turnosPorEspecialidadResult[0]),
+    turnosPacienteUltimoAnio: turnosMapper.toPatientYearStatistics(
+      turnosPacienteUltimoAnioResult[0],
+    ),
+  };
+};
+/**
+ * Estadísticas de Medicos en PDF.
+ * @returns {Promise<Object|null>}
+ */
+export const getStatisticsMedicos = async () => {
+  const [[turnosPorMedicoResult]] = await Promise.all([pool.query('CALL turnos_por_medico()')]);
+
+  return {
+    turnosPorMedico: turnosMapper.toDoctorStatistics(turnosPorMedicoResult[0]),
+  };
+};
+/**
+ * Estadísticas por Fecha en PDF.
+ * @returns {Promise<Object|null>}
+ */
+export const getStatisticsFecha = async () => {
+  const [[turnosPorFechaResult]] = await Promise.all([pool.query('CALL turnos_por_fecha()')]);
+
+  return {
+    turnosPorFecha: turnosMapper.toDateStatistics(turnosPorFechaResult[0]),
+  };
+};
+/**
+ * Estadísticas por Especialidad en PDF.
+ * @returns {Promise<Object|null>}
+ */
+export const getStatisticsEspecialidad = async () => {
+  const [[turnosPorEspecialidadResult]] = await Promise.all([
+    pool.query('CALL turnos_por_especialidad()'),
+  ]);
+
+  return {
+    turnosPorEspecialidad: turnosMapper.toSpecialtyStatistics(turnosPorEspecialidadResult[0]),
+  };
+};
+/**
+ * Estadísticas por Paciente, ultimo año, en PDF.
+ * @param {number} idPaciente por defecto null.
+ * @returns {Promise<Object|null>}
+ */
+export const getStatisticsPaciente = async (idPaciente = null) => {
+  const [[turnosPacienteUltimoAnioResult]] = await Promise.all([
+    pool.query('CALL turnos_paciente_ultimo_anio(?)', [idPaciente]),
+  ]);
+
+  return {
     turnosPacienteUltimoAnio: turnosMapper.toPatientYearStatistics(
       turnosPacienteUltimoAnioResult[0],
     ),

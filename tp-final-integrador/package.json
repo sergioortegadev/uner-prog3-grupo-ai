@@ -1,6 +1,6 @@
 {
   "name": "tp-final-integrador",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Backend robusto para la gestión integral de una clínica médica, incluyendo autenticación, gestión de especialidades, médicos, obras sociales, pacientes, asignación de turnos y generación de estadísticas operativas.",
   "main": "src/index.js",
   "directories": {
@@ -29,6 +29,7 @@
     "cors": "2.8.6",
     "express": "5.2.1",
     "express-validator": "7.3.2",
+    "handlebars": "4.7.9",
     "helmet": "8.1.0",
     "jsonwebtoken": "9.0.3",
     "morgan": "1.10.1",
@@ -36,7 +37,8 @@
     "mysql2": "3.20.0",
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
-    "passport-local": "1.0.0"
+    "passport-local": "1.0.0",
+    "puppeteer": "25.1.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

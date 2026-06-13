@@ -1,0 +1,20 @@
+meta {
+  name: Reporte PDF Paciente
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/turnos/estadisticas/paciente/:id_paciente
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id_paciente: 1
+}
+
+docs {
+  Genera un reporte PDF con los turnos del último año para un paciente específico.
+  Acceso: Administrador.
+}
