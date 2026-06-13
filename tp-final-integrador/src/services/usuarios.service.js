@@ -1,10 +1,8 @@
-import path from 'node:path';
 import * as usuariosModel from '../database/usuarios.js';
 import * as obrasSocialesModel from '../database/obras_sociales.js';
 import * as especialidadesModel from '../database/especialidades.js';
 import { findActiveOrThrow } from '../helpers/entity.helper.js';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
-import { ROLES } from '../constants/roles.constants.js';
 import { getUploadsDir } from '../middlewares/multer.middleware.js';
 import { deleteUploadedFile } from '../helpers/url.helper.js';
 
@@ -86,45 +84,20 @@ export const getByIdAll = async (idUsuario) => {
  * @param {Object} datosNuevos - Datos a actualizar
  * @param {Object} requester - Datos del usuario que realiza la solicitud { id, rol }
  */
-export const updateUser = async (idUsuario, datosNuevos, requester) => {
+export const updateUser = async (idUsuario, datosNuevos) => {
   const targetUser = await usuariosModel.findById(idUsuario);
 
   if (!targetUser) {
     throw new AppError(ERROR_CODES.NOT_FOUND, `Usuario con ID ${idUsuario} no encontrado`);
   }
 
-  // REGLA DE SEGURIDAD:
-  // 1. Un usuario siempre puede actualizarse a sí mismo.
-  // 2. Un Admin puede actualizar a Médicos (1) y Pacientes (2).
-  // 3. Un Admin NO puede actualizar a otro Admin (3), a menos que sea él mismo.
-
-  const isSelfUpdate = requester.id === idUsuario;
-  const isRequesterAdmin = requester.rol === ROLES.ADMIN;
-  const isTargetAdmin = targetUser.rol === ROLES.ADMIN;
-
-  if (!isSelfUpdate) {
-    if (!isRequesterAdmin) {
-      throw new AppError(
-        ERROR_CODES.FORBIDDEN,
-        'No tienes permiso para actualizar a otros usuarios',
-      );
-    }
-
-    if (isTargetAdmin) {
-      throw new AppError(
-        ERROR_CODES.FORBIDDEN,
-        'Un administrador no puede modificar a otro administrador',
-      );
-    }
-  }
-
   const updatedUser = await usuariosModel.updateUser(idUsuario, datosNuevos);
 
   // Si la actualización fue exitosa y se subió una nueva foto, eliminamos la anterior del disco
   if (datosNuevos.foto_path && targetUser.fotoPath) {
-    const oldFileName = path.basename(targetUser.fotoPath);
+    const oldFileName = targetUser.fotoPath;
 
-    // Evitamos intentar borrar si no hay un archivo previo real o si es el mismo (no debería pasar)
+    // Evitamos intentar borrar si no hay un archivo previo real o si es el mismo
     if (oldFileName && oldFileName !== datosNuevos.foto_path) {
       await deleteUploadedFile(oldFileName, getUploadsDir()).catch((error) => {
         // Logueamos el error pero no fallamos la petición ya que el usuario ya se actualizó en DB

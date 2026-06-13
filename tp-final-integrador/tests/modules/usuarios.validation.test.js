@@ -106,31 +106,6 @@ describe('Usuarios Validation Integration Tests', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.rol).toBe(3);
     });
-
-    it('debería fallar si un administrador intenta modificar a otro administrador', async () => {
-      // Benito (ID 8) intenta modificar a Silvia (ID 10)
-      // Primero aseguramos que Silvia existe en la DB de test
-      const { pool } = await import('../../src/config/db.js');
-      const { ROLES } = await import('../../src/constants/roles.constants.js');
-      await pool.execute(
-        'INSERT INTO usuarios (id_usuario, documento, apellido, nombres, email, contrasenia, foto_path, rol, activo) VALUES (?, ?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)',
-        [10, '51000112', 'Gomez', 'Silvia', 'gomsil@correo.com', 'password123', '', ROLES.ADMIN, 1],
-      );
-
-      const response = await request(app)
-        .put('/api/v1/usuarios/10')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          nombres: 'Silvia Modificada',
-        });
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-      expect(response.body.error.message).toBe(
-        'Un administrador no puede modificar a otro administrador',
-      );
-    });
   });
 
   describe('POST /api/v1/usuarios/admin', () => {

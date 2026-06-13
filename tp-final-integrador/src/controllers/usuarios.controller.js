@@ -40,10 +40,7 @@ export const updateUser = async (req, res) => {
     userDatosNuevos.foto_path = req.file.filename;
   }
 
-  const usuarioActualizado = await usuariosService.updateUser(idUsuario, userDatosNuevos, {
-    id: req.user.id,
-    rol: req.user.rol,
-  });
+  const usuarioActualizado = await usuariosService.updateUser(idUsuario, userDatosNuevos);
 
   return successResponse(res, usuarioActualizado, 200);
 };
