@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs/promises';
 
 /**
  * Convierte una ruta de archivo del sistema en una URL pública absoluta para el cliente.
@@ -28,5 +29,22 @@ export const toPublicUrl = (filePath, publicDir = '/uploads/usuarios') => {
   } catch {
     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     return `${cleanBase}${cleanPublicDir}/${fileName}`;
+  }
+};
+
+/**
+ * Elimina un archivo del sistema de archivos, ignorando errores de tipo ENOENT.
+ * Es seguro de llamar incluso si el archivo ya no existe.
+ *
+ * @param {string} filenameOrPath - Nombre base del archivo o ruta completa.
+ * @param {string} [uploadsDir] - Opcional. Ruta al directorio si se pasó solo el nombre.
+ */
+export const deleteUploadedFile = async (filenameOrPath, uploadsDir) => {
+  if (!filenameOrPath) return;
+  try {
+    const filePath = uploadsDir ? path.join(uploadsDir, filenameOrPath) : filenameOrPath;
+    await fs.unlink(filePath);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
   }
 };
