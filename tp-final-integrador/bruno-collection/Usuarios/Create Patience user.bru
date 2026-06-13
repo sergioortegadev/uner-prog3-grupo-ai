@@ -1,0 +1,26 @@
+meta {
+  name: Create Patience user
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/usuarios/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "documento": 654123,
+      "apellido": "Mario",
+      "nombres": "Pedroni",
+      "email": "marped@correo.com",
+      "contrasenia": "marped"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

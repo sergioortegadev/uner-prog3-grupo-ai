@@ -8,6 +8,7 @@ import turnosRouter from '../turnos.routes.js';
 import medicosRouter from '../medicos.routes.js';
 import EspecialidadesRouter from '../especialidades.routes.js';
 import pacientesRouter from '../pacientes.routes.js';
+import usuariosRouter from '../usuarios.routes.js';
 
 const v1Router = Router();
 
@@ -22,5 +23,6 @@ v1Router.use(ROUTES.TURNOS, turnosRouter);
 v1Router.use(ROUTES.MEDICOS, medicosRouter);
 v1Router.use(ROUTES.ESPECIALIDADES, EspecialidadesRouter);
 v1Router.use(ROUTES.PACIENTES, pacientesRouter);
+v1Router.use(ROUTES.USUARIOS, usuariosRouter);
 
 export default v1Router;

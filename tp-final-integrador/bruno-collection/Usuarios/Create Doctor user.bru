@@ -1,0 +1,30 @@
+meta {
+  name: Create Doctor user
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/usuarios/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "documento": 789456,
+      "apellido": "Ana",
+      "nombres": "Lorenzati",
+      "email": "analor@correo.com",
+      "contrasenia": "analor",
+      "id_especialidad": 3,
+      "matricula": 45698,
+      "descripcion": "especialista",
+      "valor_consulta": 12500
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
