@@ -3,14 +3,21 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
-const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'usuarios');
+const getUploadsDir = () =>
+  process.env.UPLOADS_DIR || path.join(process.cwd(), 'public', 'uploads', 'usuarios');
+
 const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.webp'];
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-    cb(null, UPLOADS_DIR);
+  destination: (_req, _file, cb) => {
+    const dir = getUploadsDir();
+    // Asegurarse de que el directorio exista
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -20,11 +27,12 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!ALLOWED_MIMETYPES.includes(file.mimetype) || !ALLOWED_EXTENSIONS.includes(ext)) {
     return cb(
       new AppError(
         ERROR_CODES.UNSUPPORTED_MEDIA_TYPE,
-        `Tipo de archivo no permitido. Solo se permiten: ${ALLOWED_MIMETYPES.join(', ')}`,
+        `Tipo de archivo no permitido. Solo se permiten: ${ALLOWED_EXTENSIONS.join(', ')}`,
       ),
       false,
     );
