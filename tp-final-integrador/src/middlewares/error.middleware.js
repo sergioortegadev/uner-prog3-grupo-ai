@@ -1,6 +1,6 @@
 import { errorResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES, AppError } from '../helpers/errors.helper.js';
-import fs from 'node:fs';
+import { deleteUploadedFile } from '../helpers/url.helper.js';
 
 /**
  * Middleware para manejar rutas no encontradas (404)
@@ -28,17 +28,10 @@ export const globalErrorHandler = async (err, req, res, _next) => {
         : [];
 
     if (filesToDelete.length > 0) {
-      await Promise.allSettled(
-        filesToDelete.map((f) => {
-          if (f.path) return fs.promises.unlink(f.path);
-          return Promise.resolve();
-        }),
-      );
+      await Promise.allSettled(filesToDelete.map((f) => deleteUploadedFile(f.path)));
     }
   } catch (unlinkError) {
-    if (unlinkError.code !== 'ENOENT') {
-      console.error('Error al eliminar archivo huérfano en globalErrorHandler:', unlinkError);
-    }
+    console.error('Error al eliminar archivo huérfano en globalErrorHandler:', unlinkError);
   }
 
   // 1. Si es un error operacional (AppError o tiene el flag), respondemos con sus datos
@@ -90,8 +83,16 @@ export const globalErrorHandler = async (err, req, res, _next) => {
       message: 'La subida del archivo fue interrumpida abruptamente. Por favor, intente de nuevo.',
     });
   }
+  // 4. Manejo de errores de base de datos (como duplicados)
+  if (err.code === 'ER_DUP_ENTRY') {
+    return errorResponse({
+      res,
+      errorType: ERROR_CODES.DUPLICATE_ENTRY,
+      details: process.env.NODE_ENV === 'development' ? [{ sqlMessage: err.sqlMessage }] : [],
+    });
+  }
 
-  // 4. BUG (Programming Error) o error no controlado
+  // 5. BUG (Programming Error) o error no controlado
   console.error('ERROR NO CONTROLADO:', err);
 
   const status = err.status || 500;
