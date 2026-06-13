@@ -1,6 +1,6 @@
 import { errorResponse } from '../helpers/response.helper.js';
 import { ERROR_CODES, AppError } from '../helpers/errors.helper.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 /**
  * Middleware para manejar rutas no encontradas (404)
@@ -68,7 +68,7 @@ export const globalErrorHandler = async (err, req, res, _next) => {
   if (err.name === 'MulterError') {
     let message = 'Error en la subida de archivos';
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-      message = `El campo '${err.field}' no es válido. Debe enviar el archivo en el campo 'foto'`;
+      message = `El campo '${err.field}' no es válido. Verifique el nombre del campo esperado para este archivo.`;
     } else if (err.code === 'LIMIT_FILE_SIZE') {
       return errorResponse({
         res,
