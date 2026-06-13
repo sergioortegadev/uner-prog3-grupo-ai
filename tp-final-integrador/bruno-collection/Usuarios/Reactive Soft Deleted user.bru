@@ -4,14 +4,14 @@ meta {
   seq: 1
 }
 
-post {
-  url: {{baseUrl}}/usuarios/:id_usuario
+patch {
+  url: {{baseUrl}}/usuarios/:idUsuario/reactivar
   body: none
   auth: inherit
 }
 
 params:path {
-  id_usuario: 11
+  idUsuario: 11
 }
 
 settings {

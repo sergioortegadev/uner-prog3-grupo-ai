@@ -1,23 +1,22 @@
 meta {
-  name: Create Patience user
+  name: Create Patient user
   type: http
   seq: 6
 }
 
 post {
-  url: {{baseUrl}}/usuarios/
-  body: json
+  url: {{baseUrl}}/usuarios/paciente
+  body: multipartForm
   auth: inherit
 }
 
-body:json {
-  {
-      "documento": 654123,
-      "apellido": "Mario",
-      "nombres": "Pedroni",
-      "email": "marped@correo.com",
-      "contrasenia": "marped"
-  }
+body:multipart-form {
+  documento: 654123
+  apellido: Mario
+  nombres: Pedroni
+  email: marped@correo.com
+  contrasenia: marped
+  foto:
 }
 
 settings {

@@ -5,19 +5,18 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/usuarios/
-  body: json
+  url: {{baseUrl}}/usuarios/admin
+  body: multipartForm
   auth: inherit
 }
 
-body:json {
-  {
-      "documento": 123456,
-      "apellido": "Grace",
-      "nombres": "Hoppers",
-      "email": "grahop@correo.com",
-      "contrasenia": "grahop"
-  }
+body:multipart-form {
+  documento: 123456
+  apellido: Grace
+  nombres: Hoppers
+  email: grahop@correo.com
+  contrasenia: grahop
+  foto:
 }
 
 settings {
