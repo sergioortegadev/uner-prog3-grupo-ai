@@ -1,5 +1,6 @@
 import { pool } from '../config/db.js';
 import { DB_STATUS } from '../constants/common.constants.js';
+import { ROLES } from '../constants/roles.constants.js';
 import * as usuariosMapper from './usuarios.mapper.js';
 
 /**
@@ -8,11 +9,10 @@ import * as usuariosMapper from './usuarios.mapper.js';
  */
 export const findAll = async () => {
   const [rows] = await pool.execute(
-    "SELECT id_usuario, rol, CONCAT(apellido, ' ,', nombres) AS nombre_completo, documento, email, foto_path, rol FROM usuarios WHERE activo = ?",
+    "SELECT id_usuario, rol, CONCAT(apellido, ', ', nombres) AS nombre_completo, documento, email, foto_path FROM usuarios WHERE activo = ?",
     [DB_STATUS.ACTIVE],
   );
 
-  if (rows.length === 0) return null;
   return usuariosMapper.toDTOFullList(rows);
 };
 /**
@@ -39,7 +39,7 @@ export const findByCredentials = async (email, password) => {
 export const findById = async (id) => {
   const [rows] = await pool.execute(
     'SELECT id_usuario, rol, documento, apellido, nombres, email, foto_path FROM usuarios WHERE id_usuario = ? AND activo = ?',
-    [id, 1],
+    [id, DB_STATUS.ACTIVE],
   );
 
   if (rows.length === 0) return null;
@@ -122,9 +122,18 @@ export const createAdminUser = async (newData) => {
 
   const query = `
     INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo)
-    VALUES (?, ?, ?, ?, SHA2(?, 256), ?, 3, 1)
+    VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)
   `;
-  const values = [documento, apellido, nombres, email, contrasenia, foto_path ?? ''];
+  const values = [
+    documento,
+    apellido,
+    nombres,
+    email,
+    contrasenia,
+    foto_path ?? '',
+    ROLES.ADMIN,
+    DB_STATUS.ACTIVE,
+  ];
 
   const [result] = await pool.execute(query, values);
 
@@ -138,7 +147,7 @@ export const createAdminUser = async (newData) => {
  * @param {object} newData
  * @returns {Promise<Object|null>}
  */
-export const createPatienceUser = async (newData) => {
+export const createPacienteUser = async (newData) => {
   const { documento, apellido, nombres, email, contrasenia, foto_path } = newData;
 
   const connection = await pool.getConnection();
@@ -146,7 +155,7 @@ export const createPatienceUser = async (newData) => {
   try {
     const query = `
     INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo)
-    VALUES (?, ?, ?, ?, SHA2(?, 256), ?, 2, ?)
+    VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)
   `;
     const values = [
       documento,
@@ -155,6 +164,7 @@ export const createPatienceUser = async (newData) => {
       email,
       contrasenia,
       foto_path ?? '',
+      ROLES.PACIENTE,
       DB_STATUS.ACTIVE,
     ];
 
@@ -214,7 +224,7 @@ export const createDoctorUser = async (newData) => {
 
     const createUserQuery = `
       INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo)
-      VALUES (?, ?, ?, ?, SHA2(?, 256), ?, 1, ?)
+      VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)
     `;
     const userValues = [
       documento,
@@ -223,6 +233,7 @@ export const createDoctorUser = async (newData) => {
       email,
       contrasenia,
       foto_path ?? '',
+      ROLES.MEDICO,
       DB_STATUS.ACTIVE,
     ];
 
@@ -263,7 +274,8 @@ export const createDoctorUser = async (newData) => {
  */
 export const deleteUser = async (id) => {
   const query = `UPDATE usuarios SET activo = ? WHERE id_usuario = ?`;
-  return await pool.execute(query, [0, id]);
+  const [result] = await pool.execute(query, [DB_STATUS.INACTIVE, id]);
+  return result.affectedRows > 0;
 };
 
 /**
@@ -273,7 +285,7 @@ export const deleteUser = async (id) => {
  */
 export const reactivateUser = async (id) => {
   const query = `UPDATE usuarios SET activo = ? WHERE id_usuario = ?`;
-  const confirm = await pool.execute(query, [1, id]);
-  if (confirm) return findById(id);
-  return confirm;
+  const [result] = await pool.execute(query, [DB_STATUS.ACTIVE, id]);
+  if (result.affectedRows > 0) return findById(id);
+  return null;
 };

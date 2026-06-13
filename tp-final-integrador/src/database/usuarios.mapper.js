@@ -57,7 +57,9 @@ export const toDTOFull = (row) => {
   if (row.apellido !== undefined) dto.apellido = row.apellido;
   if (row.nombres !== undefined) dto.nombres = row.nombres;
   if (row.email !== undefined) dto.email = row.email;
-  if (row.foto_path !== undefined) dto.fotoPath = row.foto_path;
+  if (row.foto_path !== undefined) {
+    dto.fotoPath = toPublicUrl(row.foto_path);
+  }
 
   return dto;
 };
