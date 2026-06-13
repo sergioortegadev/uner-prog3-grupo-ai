@@ -21,5 +21,12 @@ export const toPublicUrl = (filePath, publicDir = '/uploads/usuarios') => {
 
   const cleanPublicDir = publicDir.startsWith('/') ? publicDir : `/${publicDir}`;
 
-  return `${baseUrl}${cleanPublicDir}/${fileName}`;
+  try {
+    const url = new URL(baseUrl);
+    url.pathname = path.posix.join(url.pathname, cleanPublicDir, fileName);
+    return url.toString();
+  } catch {
+    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    return `${cleanBase}${cleanPublicDir}/${fileName}`;
+  }
 };
