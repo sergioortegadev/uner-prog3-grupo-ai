@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { AppError, ERROR_CODES } from '../helpers/errors.helper.js';
 
-const getUploadsDir = () =>
+export const getUploadsDir = () =>
   process.env.UPLOADS_DIR || path.join(process.cwd(), 'public', 'uploads', 'usuarios');
 
 const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];

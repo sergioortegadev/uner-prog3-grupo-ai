@@ -3,6 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { body } from 'express-validator';
 
 // Definir el directorio de prueba antes de importar los módulos que lo usan
 const TEST_UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads', 'test-usuarios');
@@ -10,6 +11,7 @@ process.env.UPLOADS_DIR = TEST_UPLOADS_DIR;
 
 import { globalErrorHandler } from '../../src/middlewares/error.middleware.js';
 import { uploadImage } from '../../src/middlewares/multer.middleware.js';
+import { validateRequest } from '../../src/middlewares/validate.middleware.js';
 
 describe('File Upload Cleanup Logic (Unit/Integration)', () => {
   const dummyFilePath = path.join(process.cwd(), 'tests', 'fixtures', 'test-image.png');
@@ -69,6 +71,17 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
       uploadImage.fields([{ name: 'avatar' }, { name: 'gallery' }]),
       (req, res, next) => {
         next(new Error('Forced Error'));
+      },
+    );
+
+    // Ruta que simula un fallo de validación de express-validator
+    testApp.post(
+      '/test-validation-error',
+      uploadImage.single('foto'),
+      body('nombre').notEmpty().withMessage('El nombre es requerido'),
+      validateRequest,
+      (req, res) => {
+        res.status(200).json({ filename: req.file.filename });
       },
     );
 
@@ -170,6 +183,21 @@ describe('File Upload Cleanup Logic (Unit/Integration)', () => {
         .attach('gallery', dummyFilePath);
 
       expect(response.status).toBe(500);
+
+      const afterFiles = fs.readdirSync(TEST_UPLOADS_DIR);
+      expect(afterFiles.length).toBe(beforeFiles.length);
+    });
+
+    it('should clean up req.file when express-validator validation fails', async () => {
+      const beforeFiles = fs.readdirSync(TEST_UPLOADS_DIR);
+
+      const response = await request(testApp)
+        .post('/test-validation-error')
+        .attach('foto', dummyFilePath)
+        .field('nombre', ''); // Esto disparará el error de validación
+
+      expect(response.status).toBe(422);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
 
       const afterFiles = fs.readdirSync(TEST_UPLOADS_DIR);
       expect(afterFiles.length).toBe(beforeFiles.length);

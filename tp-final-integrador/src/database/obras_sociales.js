@@ -96,6 +96,19 @@ export const findById = async (id, onlyActive = true) => {
 };
 
 /**
+ * Busca SOLO el ID de la obra social que representa "Particular" (es_particular = 1).
+ * @returns {Promise<number|null>} El ID o null
+ */
+export const findParticularId = async () => {
+  const query =
+    'SELECT id_obra_social FROM obras_sociales WHERE es_particular = 1 AND activo = ? LIMIT 1';
+  const [rows] = await pool.execute(query, [DB_STATUS.ACTIVE]);
+
+  if (rows.length === 0) return null;
+  return rows[0].id_obra_social;
+};
+
+/**
  * Busca múltiples obras sociales por sus IDs y verifica que estén activas.
  * @param {number[]} ids
  * @returns {Promise<Object[]>} Lista de obras sociales encontradas.

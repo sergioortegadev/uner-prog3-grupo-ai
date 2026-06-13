@@ -24,6 +24,7 @@ export const toDTO = (row) => {
   if (row.nombre_completo !== undefined) dto.nombreCompleto = row.nombre_completo;
 
   if (row.foto_path !== undefined) {
+    dto.fotoPath = row.foto_path;
     dto.fotoUrl = toPublicUrl(row.foto_path);
   }
 
@@ -57,7 +58,10 @@ export const toDTOFull = (row) => {
   if (row.apellido !== undefined) dto.apellido = row.apellido;
   if (row.nombres !== undefined) dto.nombres = row.nombres;
   if (row.email !== undefined) dto.email = row.email;
-  if (row.foto_path !== undefined) dto.fotoPath = row.foto_path;
+  if (row.foto_path !== undefined) {
+    dto.fotoPath = row.foto_path;
+    dto.fotoUrl = toPublicUrl(row.foto_path);
+  }
 
   return dto;
 };

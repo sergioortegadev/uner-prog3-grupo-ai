@@ -5,26 +5,23 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/usuarios/:id_usuario
-  body: json
+  url: {{baseUrl}}/usuarios/:idUsuario
+  body: multipartForm
   auth: inherit
 }
 
 params:path {
-  id_usuario: 
+  idUsuario:
 }
 
-body:json {
-  {
-      "documento": 28850033,
-      "apellido": "Ortega",
-      "nombres": "Sergio A.",
-      "email": "sergio@correo.com",
-      "contrasenia": "sergio",
-      "foto_path": "algo",
-      "rol": 3
-  }
-  
+body:multipart-form {
+  documento: 28850033
+  apellido: Ortega
+  nombres: Sergio A.
+  email: sergio@correo.com
+  contrasenia: sergio
+  rol: 3
+  foto:
 }
 
 settings {

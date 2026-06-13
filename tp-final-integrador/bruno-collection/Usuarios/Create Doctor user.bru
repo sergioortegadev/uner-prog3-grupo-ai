@@ -5,23 +5,22 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/usuarios/
-  body: json
+  url: {{baseUrl}}/usuarios/medico
+  body: multipartForm
   auth: inherit
 }
 
-body:json {
-  {
-      "documento": 789456,
-      "apellido": "Ana",
-      "nombres": "Lorenzati",
-      "email": "analor@correo.com",
-      "contrasenia": "analor",
-      "id_especialidad": 3,
-      "matricula": 45698,
-      "descripcion": "especialista",
-      "valor_consulta": 12500
-  }
+body:multipart-form {
+  documento: 789456
+  apellido: Ana
+  nombres: Lorenzati
+  email: analor@correo.com
+  contrasenia: analor
+  id_especialidad: 3
+  matricula: 45698
+  descripcion: especialista
+  valor_consulta: 12500
+  foto: 
 }
 
 settings {

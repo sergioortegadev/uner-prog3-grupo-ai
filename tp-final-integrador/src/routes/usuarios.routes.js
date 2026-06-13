@@ -5,32 +5,39 @@ import { methodNotAllowedHandler } from '../middlewares/method-not-allowed.middl
 import { authenticateJwt, requireRole } from '../middlewares/auth.middleware.js';
 import { ROLES } from '../constants/roles.constants.js';
 import { validateRequest } from '../middlewares/validate.middleware.js';
+import { uploadImage } from '../middlewares/multer.middleware.js';
 
 const usuariosRouter = Router();
 
 /**
- * Rutas para el módulo de Médicos.
+ * Rutas para el módulo de Usuarios.
  */
 usuariosRouter
   .route('/')
-  .get(authenticateJwt, requireRole([ROLES.ADMIN]), usuariosController.obtenerTodos)
+  .get(authenticateJwt, requireRole([ROLES.ADMIN]), usuariosController.findAll)
+  .all(methodNotAllowedHandler(['GET']));
+
+usuariosRouter
+  .route('/admin')
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
+    uploadImage.single('foto'),
     usuariosValidator.validateNewUser,
     validateRequest,
     usuariosController.createAdminUser,
   )
-  .all(methodNotAllowedHandler(['GET', 'POST']));
+  .all(methodNotAllowedHandler(['POST']));
 
 usuariosRouter
   .route('/paciente')
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
+    uploadImage.single('foto'),
     usuariosValidator.validateNewUser,
     validateRequest,
-    usuariosController.createPatienceUser,
+    usuariosController.createPacienteUser,
   )
   .all(methodNotAllowedHandler(['POST']));
 
@@ -39,6 +46,7 @@ usuariosRouter
   .post(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
+    uploadImage.single('foto'),
     usuariosValidator.validateNewDoctorUser,
     validateRequest,
     usuariosController.createDoctorUser,
@@ -46,7 +54,7 @@ usuariosRouter
   .all(methodNotAllowedHandler(['POST']));
 
 usuariosRouter
-  .route('/:id_usuario')
+  .route('/:idUsuario')
   .get(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
@@ -57,9 +65,9 @@ usuariosRouter
   .put(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
+    uploadImage.single('foto'),
     usuariosValidator.validateUpdateUser,
     validateRequest,
-    // Aca va el multer ->  upload.single('foto'), y actualiza el foto_path con el nombre y ubicacion del archivo.
     usuariosController.updateUser,
   )
   .delete(
@@ -69,13 +77,17 @@ usuariosRouter
     validateRequest,
     usuariosController.deleteUser,
   )
-  .post(
+  .all(methodNotAllowedHandler(['GET', 'PUT', 'DELETE']));
+
+usuariosRouter
+  .route('/:idUsuario/reactivar')
+  .patch(
     authenticateJwt,
     requireRole([ROLES.ADMIN]),
     usuariosValidator.validateGetById,
     validateRequest,
     usuariosController.reactivateUser,
   )
-  .all(methodNotAllowedHandler(['GET', 'PUT', 'DELETE', 'POST']));
+  .all(methodNotAllowedHandler(['PATCH']));
 
 export default usuariosRouter;
