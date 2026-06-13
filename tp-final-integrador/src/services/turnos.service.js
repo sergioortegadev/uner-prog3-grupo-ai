@@ -112,7 +112,7 @@ export const getStatisticsPDFMedicos = async () => {
     buffer: pdfBuffer,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename=reporte-medicos.pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-medico.pdf',
     },
   };
 };
@@ -125,27 +125,39 @@ export const getStatisticsPDFFecha = async () => {
     buffer: pdfBuffer,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename=reporte-medicos.pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-fecha.pdf',
     },
   };
 };
+
 export const getStatisticsPDFEspecialidad = async () => {
   const estadisticas = await turnosModel.getStatisticsEspecialidad();
-
   const pdfBuffer = await pdfGenerator(estadisticas.turnosPorEspecialidad, 'reporteEspecialidad');
 
   return {
     buffer: pdfBuffer,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename=reporte-medicos.pdf',
+      'Content-Disposition': 'inline; filename=reporte-turnos-por-especialidad.pdf',
     },
   };
 };
+
 export const getStatisticsPDFPaciente = async (idPaciente) => {
   const estadisticas = await turnosModel.getStatisticsPaciente(idPaciente);
 
-  const patienceSubtitle = `Del paciente: ${estadisticas.turnosPacienteUltimoAnio[0].paciente}. Con ID: ${estadisticas.turnosPacienteUltimoAnio[0].idPaciente}`;
+  if (
+    !estadisticas.turnosPacienteUltimoAnio ||
+    estadisticas.turnosPacienteUltimoAnio.length === 0
+  ) {
+    throw new AppError(
+      ERROR_CODES.NOT_FOUND,
+      'No se encontraron turnos para el paciente en el último año',
+    );
+  }
+
+  const patientData = estadisticas.turnosPacienteUltimoAnio[0];
+  const patienceSubtitle = `Del paciente: ${patientData.paciente}. Con ID: ${patientData.idPaciente}`;
 
   const pdfBuffer = await pdfGenerator(
     estadisticas.turnosPacienteUltimoAnio,
@@ -157,7 +169,7 @@ export const getStatisticsPDFPaciente = async (idPaciente) => {
     buffer: pdfBuffer,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename=reporte-medicos.pdf',
+      'Content-Disposition': `inline; filename=reporte-turnos-paciente-${idPaciente}.pdf`,
     },
   };
 };

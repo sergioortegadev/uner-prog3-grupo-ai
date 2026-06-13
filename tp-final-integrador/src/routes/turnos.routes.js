@@ -43,32 +43,17 @@ turnosRouter
 
 turnosRouter
   .route('/estadisticas/medicos')
-  .get(
-    requireRole([ROLES.ADMIN]),
-    turnosValidator.validateStatistics,
-    validateRequest,
-    turnosController.getStatisticsPDFMedicos,
-  )
+  .get(requireRole([ROLES.ADMIN]), turnosController.getStatisticsPDFMedicos)
   .all(methodNotAllowedHandler(['GET']));
 
 turnosRouter
   .route('/estadisticas/fecha')
-  .get(
-    requireRole([ROLES.ADMIN]),
-    turnosValidator.validateStatistics,
-    validateRequest,
-    turnosController.getStatisticsPDFFecha,
-  )
+  .get(requireRole([ROLES.ADMIN]), turnosController.getStatisticsPDFFecha)
   .all(methodNotAllowedHandler(['GET']));
 
 turnosRouter
   .route('/estadisticas/especialidad')
-  .get(
-    requireRole([ROLES.ADMIN]),
-    turnosValidator.validateStatistics,
-    validateRequest,
-    turnosController.getStatisticsPDFEspecialidad,
-  )
+  .get(requireRole([ROLES.ADMIN]), turnosController.getStatisticsPDFEspecialidad)
   .all(methodNotAllowedHandler(['GET']));
 
 turnosRouter

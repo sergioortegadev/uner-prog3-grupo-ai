@@ -1,0 +1,16 @@
+meta {
+  name: Reporte PDF Médicos
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/turnos/estadisticas/medicos
+  body: none
+  auth: inherit
+}
+
+docs {
+  Genera un reporte PDF con la cantidad de turnos por médico.
+  Acceso: Administrador.
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Reporte PDF Especialidad
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/turnos/estadisticas/especialidad
+  body: none
+  auth: inherit
+}
+
+docs {
+  Genera un reporte PDF con la cantidad de turnos por especialidad.
+  Acceso: Administrador.
+}
