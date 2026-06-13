@@ -29,7 +29,6 @@ export const validateUpdateUser = [
     .optional()
     .isLength({ min: 6 })
     .withMessage('La contraseña debe tener al menos 6 caracteres'),
-  body('foto_path').optional(),
   body('rol')
     .optional()
     .isInt()
