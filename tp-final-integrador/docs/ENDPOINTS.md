@@ -131,6 +131,31 @@ n| `GET` | `/api/v1/especialidades/:id/medicos` | Listar médicos por especialid
 
 ---
 
+## 👥 Pacientes (`/pacientes`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/pacientes` | Listar todos los pacientes | Admin |
+| `GET` | `/api/v1/pacientes/:id` | Obtener detalle de un paciente | Admin |
+| `PATCH` | `/api/v1/pacientes/:id_paciente/:id_obra_social` | Asociar obra social a un paciente | Admin |
+
+---
+
+## 👤 Usuarios (`/usuarios`)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/usuarios` | Listar todos los usuarios activos | Admin |
+| `GET` | `/api/v1/usuarios/:id` | Obtener detalle por ID | Admin |
+| `POST` | `/api/v1/usuarios/admin` | Crear nuevo usuario Administrador | Admin |
+| `POST` | `/api/v1/usuarios/paciente` | Crear nuevo usuario Paciente | Admin |
+| `POST` | `/api/v1/usuarios/medico` | Crear nuevo usuario Médico | Admin |
+| `PUT` | `/api/v1/usuarios/:id` | Actualizar datos de usuario (incluye foto) | Admin |
+| `DELETE` | `/api/v1/usuarios/:id` | Baja lógica (Soft Delete) | Admin |
+| `PATCH` | `/api/v1/usuarios/:id/reactivar` | Reactivar usuario eliminado | Admin |
+
+---
+
 ## 📊 Estadísticas (`/turnos/estadisticas`)
 
 | Método | Endpoint | Descripción | Acceso |

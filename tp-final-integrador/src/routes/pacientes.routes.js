@@ -49,6 +49,6 @@ pacientesRouter
     validateRequest,
     pacientesController.assignObraSocial,
   )
-  .all(methodNotAllowedHandler(['POST']));
+  .all(methodNotAllowedHandler(['PATCH']));
 
 export default pacientesRouter;
