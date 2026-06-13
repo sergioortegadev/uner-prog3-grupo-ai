@@ -2,6 +2,7 @@ import { pool } from '../config/db.js';
 import { DB_STATUS } from '../constants/common.constants.js';
 import { ROLES } from '../constants/roles.constants.js';
 import * as usuariosMapper from './usuarios.mapper.js';
+import * as obrasSocialesDB from './obras_sociales.js';
 
 /**
  * Busca solo los usuarios ACTIVOS.
@@ -149,15 +150,17 @@ export const createAdminUser = async (newData) => {
  */
 export const createPacienteUser = async (newData) => {
   const { documento, apellido, nombres, email, contrasenia, foto_path } = newData;
-
   const connection = await pool.getConnection();
 
   try {
+    await connection.beginTransaction();
+
+    // 1. Insertar usuario principal
     const query = `
-    INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo)
-    VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)
-  `;
-    const values = [
+      INSERT INTO usuarios (documento, apellido, nombres, email, contrasenia, foto_path, rol, activo)
+      VALUES (?, ?, ?, ?, SHA2(?, 256), ?, ?, ?)
+    `;
+    const userValues = [
       documento,
       apellido,
       nombres,
@@ -168,28 +171,24 @@ export const createPacienteUser = async (newData) => {
       DB_STATUS.ACTIVE,
     ];
 
-    await connection.beginTransaction();
-
-    const [result] = await connection.execute(query, values);
-    if (result.affectedRows === 0) {
-      await connection.rollback();
-      return null;
-    }
-
+    const [result] = await connection.execute(query, userValues);
     const userId = result.insertId;
 
-    const insertPacienteQuery = `INSERT INTO pacientes (id_usuario, id_obra_social) VALUES (?, ?)`;
-    const insertPacienteValues = [userId, 5];
-
-    const [pacienteResult] = await connection.execute(insertPacienteQuery, insertPacienteValues);
-    if (pacienteResult.affectedRows === 0) {
-      await connection.rollback();
-      return null;
+    // 2. Obtener Obra Social "Particular"
+    const particularId = await obrasSocialesDB.findParticularId();
+    if (!particularId) {
+      throw new Error(
+        'Estado inconsistente: No se encontró la obra social "Particular" en el sistema.',
+      );
     }
 
+    // 3. Insertar relación paciente
+    const insertPacienteQuery = `INSERT INTO pacientes (id_usuario, id_obra_social) VALUES (?, ?)`;
+    await connection.execute(insertPacienteQuery, [userId, particularId]);
+
+    // 4. Confirmar transacción
     await connection.commit();
 
-    // Retornar el usuario creado
     return await findById(userId);
   } catch (err) {
     await connection.rollback();
@@ -238,23 +237,15 @@ export const createDoctorUser = async (newData) => {
     ];
 
     const [result] = await connection.execute(createUserQuery, userValues);
-    if (result.affectedRows === 0) {
-      await connection.rollback();
-      return null;
-    }
-
     const userId = result.insertId;
+
     const createMedicoQuery = `
       INSERT INTO medicos (id_usuario, id_especialidad, matricula, descripcion, valor_consulta)
       VALUES (?, ?, ?, ?, ?)
     `;
     const medicoValues = [userId, id_especialidad, matricula, descripcion ?? null, valor_consulta];
 
-    const [medicoResult] = await connection.execute(createMedicoQuery, medicoValues);
-    if (medicoResult.affectedRows === 0) {
-      await connection.rollback();
-      return null;
-    }
+    await connection.execute(createMedicoQuery, medicoValues);
 
     await connection.commit();
 
