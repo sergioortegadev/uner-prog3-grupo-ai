@@ -84,27 +84,6 @@ n| `GET` | `/api/v1/especialidades/:id/medicos` | Listar médicos por especialid
 | `offset` | integer | `0` | Desplazamiento para paginación. |
 | `atendido` | integer | — | Filtrar por estado de atención (`0` o `1`). |
 
-### Respuestas
-
-#### GET /turnos
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "fechaHora": "2026-07-15 14:30:00",
-      "valorTotal": 4500,
-      "atendido": false,
-      "activo": 1,
-      "medico": { "id": 1, "apellido": "Medico", "nombres": "Doc", "especialidad": "PEDIATRÍA" },
-      "paciente": { "id": 1, "apellido": "Paciente", "nombres": "User" },
-      "obraSocial": { "id": 1, "nombre": "OSDE" }
-    }
-  ],
-  "meta": { "total": 1, "limit": 10, "offset": 0, "order": "fecha_hora", "asc": false }
-}
-```
 
 > **Nota:** La estructura del objeto turno varía según el rol:
 > - **Médico**: incluye `paciente` (con email) y `obraSocial`, omite `medico`.
@@ -165,35 +144,16 @@ n| `GET` | `/api/v1/especialidades/:id/medicos` | Listar médicos por especialid
 ### Parámetros de consulta
 - `idPaciente` (opcional): ID de un paciente para filtrar su historial en el último año. Si no se provee, devuelve el historial de **todos** los pacientes.
 
-### Respuesta (GET /estadisticas)
-```json
-{
-  "success": true,
-  "data": {
-    "turnosPorMedico": [
-      { "idMedico": 1, "medico": "Perez, Juan", "cantidadTurnos": 15 }
-    ],
-    "turnosPorFecha": [
-      { "fecha": "2026-06-08", "cantidadTurnos": 8 }
-    ],
-    "turnosPorEspecialidad": [
-      { "idEspecialidad": 2, "especialidad": "Clínica", "cantidadTurnos": 12 }
-    ],
-    "turnosPacienteUltimoAnio": [
-      {
-        "idTurno": 5,
-        "idPaciente": 4,
-        "paciente": "Gomez, Luis",
-        "fechaHora": "08/06/2026 10:00",
-        "idMedico": 1,
-        "medico": "Perez, Juan",
-        "especialidad": "Clínica",
-        "atendido": true
-      }
-    ]
-  }
-}
-```
+### Reportes en PDF (Exportación)
+
+Todos estos endpoints generan y devuelven un archivo `.pdf` con la información de las estadísticas correspondientes.
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/turnos/estadisticas/medicos` | Exportar a PDF la estadística de turnos por médico | Admin |
+| `GET` | `/api/v1/turnos/estadisticas/fecha` | Exportar a PDF la estadística de turnos por fecha | Admin |
+| `GET` | `/api/v1/turnos/estadisticas/especialidad` | Exportar a PDF la estadística de turnos por especialidad | Admin |
+| `GET` | `/api/v1/turnos/estadisticas/paciente/:id_paciente`| Exportar a PDF el historial de turnos de un paciente en el último año | Admin |
 
 ---
 
