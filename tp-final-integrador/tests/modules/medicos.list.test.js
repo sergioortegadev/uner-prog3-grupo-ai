@@ -78,9 +78,9 @@ describe('Médicos Listado - Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.medicos).toHaveLength(1);
-      expect(res.body.data.medicos[0].apellido).toBe('Active');
-      expect(res.body.data.medicos[0].activo).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].apellido).toBe('Active');
+      expect(res.body.data[0].activo).toBe(true);
     });
 
     it('should return 200 and empty list if no active doctors exist', async () => {
@@ -89,7 +89,7 @@ describe('Médicos Listado - Integration Tests', () => {
         .set('Authorization', `Bearer ${patientToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.data.medicos).toHaveLength(0);
+      expect(res.body.data).toHaveLength(0);
     });
 
     it('should return 401 if no token provided', async () => {

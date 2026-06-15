@@ -53,12 +53,7 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
  * @returns {Promise<Object>}
  */
 export const obtenerTodos = async () => {
-  const medicos = await medicosModel.findAll();
-
-  return {
-    message: 'Listado de médicos obtenido correctamente',
-    medicos,
-  };
+  return await medicosModel.findAll();
 };
 
 export const obtenerPorEspecialidad = async (idEspecialidad) => {

@@ -35,8 +35,7 @@ describe('Médicos - Unit Tests (Service)', () => {
 
       const result = await medicosService.obtenerTodos();
 
-      expect(result.message).toBe('Listado de médicos obtenido correctamente');
-      expect(result.medicos).toEqual(mockList);
+      expect(result).toEqual(mockList);
       expect(medicosModel.findAll).toHaveBeenCalled();
     });
   });

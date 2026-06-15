@@ -67,7 +67,7 @@ describe('Médicos Routes - Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.medicos).toBeDefined();
+      expect(Array.isArray(res.body.data)).toBe(true);
     });
 
     it('should return 403 for admin', async () => {
