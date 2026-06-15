@@ -32,16 +32,22 @@ export const getMyAppointments = async (usuario, queryParams = {}) => {
  * Registra un nuevo turno con cálculo de valor_total.
  */
 export const createAppointment = async (data, { id, role }) => {
+  let paciente;
+
   if (role === ROLES.PACIENTE) {
-    const pacientePerfil = await ensurePatientExistsAndIsActive(id, true);
-    data.idPaciente = pacientePerfil.idPaciente;
-    data.idObraSocial = pacientePerfil.idObraSocial ?? pacientePerfil.obraSocial?.id;
+    paciente = await ensurePatientExistsAndIsActive(id, true);
+    data.idPaciente = paciente.idPaciente;
+    data.idObraSocial = paciente.obraSocial?.id;
   }
 
   const { idMedico, idPaciente, idObraSocial, fecha, hora } = data;
 
   const medico = await ensureDoctorExistsAndIsActive(idMedico);
-  const paciente = await ensurePatientExistsAndIsActive(idPaciente);
+
+  if (!paciente) {
+    paciente = await ensurePatientExistsAndIsActive(idPaciente);
+  }
+
   const obraSocial = await ensureObraSocialExistsAndIsActive(idObraSocial);
 
   ensurePatientMatchesObraSocial(paciente, obraSocial);

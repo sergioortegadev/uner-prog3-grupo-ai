@@ -59,15 +59,24 @@ export const findById = async (id) => {
  */
 export const findByUserId = async (idUsuario) => {
   const query = `
-    SELECT p.id_paciente, p.id_usuario, p.id_obra_social, u.activo
+    SELECT
+    p.id_paciente,
+    p.id_usuario,
+    p.id_obra_social,
+    os.nombre AS nombre_obra_social,
+    u.apellido,
+    u.nombres,
+    u.documento,
+    u.activo
     FROM pacientes p
     JOIN usuarios u ON p.id_usuario = u.id_usuario
+    LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
     WHERE p.id_usuario = ?
   `;
   const [rows] = await pool.execute(query, [idUsuario]);
 
   if (rows.length === 0) return null;
-  return pacientesMapper.toDTO(rows[0]);
+  return pacientesMapper.toDTOFull(rows[0]);
 };
 
 /**
