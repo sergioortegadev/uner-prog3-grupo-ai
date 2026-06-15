@@ -1,3 +1,5 @@
+import { API_PREFIX, V1_PREFIX } from '../constants/routes.constants.js';
+
 /**
  * Configuración de Swagger (OpenAPI 3.0.0) para la API de Clínica Médica.
  */
@@ -11,7 +13,7 @@ export const swaggerSpec = {
   },
   servers: [
     {
-      url: '/api/v1',
+      url: `${API_PREFIX}${V1_PREFIX}`,
       description: 'Entorno de Desarrollo API v1',
     },
   ],
@@ -121,50 +123,30 @@ export const swaggerSpec = {
       Medico: {
         type: 'object',
         properties: {
-          id: { type: 'integer', example: 1 },
-          documento: { type: 'string', example: '31000111' },
-          apellido: { type: 'string', example: 'Lopez' },
+          idMedico: { type: 'integer', example: 1 },
           nombres: { type: 'string', example: 'Marcelo' },
-          email: { type: 'string', example: 'lopmar@correo.com' },
+          apellido: { type: 'string', example: 'Lopez' },
+          idEspecialidad: { type: 'integer', example: 1 },
           matricula: { type: 'integer', example: 1000 },
-          descripcion: { type: 'string', example: 'Pediatra de cabecera' },
           valorConsulta: { type: 'number', format: 'float', example: 5000.0 },
           activo: { type: 'boolean', example: true },
-          especialidad: {
-            type: 'object',
-            properties: {
-              id: { type: 'integer', example: 1 },
-              nombre: { type: 'string', example: 'PEDIATRÍA' },
-            },
-          },
-          obrasSociales: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer', example: 1 },
-                nombre: { type: 'string', example: 'OSDE' },
-              },
-            },
-          },
         },
       },
       Paciente: {
         type: 'object',
         properties: {
-          id: { type: 'integer', example: 1 },
+          idPaciente: { type: 'integer', example: 1 },
+          idUsuario: { type: 'integer', example: 1 },
           documento: { type: 'string', example: '41000111' },
           apellido: { type: 'string', example: 'Lopez' },
-          nombres: { type: 'string', example: 'Jacinto' },
-          email: { type: 'string', example: 'lopjac@correo.com' },
+          nombre: { type: 'string', example: 'Jacinto' },
           activo: { type: 'boolean', example: true },
           obraSocial: {
             type: 'object',
+            nullable: true,
             properties: {
               id: { type: 'integer', example: 1 },
               nombre: { type: 'string', example: 'Jerárquicos' },
-              descripcion: { type: 'string', example: 'jer' },
-              porcentajeDescuento: { type: 'number', example: 0.1 },
             },
           },
         },
@@ -403,6 +385,14 @@ export const swaggerSpec = {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: {
+                  success: false,
+                  error: {
+                    code: 'UNAUTHORIZED',
+                    message: 'Credenciales inválidas',
+                    details: [],
+                  },
+                },
               },
             },
           },
@@ -644,6 +634,14 @@ export const swaggerSpec = {
             },
           },
           404: { description: 'Obra social no encontrada.' },
+          422: {
+            description: 'Error de validación.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
         },
       },
       delete: {
@@ -833,6 +831,22 @@ export const swaggerSpec = {
               },
             },
           },
+          404: {
+            description: 'Especialidad no encontrada.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          422: {
+            description: 'Error de validación.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
         },
       },
       delete: {
@@ -917,23 +931,9 @@ export const swaggerSpec = {
       get: {
         summary: 'Listar todos los médicos',
         description:
-          'Obtiene el listado de médicos con su información de usuario, especialidad y obras sociales. Disponible para Pacientes. Soporta filtros opcionales de consulta por especialidad.',
+          'Obtiene el listado de médicos con su información de usuario, especialidad y obras sociales. Disponible para Pacientes.',
         tags: ['Médicos'],
         security: [{ bearerAuth: [] }],
-        parameters: [
-          {
-            name: 'idEspecialidad',
-            in: 'query',
-            schema: { type: 'integer' },
-            description: 'ID de especialidad por el cual filtrar los médicos.',
-          },
-          {
-            name: 'especialidad',
-            in: 'query',
-            schema: { type: 'string' },
-            description: 'Nombre de la especialidad por el cual filtrar (búsqueda parcial).',
-          },
-        ],
         responses: {
           200: {
             description: 'Listado completo de médicos.',
@@ -1003,6 +1003,23 @@ export const swaggerSpec = {
               },
             },
           },
+          404: {
+            description: 'Médico no encontrado.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          422: {
+            description:
+              'Error de validación (por ejemplo, Obras Sociales inexistentes/inactivas).',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
         },
       },
     },
@@ -1054,6 +1071,22 @@ export const swaggerSpec = {
                     },
                   },
                 },
+              },
+            },
+          },
+          404: {
+            description: 'Médico o Especialidad no encontrados.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+          422: {
+            description: 'Error de validación (por ejemplo, Médico o Especialidad inactivos).',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
               },
             },
           },
