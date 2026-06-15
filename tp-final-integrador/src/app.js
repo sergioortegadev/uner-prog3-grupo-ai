@@ -8,10 +8,25 @@ import { notFoundHandler, globalErrorHandler } from './middlewares/error.middlew
 import validateContentType from './middlewares/content.middleware.js';
 import fs from 'node:fs';
 import path from 'node:path';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+
 const app = express();
 
 // Middlewares base
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'validator.swagger.io'],
+      },
+    },
+  }),
+);
 app.use(
   cors({
     origin: process.env.ALLOWED_ORIGINS || 'http://localhost:5173',
@@ -32,6 +47,9 @@ app.use(validateContentType);
 app.use(express.json());
 app.use(express.static('public'));
 app.use(passport.initialize());
+
+// Documentación de la API (Swagger)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Enrutamiento  (API)
 app.use(apiRouter);

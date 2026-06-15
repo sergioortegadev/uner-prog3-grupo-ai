@@ -38,7 +38,8 @@
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
     "passport-local": "1.0.0",
-    "puppeteer": "25.1.0"
+    "puppeteer": "25.1.0",
+    "swagger-ui-express": "5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
