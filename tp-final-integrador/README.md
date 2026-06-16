@@ -51,6 +51,9 @@ cp .env.example .env
 
 El proyecto está preparado para funcionar de dos maneras. **Docker es opcional** .
 
+> **Nota para la Cátedra (Migración de Base de Datos):**
+> El archivo `init/schema.sql` contiene la versión final y optimizada de la base. Si se desea partir desde el modelo de datos original provisto en clases , hemos adjuntado el script **`docs/migracion.sql`**. Este archivo contiene todos los comandos (`ALTER`, `UPDATE`, `CREATE VIEW` y `CREATE PROCEDURE`) para migrar la base original y dejarla idéntica a nuestro `schema.sql`.
+
 - **Opción A (XAMPP / Manual)**:
   1. Iniciá el módulo MySQL en el Panel de Control de XAMPP.
   2. Creá una base de datos llamada `prog3_turnos` (o el nombre que prefieras).
