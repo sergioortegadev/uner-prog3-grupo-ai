@@ -9,10 +9,7 @@ import { DB_STATUS } from '../constants/common.constants.js';
  */
 export const findById = async (id) => {
   const query = `
-    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo, u.apellido, u.nombres
-    FROM medicos m
-    JOIN usuarios u ON m.id_usuario = u.id_usuario
-    WHERE m.id_medico = ?
+    SELECT * FROM v_medicos WHERE id_medico = ?
   `;
   const [rows] = await pool.execute(query, [id]);
 
@@ -27,10 +24,7 @@ export const findById = async (id) => {
  */
 export const findByUserId = async (idUsuario) => {
   const query = `
-    SELECT m.id_medico, m.id_usuario, m.id_especialidad, m.matricula, m.valor_consulta, u.activo
-    FROM medicos m
-    JOIN usuarios u ON m.id_usuario = u.id_usuario
-    WHERE m.id_usuario = ?
+    SELECT * FROM v_medicos WHERE id_usuario = ?
   `;
   const [rows] = await pool.execute(query, [idUsuario]);
 
@@ -119,18 +113,7 @@ export const assignObrasSociales = async (idMedico, idsObrasSociales) => {
  */
 export const findAll = async () => {
   const query = `
-    SELECT
-      m.id_medico,
-      m.id_usuario,
-      m.id_especialidad,
-      m.matricula,
-      m.valor_consulta,
-      u.nombres,
-      u.apellido,
-      u.activo
-    FROM medicos m
-    JOIN usuarios u ON m.id_usuario = u.id_usuario
-    WHERE u.activo = ?
+    SELECT * FROM v_medicos WHERE activo = ?
   `;
 
   const [rows] = await pool.execute(query, [DB_STATUS.ACTIVE]);
@@ -140,17 +123,7 @@ export const findAll = async () => {
 
 export const findByEspecialidad = async (idEspecialidad) => {
   const query = `
-    SELECT
-      m.id_medico,
-      m.id_especialidad,
-      m.matricula,
-      m.valor_consulta,
-      u.nombres,
-      u.apellido,
-      u.activo
-    FROM medicos m
-    JOIN usuarios u ON m.id_usuario = u.id_usuario
-    WHERE m.id_especialidad = ? AND u.activo = ?
+    SELECT * FROM v_medicos WHERE id_especialidad = ? AND activo = ?
   `;
 
   const [rows] = await pool.execute(query, [idEspecialidad, DB_STATUS.ACTIVE]);

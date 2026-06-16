@@ -6,19 +6,7 @@ import * as pacientesMapper from './pacientes.mapper.js';
  * @returns {Promise<Object|null>}
  */
 export const findAll = async () => {
-  const query = `
-  SELECT
-  p.id_paciente,
-  p.id_usuario,
-  p.id_obra_social,
-  os.nombre AS nombre_obra_social,
-  u.apellido,
-  u.nombres,
-  u.documento,
-  u.activo
-  FROM pacientes p
-  JOIN usuarios u ON p.id_usuario = u.id_usuario
-  LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social`;
+  const query = `SELECT * FROM v_pacientes`;
   const [rows] = await pool.execute(query);
 
   if (rows.length === 0) return null;
@@ -32,20 +20,7 @@ export const findAll = async () => {
  * @returns {Promise<Object|null>}
  */
 export const findById = async (id) => {
-  const query = `
-    SELECT
-    p.id_paciente,
-    p.id_usuario,
-    p.id_obra_social,
-    os.nombre AS nombre_obra_social,
-    u.apellido,
-    u.nombres,
-    u.documento,
-    u.activo
-    FROM pacientes p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-    LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
-    WHERE p.id_paciente = ?`;
+  const query = `SELECT * FROM v_pacientes WHERE id_paciente = ?`;
   const [rows] = await pool.execute(query, [id]);
 
   if (rows.length === 0) return null;
@@ -58,21 +33,7 @@ export const findById = async (id) => {
  * @returns {Promise<Object|null>}
  */
 export const findByUserId = async (idUsuario) => {
-  const query = `
-    SELECT
-    p.id_paciente,
-    p.id_usuario,
-    p.id_obra_social,
-    os.nombre AS nombre_obra_social,
-    u.apellido,
-    u.nombres,
-    u.documento,
-    u.activo
-    FROM pacientes p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-    LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
-    WHERE p.id_usuario = ?
-  `;
+  const query = `SELECT * FROM v_pacientes WHERE id_usuario = ?`;
   const [rows] = await pool.execute(query, [idUsuario]);
 
   if (rows.length === 0) return null;

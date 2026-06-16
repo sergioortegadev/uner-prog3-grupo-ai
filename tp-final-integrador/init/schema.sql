@@ -272,12 +272,17 @@ INSERT INTO `usuarios` (`id_usuario`, `documento`, `apellido`, `nombres`, `email
 --
 CREATE TABLE `v_medicos` (
 `id_medico` int(10) unsigned
+,`id_usuario` int(10) unsigned
+,`id_especialidad` int(10) unsigned
 ,`apellido` varchar(100)
 ,`nombres` varchar(100)
+,`documento` varchar(20)
+,`email` varchar(255)
 ,`especialidad` varchar(120)
 ,`matricula` int(10) unsigned
 ,`valor_consulta` decimal(10,2)
 ,`foto_path` varchar(255)
+,`activo` tinyint(3) unsigned
 );
 
 -- --------------------------------------------------------
@@ -288,12 +293,14 @@ CREATE TABLE `v_medicos` (
 CREATE TABLE `v_pacientes` (
 `id_paciente` int(10) unsigned
 ,`id_usuario` int(10) unsigned
-,`apellido` varchar(100)
-,`nombres` varchar(100)
-,`email` varchar(255)
 ,`id_obra_social` int(10) unsigned
 ,`nombre_obra_social` varchar(255)
+,`apellido` varchar(100)
+,`nombres` varchar(100)
+,`documento` varchar(20)
+,`email` varchar(255)
 ,`foto_path` varchar(255)
+,`activo` tinyint(3) unsigned
 );
 
 -- --------------------------------------------------------
@@ -306,16 +313,20 @@ DROP TABLE IF EXISTS `v_medicos`;
 CREATE VIEW `v_medicos` AS
 SELECT
     m.id_medico,
+    m.id_usuario,
+    m.id_especialidad,
     u.apellido,
     u.nombres,
+    u.documento,
+    u.email,
     e.nombre AS especialidad,
     m.matricula,
     m.valor_consulta,
-    u.foto_path
+    u.foto_path,
+    u.activo
 FROM medicos m
 JOIN usuarios u ON m.id_usuario = u.id_usuario
-JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-WHERE u.activo = 1 AND e.activo = 1;
+JOIN especialidades e ON m.id_especialidad = e.id_especialidad;
 
 -- --------------------------------------------------------
 
@@ -328,16 +339,17 @@ CREATE VIEW `v_pacientes` AS
 SELECT
     p.id_paciente,
     p.id_usuario,
+    p.id_obra_social,
+    os.nombre AS nombre_obra_social,
     u.apellido,
     u.nombres,
+    u.documento,
     u.email,
-    os.id_obra_social,
-    os.nombre AS nombre_obra_social,
-    u.foto_path
+    u.foto_path,
+    u.activo
 FROM pacientes p
 JOIN usuarios u ON p.id_usuario = u.id_usuario
-JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
-WHERE u.activo = 1 AND os.activo = 1;
+LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social;
 
 --
 -- Índices para tablas volcadas
