@@ -33,32 +33,37 @@ DROP VIEW IF EXISTS `v_medicos`;
 CREATE VIEW `v_medicos` AS
 SELECT
     m.id_medico,
+    m.id_usuario,
+    m.id_especialidad,
     u.apellido,
     u.nombres,
+    u.documento,
+    u.email,
     e.nombre AS especialidad,
     m.matricula,
     m.valor_consulta,
-    u.foto_path
+    u.foto_path,
+    u.activo
 FROM medicos m
 JOIN usuarios u ON m.id_usuario = u.id_usuario
-JOIN especialidades e ON m.id_especialidad = e.id_especialidad
-WHERE u.activo = 1 AND e.activo = 1;
+JOIN especialidades e ON m.id_especialidad = e.id_especialidad;
 
 DROP VIEW IF EXISTS `v_pacientes`;
 CREATE VIEW `v_pacientes` AS
 SELECT
     p.id_paciente,
     p.id_usuario,
+    p.id_obra_social,
+    os.nombre AS nombre_obra_social,
     u.apellido,
     u.nombres,
+    u.documento,
     u.email,
-    os.id_obra_social,
-    os.nombre AS nombre_obra_social,
-    u.foto_path
+    u.foto_path,
+    u.activo
 FROM pacientes p
 JOIN usuarios u ON p.id_usuario = u.id_usuario
-JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social
-WHERE u.activo = 1 AND os.activo = 1;
+LEFT JOIN obras_sociales os ON p.id_obra_social = os.id_obra_social;
 
 -- 5. Crear Procedimientos Almacenados
 DELIMITER $$
