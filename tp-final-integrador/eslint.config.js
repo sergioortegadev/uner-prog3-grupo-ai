@@ -7,7 +7,7 @@ import vitest from '@vitest/eslint-plugin';
 
 export default defineConfig([
   {
-    files: ['**/*.{js,mjs,cjs}'],
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     plugins: { js },
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node },
@@ -23,7 +23,7 @@ export default defineConfig([
     ignores: ['package-lock.json', '.vscode/*'],
   },
   {
-    files: ['tests/**/*.test.js'], // or any other pattern
+    files: ['tests/**/*.test.{js,ts}'],
     plugins: {
       vitest,
     },
