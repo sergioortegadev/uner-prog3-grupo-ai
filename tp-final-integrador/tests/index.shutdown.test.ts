@@ -1,32 +1,27 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
 
-describe('Graceful Shutdown - src/index.js', () => {
+describe('Graceful Shutdown - src/index.ts', () => {
   it('should export startServer function', async () => {
     const index = await import('../src/index.ts');
 
     expect(typeof index.startServer).toBe('function');
   });
 
-  it('should import closePool from db.js', async () => {
-    // Check that db.js exports closePool
+  it('should import closePool from db.ts', async () => {
     const db = await import('../src/config/db.ts');
 
     expect(typeof db.closePool).toBe('function');
   });
 
   it('should have signal handlers registered via process.on', () => {
-    // Read the file content and check for process.on calls
-    const fs = require('fs');
-    const path = require('path');
-    const indexContent = fs.readFileSync(path.join(__dirname, '../src/index.js'), 'utf-8');
+    const indexPath = path.join(__dirname, '../src/index.ts');
+    const indexContent = fs.readFileSync(indexPath, 'utf-8');
 
-    // Check for SIGTERM handler
     expect(indexContent).toContain("process.on('SIGTERM'");
-    // Check for SIGINT handler
     expect(indexContent).toContain("process.on('SIGINT'");
-    // Check for shutdown function
     expect(indexContent).toContain('const shutdown');
-    // Check for 30s timeout logic
     expect(indexContent).toContain('30000');
   });
 });

@@ -5,6 +5,10 @@
     "source.fixAll.eslint": "explicit"
   },
   "chat.tools.terminal.autoApprove": {
-    "npm install": true
+    "npm install": true,
+    "/^node --input-type=module -e \"import mysql from 'mysql2/promise'; const pool=await mysql\\.createConnection\\(\\{host:'localhost',port:3306,user:'clinica_user',password:'clinica1234',database:'prog3_turnos_test'\\}\\); const \\[rows\\]=await pool\\.query\\('SHOW TABLES LIKE \\\\\"v_medicos\\\\\"'\\); console\\.log\\(JSON\\.stringify\\(rows,null,2\\)\\); const \\[cols\\]=await pool\\.query\\('SHOW COLUMNS FROM v_medicos'\\); console\\.log\\(JSON\\.stringify\\(cols,null,2\\)\\); await pool\\.end\\(\\);\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   }
 }

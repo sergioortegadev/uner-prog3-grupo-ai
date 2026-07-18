@@ -35,10 +35,19 @@ export const validateCreateAppointment = [
     .isDate()
     .withMessage('La fecha debe tener un formato válido (YYYY-MM-DD)')
     .custom((value) => {
+      const [year, month, day] = value.split('-').map(Number);
+      if ([year, month, day].some((part) => Number.isNaN(part))) {
+        throw new Error('La fecha debe tener un formato válido (YYYY-MM-DD)');
+      }
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const inputDate = new Date(value);
-      if (inputDate < today) {
+      const inputDate = new Date(Date.UTC(year, month - 1, day));
+      const todayUtc = new Date(
+        Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+      );
+
+      if (inputDate.getUTCFullYear() < todayUtc.getUTCFullYear()) {
         throw new Error('La fecha no puede ser en el pasado');
       }
       return true;
